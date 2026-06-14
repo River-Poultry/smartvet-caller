@@ -39,7 +39,7 @@ export default function Paravets() {
         <h1 className="text-2xl font-semibold text-gray-800">Paravets</h1>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800"
+          className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark"
         >
           {showForm ? 'Cancel' : 'Add Paravet'}
         </button>
@@ -52,7 +52,7 @@ export default function Paravets() {
           <Input label="Specialization" value={form.specialization} onChange={(v) => setForm({ ...form, specialization: v })} />
           <Input label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
           <div className="col-span-2">
-            <button className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800">Save</button>
+            <button className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark">Save</button>
           </div>
         </form>
       )}

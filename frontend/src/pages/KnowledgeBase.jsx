@@ -49,11 +49,11 @@ export default function KnowledgeBase() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button className="bg-emerald-700 text-white px-3 py-2 rounded-md text-sm font-medium">Search</button>
+          <button className="bg-brand-red text-white px-3 py-2 rounded-md text-sm font-medium">Search</button>
         </form>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="w-full mb-3 border border-emerald-700 text-emerald-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-emerald-50"
+          className="w-full mb-3 border border-brand-red text-brand-red px-3 py-2 rounded-md text-sm font-medium hover:bg-amber-50"
         >
           {showForm ? 'Cancel' : '+ New Article'}
         </button>
@@ -87,7 +87,7 @@ export default function KnowledgeBase() {
               value={form.tags}
               onChange={(e) => setForm({ ...form, tags: e.target.value })}
             />
-            <button className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium w-full">Save Article</button>
+            <button className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium w-full">Save Article</button>
           </form>
         )}
 
@@ -96,7 +96,7 @@ export default function KnowledgeBase() {
             <li
               key={a.id}
               onClick={() => setSelected(a)}
-              className={`px-3 py-2.5 cursor-pointer hover:bg-gray-50 text-sm ${selected?.id === a.id ? 'bg-emerald-50' : ''}`}
+              className={`px-3 py-2.5 cursor-pointer hover:bg-gray-50 text-sm ${selected?.id === a.id ? 'bg-amber-50' : ''}`}
             >
               <p className="font-medium text-gray-800">{a.title}</p>
               <p className="text-gray-500 text-xs">{a.category || 'Uncategorized'}</p>

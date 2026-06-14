@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => res.json({ name: 'SmartVet Call Center API', status: 'ok', docs: '/api/health' }));
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/tickets', ticketsRouter);

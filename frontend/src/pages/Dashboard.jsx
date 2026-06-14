@@ -30,19 +30,19 @@ export default function Dashboard() {
         <StatCard label="Open Cases" value={open} color="bg-amber-100 text-amber-800" />
         <StatCard label="Assigned" value={assigned} color="bg-blue-100 text-blue-800" />
         <StatCard label="Resolved" value={resolved} color="bg-green-100 text-green-800" />
-        <StatCard label="Available Paravets" value={available} color="bg-emerald-100 text-emerald-800" />
+        <StatCard label="Available Paravets" value={available} color="bg-amber-100 text-brand-red-dark" />
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
           <h2 className="font-semibold text-gray-700">Recent Cases</h2>
-          <Link to="/tickets" className="text-sm text-emerald-700 hover:underline">View all</Link>
+          <Link to="/tickets" className="text-sm text-brand-red hover:underline">View all</Link>
         </div>
         <ul className="divide-y divide-gray-100">
           {tickets.slice(0, 5).map((t) => (
             <li key={t.id} className="px-4 py-3 flex items-center justify-between text-sm">
               <div>
-                <Link to={`/tickets/${t.id}`} className="font-medium text-gray-800 hover:text-emerald-700">
+                <Link to={`/tickets/${t.id}`} className="font-medium text-gray-800 hover:text-brand-red">
                   {t.farmer_name}
                 </Link>
                 <p className="text-gray-500">{t.animal_type || '—'} · {t.issue_description?.slice(0, 60) || 'No description'}</p>

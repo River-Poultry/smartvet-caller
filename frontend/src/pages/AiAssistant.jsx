@@ -61,7 +61,7 @@ export default function AiAssistant() {
             <div
               className={`max-w-[80%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap ${
                 m.role === 'user'
-                  ? 'bg-emerald-700 text-white'
+                  ? 'bg-brand-red text-white'
                   : m.error
                   ? 'bg-amber-50 text-amber-800 border border-amber-200'
                   : 'bg-gray-100 text-gray-800'
@@ -85,7 +85,7 @@ export default function AiAssistant() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800 disabled:opacity-50"
+          className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark disabled:opacity-50"
         >
           Send
         </button>

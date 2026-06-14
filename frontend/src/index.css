@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-cream: #fbf3c7;
+  --color-brand-red: #c0392b;
+  --color-brand-red-dark: #a52f21;
+  --color-brand-green: #3b7a3e;
+  --color-brand-navy: #1b2438;
+}
+
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
 }

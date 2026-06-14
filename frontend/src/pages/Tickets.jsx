@@ -33,7 +33,7 @@ export default function Tickets() {
         <h1 className="text-2xl font-semibold text-gray-800">Cases</h1>
         <button
           onClick={() => setShowForm((s) => !s)}
-          className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800"
+          className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark"
         >
           {showForm ? 'Cancel' : 'New Case'}
         </button>
@@ -68,7 +68,7 @@ export default function Tickets() {
             </select>
           </div>
           <div className="col-span-2">
-            <button type="submit" className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800">
+            <button type="submit" className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark">
               Create Case
             </button>
           </div>
@@ -81,7 +81,7 @@ export default function Tickets() {
             key={s}
             onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-md text-sm font-medium ${
-              statusFilter === s ? 'bg-emerald-700 text-white' : 'bg-white border border-gray-200 text-gray-600'
+              statusFilter === s ? 'bg-brand-red text-white' : 'bg-white border border-gray-200 text-gray-600'
             }`}
           >
             {s === '' ? 'All' : s}
@@ -107,7 +107,7 @@ export default function Tickets() {
               {tickets.map((t) => (
                 <tr key={t.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2.5">
-                    <Link to={`/tickets/${t.id}`} className="font-medium text-gray-800 hover:text-emerald-700">
+                    <Link to={`/tickets/${t.id}`} className="font-medium text-gray-800 hover:text-brand-red">
                       {t.farmer_name}
                     </Link>
                   </td>

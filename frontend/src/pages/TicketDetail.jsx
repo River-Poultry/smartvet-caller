@@ -73,7 +73,7 @@ export default function TicketDetail() {
             key={s}
             onClick={() => updateStatus(s)}
             className={`px-3 py-1.5 rounded-md text-sm font-medium border ${
-              ticket.status === s ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-white border-gray-200 text-gray-600'
+              ticket.status === s ? 'bg-brand-red text-white border-brand-red' : 'bg-white border-gray-200 text-gray-600'
             }`}
           >
             {s.replace('_', ' ')}
@@ -96,14 +96,14 @@ export default function TicketDetail() {
         <button
           onClick={handleSummarize}
           disabled={summarizing || !transcript.trim()}
-          className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800 disabled:opacity-50"
+          className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark disabled:opacity-50"
         >
           {summarizing ? 'Summarizing...' : 'Summarize with AI'}
         </button>
         {error && <p className="text-amber-700 text-sm mt-2 bg-amber-50 border border-amber-200 rounded-md p-2">{error}</p>}
         {ticket.ai_summary && (
-          <div className="mt-3 bg-emerald-50 border border-emerald-200 rounded-md p-3 text-sm whitespace-pre-wrap">
-            <p className="font-medium text-emerald-800 mb-1">AI Summary</p>
+          <div className="mt-3 bg-amber-50 border border-amber-200 rounded-md p-3 text-sm whitespace-pre-wrap">
+            <p className="font-medium text-brand-red-dark mb-1">AI Summary</p>
             {ticket.ai_summary}
           </div>
         )}

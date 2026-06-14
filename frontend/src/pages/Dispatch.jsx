@@ -91,7 +91,7 @@ export default function Dispatch() {
         </div>
         {error && <p className="col-span-2 text-red-600 text-sm">{error}</p>}
         <div className="col-span-2">
-          <button className="bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800">
+          <button className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark">
             Assign Paravet
           </button>
         </div>
@@ -120,7 +120,7 @@ export default function Dispatch() {
                 <td className="px-4 py-2.5 capitalize text-gray-600">{d.status}</td>
                 <td className="px-4 py-2.5">
                   {d.status !== 'completed' && (
-                    <button onClick={() => handleComplete(d.id)} className="text-emerald-700 text-sm hover:underline">
+                    <button onClick={() => handleComplete(d.id)} className="text-brand-red text-sm hover:underline">
                       Mark Completed
                     </button>
                   )}

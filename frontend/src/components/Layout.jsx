@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import Logo from './Logo';
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
@@ -12,19 +13,21 @@ const navItems = [
 export default function Layout() {
   return (
     <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-60 bg-emerald-800 text-white flex flex-col shrink-0">
-        <div className="px-4 py-5 border-b border-emerald-700">
-          <h1 className="text-lg font-semibold">SmartVet</h1>
-          <p className="text-xs text-emerald-200">Call Center Support</p>
+      <aside className="w-60 bg-brand-cream flex flex-col shrink-0 border-r border-amber-200">
+        <div className="px-4 py-5 border-b border-amber-200">
+          <Logo />
         </div>
         <nav className="flex-1 py-4">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.to === '/'}
               className={({ isActive }) =>
-                `block px-4 py-2.5 text-sm font-medium ${
-                  isActive ? 'bg-emerald-900 text-white' : 'text-emerald-100 hover:bg-emerald-700'
+                `block px-4 py-2.5 text-sm font-medium border-l-4 ${
+                  isActive
+                    ? 'bg-white border-brand-red text-brand-navy'
+                    : 'border-transparent text-brand-navy/70 hover:bg-white/60'
                 }`
               }
             >
