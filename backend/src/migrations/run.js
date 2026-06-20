@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { MIGRATION_FILES } from '../config/migrations.js';
 
 dotenv.config();
 
@@ -10,7 +11,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const { Pool } = pg;
 
 async function runMigrations() {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  if (!process.env.DATABASE_URL) {
+    console.error('[migrate] DATABASE_URL is not set');
+    process.exit(1);
+  }
+
+  const isProduction = process.env.NODE_ENV === 'production';
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: isProduction ? { rejectUnauthorized: false } : false,
+  });
   const client = await pool.connect();
 
   try {
@@ -22,9 +32,7 @@ async function runMigrations() {
       )
     `);
 
-    const migrations = ['001_initial_schema.sql', '002_farmers_vets.sql', '003_batches_tasks.sql', '004_enrich_schema.sql', '005_escalation_inventory.sql', '006_warehouse_inventory.sql', '007_auth_security.sql'];
-
-    for (const file of migrations) {
+    for (const file of MIGRATION_FILES) {
       const { rows } = await client.query(
         'SELECT id FROM migrations WHERE filename = $1',
         [file]
