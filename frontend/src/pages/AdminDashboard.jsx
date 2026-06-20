@@ -11,6 +11,7 @@ import { useAuthStore } from '../store/authStore.js';
 import { useWebSocket } from '../hooks/useWebSocket.js';
 import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
 import { Badge } from '../components/shared/Badge.jsx';
+import UsersPanel from '../components/admin/UsersPanel.jsx';
 
 const LEVELS = {
   1: { label: 'L1 · Agent',     color: 'text-gray-400',  bg: 'bg-gray-800',   border: 'border-gray-600' },
@@ -211,6 +212,7 @@ export default function AdminDashboard() {
   const [urgencyFilter, setUrgencyFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(null);
+  const [usersOpen, setUsersOpen] = useState(false);
 
   useWebSocket();
 
@@ -320,6 +322,11 @@ export default function AdminDashboard() {
           <button onClick={load}
             className={`p-1.5 rounded border border-sv-border text-gray-400 hover:text-white transition-colors ${loading ? 'animate-spin' : ''}`}>
             <RefreshCw size={13}/>
+          </button>
+
+          <button onClick={() => setUsersOpen(true)}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-sv-teal transition-colors border border-sv-border px-2.5 py-1.5 rounded">
+            <Users size={12}/> Users
           </button>
 
           <Link to="/agent" className="text-xs text-gray-500 hover:text-sv-teal transition-colors border border-sv-border px-2.5 py-1.5 rounded">
@@ -466,6 +473,8 @@ export default function AdminDashboard() {
         </div>
 
       </div>
+
+      {usersOpen && <UsersPanel onClose={() => setUsersOpen(false)} />}
     </div>
   );
 }

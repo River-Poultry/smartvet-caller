@@ -63,7 +63,7 @@ export default function Login() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-extrabold text-white mb-1 tracking-tight">Agent Sign In</h2>
+          <h2 className="text-2xl font-extrabold text-white mb-1 tracking-tight">Sign In</h2>
           <p className="text-sv-text-muted text-sm mb-8">Log in to access the dispatch portal</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
