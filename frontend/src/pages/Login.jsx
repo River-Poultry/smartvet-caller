@@ -6,12 +6,12 @@ import { Loader2 } from 'lucide-react';
 export default function Login() {
   const { login, loading, error } = useAuthStore();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await login(email, password);
+    try { await login(identifier, password); } catch { return; }
     const agent = JSON.parse(localStorage.getItem('sv_agent') || 'null');
     if (agent) navigate(agent.isAdmin ? '/admin' : '/agent');
   }
@@ -75,12 +75,12 @@ export default function Login() {
 
             <div>
               <label className="block text-xs font-semibold text-sv-text-muted uppercase tracking-wider mb-2">
-                Email
+                Email or Phone
               </label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
+              <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)} required
                 autoFocus
                 className="w-full bg-sv-bg-input border border-sv-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-sv-green focus:ring-1 focus:ring-sv-green/20 transition-colors placeholder-sv-text-muted"
-                placeholder="agent@smartvet.africa" />
+                placeholder="agent@smartvet.africa or +256…" />
             </div>
 
             <div>

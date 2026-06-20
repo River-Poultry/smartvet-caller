@@ -22,7 +22,7 @@ async function runMigrations() {
       )
     `);
 
-    const migrations = ['001_initial_schema.sql', '002_farmers_vets.sql', '003_batches_tasks.sql', '004_enrich_schema.sql', '005_escalation_inventory.sql', '006_warehouse_inventory.sql'];
+    const migrations = ['001_initial_schema.sql', '002_farmers_vets.sql', '003_batches_tasks.sql', '004_enrich_schema.sql', '005_escalation_inventory.sql', '006_warehouse_inventory.sql', '007_auth_security.sql'];
 
     for (const file of migrations) {
       const { rows } = await client.query(

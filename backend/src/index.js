@@ -16,8 +16,13 @@ initWebSocket(server);
 
 // Security
 app.use(helmet());
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5174')
+  .split(',').map(s => s.trim());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5174',
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
 }));
 
@@ -26,8 +31,7 @@ app.use('/api/twilio', express.urlencoded({ extended: false }));
 
 app.use(express.json({ limit: '2mb' }));
 
-// Rate limiting
-app.use('/api/auth/login', rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }));
+// General API rate limit (per-route login limiter is in rateLimiter.js)
 app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 300 }));
 
 // Routes
