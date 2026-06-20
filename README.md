@@ -1,6 +1,6 @@
 # SmartVet AI Call Centre
 
-AI-assisted veterinary dispatch call centre for River Poultry / SmartVet Africa. Agents handle inbound farmer calls, track symptoms in real time, get instant AI disease diagnosis, and dispatch field vets — with a full escalation chain (L1 Agent → L2 Paravet → L3 Vet → L4 Emergency).
+AI-assisted veterinary dispatch call centre for SmartVet Africa. Agents handle inbound farmer calls, track symptoms in real time, get instant AI disease diagnosis, and dispatch field vets — with a full escalation chain (L1 Agent → L2 Paravet → L3 Vet → L4 Emergency).
 
 ---
 
