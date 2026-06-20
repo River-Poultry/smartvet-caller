@@ -19,19 +19,19 @@
     --border:     #364826;
     --border-l:   #445e30;
     --text:       #f2f5ec;
-    --text-muted: #7a9460;
+    --text-muted: #a8bf88;
   }
 
-  /* Light mode — warm parchment / field notebook feel */
+  /* Light mode — clean, high-contrast, WCAG AA accessible */
   html.light {
     color-scheme: light;
-    --page-bg:    #f4f6ee;
+    --page-bg:    #f5f7f5;
     --card-bg:    #ffffff;
-    --input-bg:   #eef2e6;
-    --border:     #c8d8a8;
-    --border-l:   #b0c890;
-    --text:       #1a2410;
-    --text-muted: #5a7040;
+    --input-bg:   #edf0ed;
+    --border:     #c8d0c8;
+    --border-l:   #a0b0a0;
+    --text:       #111811;
+    --text-muted: #3d4f3d;
   }
 
   body {
@@ -54,29 +54,38 @@
   .border-sv-border-l { border-color: var(--border-l) !important; }
   .text-sv-text-muted { color: var(--text-muted) !important; }
 
-  /* Light mode text overrides */
-  html.light .text-white        { color: #1a2410 !important; }
-  html.light .text-gray-300     { color: #3a5020 !important; }
-  html.light .text-gray-400     { color: #4a6430 !important; }
-  html.light .text-gray-500     { color: #5a7040 !important; }
-  html.light .text-gray-600     { color: #6a8050 !important; }
-  html.light .text-gray-700     { color: #7a9060 !important; }
-  html.light .bg-gray-800       { background-color: #e8f0d8 !important; }
-  html.light .bg-gray-900       { background-color: #f0f4e4 !important; }
-  html.light .border-gray-700   { border-color: #c8d8a8 !important; }
-  html.light .border-gray-800   { border-color: #d4e0b8 !important; }
+  /* Light mode text overrides — WCAG AA contrast on white/light-grey */
+  html.light .text-white        { color: #111811 !important; }
+  html.light .text-gray-300     { color: #2d3d2d !important; }
+  html.light .text-gray-400     { color: #374937 !important; }
+  html.light .text-gray-500     { color: #3d4f3d !important; }
+  html.light .text-gray-600     { color: #4a5e4a !important; }
+  html.light .text-gray-700     { color: #566656 !important; }
+  html.light .bg-gray-800       { background-color: #e4e8e4 !important; }
+  html.light .bg-gray-900       { background-color: #eff1ef !important; }
+  html.light .bg-gray-950       { background-color: #f5f7f5 !important; }
+  html.light .border-gray-700   { border-color: #b8c4b8 !important; }
+  html.light .border-gray-800   { border-color: #c4d0c4 !important; }
   html.light .divide-sv-border > * + * { border-color: var(--border) !important; }
 
   html.light input,
   html.light select,
   html.light textarea {
-    color: #1a2410;
+    color: #111811;
     background-color: var(--input-bg);
+    border-color: var(--border);
   }
   html.light input::placeholder,
   html.light textarea::placeholder {
-    color: #8aaa60;
+    color: #6a806a;
   }
+
+  /* Ensure dark overlays don't bleed through in light mode */
+  html.light .bg-black\/60 { background-color: rgba(0,0,0,0.45) !important; }
+  html.light .bg-sv-red\/10  { background-color: rgba(232,67,26,0.08) !important; }
+  html.light .bg-sv-green\/10 { background-color: rgba(92,184,48,0.10) !important; }
+  html.light .bg-sv-teal\/10  { background-color: rgba(61,191,184,0.10) !important; }
+  html.light .bg-sv-amber\/10 { background-color: rgba(240,180,41,0.10) !important; }
 
   /* River Poultry pill button style */
   .btn-rp {

@@ -180,7 +180,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
       {/* Batches */}
       {!detail && (
-        <div className="text-gray-600 text-sm text-center py-8">Loading batch data…</div>
+        <div className="text-sv-text-muted text-sm text-center py-8">Loading…</div>
       )}
       {detail && activeBatches.length === 0 && (
         <div className="bg-sv-bg-card border border-sv-border rounded-xl p-5 text-center text-gray-500 text-sm">
@@ -199,28 +199,146 @@ function FarmerDetail({ farmer, onDispatch }) {
       )}
 
       {/* Call history */}
-      {callHistory.length > 0 && (
-        <div className="bg-sv-bg-card border border-sv-border rounded-xl">
-          <div className="px-4 py-3 border-b border-sv-border">
-            <h3 className="text-sm font-semibold text-white">Call History</h3>
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+            Call History
+          </h3>
+          <span className="text-xs text-sv-text-muted">{callHistory.length} call{callHistory.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {!detail && (
+          <div className="text-sv-text-muted text-sm text-center py-6">Loading…</div>
+        )}
+
+        {detail && callHistory.length === 0 && (
+          <div className="bg-sv-bg-card border border-sv-border rounded-xl p-6 text-center">
+            <Phone size={28} className="mx-auto mb-2 text-sv-text-muted opacity-30" />
+            <p className="text-sm text-sv-text-muted">No calls recorded yet</p>
           </div>
-          {callHistory.map(call => (
-            <div key={call.id} className="px-4 py-3 border-b border-sv-border/50 last:border-0">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400">
-                  {call.started_at ? new Date(call.started_at).toLocaleString('en-UG') : '—'}
-                  {call.duration_seconds && <span className="ml-2 text-gray-600">· {Math.round(call.duration_seconds / 60)}m</span>}
-                </span>
-                <div className="flex gap-1.5">
-                  {call.is_emergency && <Badge variant="red" className="text-xs">Emergency</Badge>}
-                  {call.outcome && <Badge variant="blue" className="text-xs capitalize">{call.outcome.replace('_', ' ')}</Badge>}
+        )}
+
+        <div className="space-y-3">
+          {callHistory.map((call, idx) => {
+            const date = call.started_at ? new Date(call.started_at) : null;
+            const dur  = call.duration_seconds ? `${Math.round(call.duration_seconds / 60)}m` : null;
+            const symptoms = Array.isArray(call.symptoms) ? call.symptoms : [];
+            const nextSteps = (call.next_steps || '')
+              .split('\n')
+              .map(l => l.trim())
+              .filter(Boolean);
+            const outcomeColor = {
+              resolved:     'text-sv-green border-sv-green/40 bg-sv-green/10',
+              vet_requested:'text-sv-amber border-sv-amber/40 bg-sv-amber/10',
+              follow_up:    'text-sv-teal  border-sv-teal/40  bg-sv-teal/10',
+              no_action:    'text-gray-400 border-gray-600    bg-gray-800/40',
+              transferred:  'text-blue-400 border-blue-600    bg-blue-950/30',
+            }[call.outcome] || 'text-sv-text-muted border-sv-border bg-sv-bg-input';
+
+            return (
+              <div key={call.id} className={`rounded-xl border bg-sv-bg-card overflow-hidden ${
+                call.is_emergency ? 'border-sv-red/50' : 'border-sv-border'
+              }`}>
+                {call.is_emergency && <div className="h-0.5 bg-sv-red w-full" />}
+
+                {/* Call header */}
+                <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-sv-border/60">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[10px] font-bold text-sv-text-muted w-5 flex-shrink-0">#{callHistory.length - idx}</span>
+                    <div>
+                      <p className="text-xs font-semibold text-white">
+                        {date ? date.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        {dur && <span className="ml-2 text-sv-text-muted font-normal">· {dur}</span>}
+                      </p>
+                      {call.agent_name && (
+                        <p className="text-[11px] text-sv-text-muted mt-0.5">Agent: {call.agent_name}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    {call.is_emergency && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sv-red/50 bg-sv-red/10 text-sv-red animate-pulse">
+                        EMERGENCY
+                      </span>
+                    )}
+                    {call.outcome && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize ${outcomeColor}`}>
+                        {call.outcome.replace(/_/g, ' ')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="px-4 py-3 space-y-3">
+                  {/* Symptoms */}
+                  {symptoms.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1.5">Symptoms Reported</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {symptoms.map((s, i) => {
+                          const chip =
+                            s.severity === 'severe'   ? 'border-sv-red/40   bg-sv-red/10   text-sv-red' :
+                            s.severity === 'mild'     ? 'border-sv-green/40 bg-sv-green/10 text-sv-green' :
+                                                        'border-sv-amber/40 bg-sv-amber/10 text-sv-amber';
+                          return (
+                            <span key={i} className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium ${chip}`}>
+                              {s.symptom}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Agent notes */}
+                  {call.agent_notes && (
+                    <div>
+                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1">Agent Notes</p>
+                      <p className="text-xs text-white/80 leading-relaxed bg-sv-bg-input rounded-lg px-3 py-2">
+                        {call.agent_notes}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Next steps / action points */}
+                  {nextSteps.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1.5">Action Points</p>
+                      <div className="space-y-1">
+                        {nextSteps.map((step, i) => {
+                          const done = step.startsWith('[x]');
+                          const text = step.replace(/^\[[ x]\]\s*/, '');
+                          return (
+                            <div key={i} className={`flex items-start gap-2 text-xs rounded-lg px-3 py-2 border ${
+                              done
+                                ? 'border-sv-green/25 bg-sv-green/5 text-sv-text-muted'
+                                : 'border-sv-border bg-sv-bg-input text-white/80'
+                            }`}>
+                              <span className={`flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center ${
+                                done ? 'bg-sv-green border-sv-green' : 'border-sv-text-muted/40'
+                              }`}>
+                                {done && <span className="text-white text-[9px] font-black">✓</span>}
+                              </span>
+                              <span className={done ? 'line-through' : ''}>{text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Intent tag */}
+                  {call.call_intent && call.call_intent !== 'other' && (
+                    <p className="text-[11px] text-sv-text-muted capitalize">
+                      Intent: <span className="text-white/70">{call.call_intent.replace(/_/g, ' ')}</span>
+                    </p>
+                  )}
                 </div>
               </div>
-              {call.agent_notes && <p className="text-xs text-gray-400">{call.agent_notes}</p>}
-            </div>
-          ))}
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }

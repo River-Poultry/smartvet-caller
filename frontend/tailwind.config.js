@@ -35,7 +35,7 @@ export default {
           'border-l':   '#445e30',
 
           // Text
-          'text-muted': '#7a9460',
+          'text-muted': '#a8bf88',
 
           // Semantic aliases used across components
           'page':       '#141c0a',

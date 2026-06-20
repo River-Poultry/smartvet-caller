@@ -39,8 +39,23 @@ export async function getFarmer(req, res) {
 
     const batches = await getFarmerBatches(djangoId);
     const callsRes = await query(
-      `SELECT id, started_at, duration_seconds, call_intent, is_emergency, outcome, agent_notes
-       FROM calls WHERE phone_number = $1 ORDER BY started_at DESC LIMIT 10`,
+      `SELECT
+         c.id, c.started_at, c.ended_at, c.duration_seconds,
+         c.call_intent, c.is_emergency, c.outcome, c.agent_notes, c.next_steps,
+         a.name  AS agent_name,
+         COALESCE(
+           json_agg(
+             json_build_object('symptom', cs.symptom, 'severity', cs.severity)
+           ) FILTER (WHERE cs.id IS NOT NULL),
+           '[]'
+         ) AS symptoms
+       FROM calls c
+       LEFT JOIN agents a ON a.id = c.agent_id
+       LEFT JOIN call_symptoms cs ON cs.call_id = c.id
+       WHERE c.phone_number = $1
+       GROUP BY c.id, a.name
+       ORDER BY c.started_at DESC
+       LIMIT 20`,
       [farmer.phone]
     );
 
