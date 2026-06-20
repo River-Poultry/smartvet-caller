@@ -7,6 +7,9 @@ import rateLimit from 'express-rate-limit';
 import { initWebSocket } from './services/websocket.js';
 import routes from './routes/index.js';
 import { logger } from './config/logger.js';
+import { validateEnv } from './config/env.js';
+
+validateEnv();
 
 const app = express();
 const server = http.createServer(app);

@@ -32,7 +32,7 @@ export async function createAgent(req, res) {
     return res.status(400).json({ error: 'name, email, and password are required' });
   }
 
-  const hash = await bcrypt.hash(password, 10);
+  const hash = await bcrypt.hash(password, 12);
   const { rows } = await query(
     `INSERT INTO agents (name, email, password_hash, phone_number, is_admin)
      VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, status, is_admin`,
