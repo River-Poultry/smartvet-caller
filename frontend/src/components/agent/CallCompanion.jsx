@@ -1,101 +1,148 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  X, Plus, Activity, Stethoscope, Zap, FileText, ExternalLink,
-  ChevronDown, ChevronUp, AlertTriangle, Truck, Clipboard, Package,
+  X, Plus, Activity, Stethoscope, Zap, FileText,
+  ChevronDown, ChevronUp, AlertTriangle, Truck, Clipboard,
+  Package, ExternalLink, Check,
 } from 'lucide-react';
 import { useCallStore } from '../../store/callStore.js';
 import api from '../../services/api.js';
 
 const SYMPTOM_GROUPS = [
-  { label: 'Feeding & Digestion', symptoms: ['Not eating', 'Diarrhea', 'Bloody droppings', 'Watery droppings', 'Green droppings'] },
-  { label: 'Respiratory',         symptoms: ['Coughing', 'Sneezing', 'Gasping', 'Nasal discharge', 'Rattling / wheezing'] },
-  { label: 'Behaviour',           symptoms: ['Lethargy', 'Drooping wings', 'Paralysis', 'Twisted neck', 'Limping'] },
-  { label: 'Appearance',          symptoms: ['Ruffled feathers', 'Swollen head', 'Swollen face', 'Watery eyes', 'Scabs / lesions'] },
-  { label: 'Mortality',           symptoms: ['High mortality', 'Sudden death', 'Many dead'] },
-  { label: 'Production',          symptoms: ['Reduced egg production', 'Soft shell eggs', 'No shell eggs'] },
+  { label: 'Feeding & Digestion', color: 'sv-green',  symptoms: ['Not eating', 'Diarrhea', 'Bloody droppings', 'Watery droppings', 'Green droppings'] },
+  { label: 'Respiratory',         color: 'sv-teal',   symptoms: ['Coughing', 'Sneezing', 'Gasping', 'Nasal discharge', 'Rattling / wheezing'] },
+  { label: 'Behaviour',           color: 'sv-amber',  symptoms: ['Lethargy', 'Drooping wings', 'Paralysis', 'Twisted neck', 'Limping'] },
+  { label: 'Appearance',          color: 'sv-amber',  symptoms: ['Ruffled feathers', 'Swollen head', 'Swollen face', 'Watery eyes', 'Scabs / lesions'] },
+  { label: 'Mortality',           color: 'sv-red',    symptoms: ['High mortality', 'Sudden death', 'Many dead'] },
+  { label: 'Production',          color: 'sv-teal',   symptoms: ['Reduced egg production', 'Soft shell eggs', 'No shell eggs'] },
 ];
+
+const SEVERITY_CONFIG = [
+  { v: 'mild',     label: 'Mild',     ring: 'ring-sv-green',  chip: 'border-sv-green/50 bg-sv-green/10 text-sv-green' },
+  { v: 'moderate', label: 'Moderate', ring: 'ring-sv-amber',  chip: 'border-sv-amber/50 bg-sv-amber/10 text-sv-amber' },
+  { v: 'severe',   label: 'Severe',   ring: 'ring-sv-red',    chip: 'border-sv-red/50 bg-sv-red/10 text-sv-red' },
+];
+
+function ConfidenceBar({ pct, isEmergency }) {
+  return (
+    <div className="flex items-center gap-2 mt-1.5">
+      <div className="flex-1 h-1.5 bg-sv-bg rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ${
+            isEmergency ? 'bg-sv-red' : pct >= 70 ? 'bg-sv-amber' : 'bg-sv-teal'
+          }`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-[11px] text-sv-text-muted font-mono w-8 text-right">{pct}%</span>
+    </div>
+  );
+}
 
 function DiseaseCard({ d, rank }) {
   const [open, setOpen] = useState(rank === 0);
   const pct = Math.round((d.confidence || 0) * 100);
-  const isTop = rank === 0;
 
   return (
     <div className={`rounded-xl overflow-hidden border ${
-      d.is_emergency ? 'border-sv-red/60' : 'border-sv-border'
+      d.is_emergency ? 'border-sv-red/50 shadow-[0_0_12px_rgba(224,32,32,0.15)]' : 'border-sv-border'
     } bg-sv-bg-card`}>
-      {/* Emergency strip */}
-      {d.is_emergency && (
-        <div className="h-0.5 bg-sv-red w-full" />
-      )}
+      {d.is_emergency && <div className="h-0.5 bg-sv-red w-full" />}
 
-      <div className="p-3">
-        {/* Header row */}
-        <div className="flex items-start gap-2 mb-2">
-          <span className={`text-xs font-bold w-5 flex-shrink-0 mt-0.5 ${
-            isTop ? 'text-sv-amber' : 'text-sv-text-muted'
-          }`}>{rank + 1}</span>
+      <div className="p-3.5">
+        <div className="flex items-start gap-3">
+          <span className={`text-sm font-black w-5 flex-shrink-0 mt-0.5 ${rank === 0 ? 'text-sv-amber' : 'text-sv-text-muted/50'}`}>
+            {rank + 1}
+          </span>
           <div className="flex-1 min-w-0">
-            <p className={`font-semibold leading-snug ${
-              d.is_emergency ? 'text-sv-red' : 'text-white'
-            }`}>{d.name}</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className={`font-bold text-sm leading-snug ${d.is_emergency ? 'text-sv-red' : 'text-white'}`}>
+                {d.name}
+              </p>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {d.is_zoonotic  && <span className="text-[10px] font-bold text-sv-amber px-1.5 py-0.5 bg-sv-amber/10 border border-sv-amber/30 rounded">ZOONOTIC</span>}
+                {d.is_notifiable && <span className="text-[10px] font-bold text-sv-red px-1.5 py-0.5 bg-sv-red/10 border border-sv-red/30 rounded animate-pulse">NOTIFY</span>}
+                <a href={`https://smartvet.africa/?q=${encodeURIComponent(d.name)}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-sv-text-muted hover:text-sv-teal transition-colors">
+                  <ExternalLink size={11} />
+                </a>
+              </div>
+            </div>
+            <ConfidenceBar pct={pct} isEmergency={d.is_emergency} />
             {d.matched_symptoms?.length > 0 && (
-              <p className="text-xs text-sv-text-muted mt-0.5">
+              <p className="text-[11px] text-sv-text-muted mt-1.5 leading-relaxed">
                 Matched: {d.matched_symptoms.join(' · ')}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {d.is_zoonotic && (
-              <span className="text-xs font-semibold text-sv-amber">ZOONOTIC</span>
-            )}
-            {d.is_notifiable && (
-              <span className="text-xs font-bold text-sv-red animate-pulse">NOTIFY</span>
-            )}
-            <a href={`https://smartvet.africa/?q=${encodeURIComponent(d.name)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="text-sv-teal hover:text-white transition-colors">
-              <ExternalLink size={12} />
-            </a>
-          </div>
-        </div>
-
-        {/* Confidence bar */}
-        <div className="flex items-center gap-2 mb-0.5">
-          <div className="flex-1 h-1 bg-sv-bg rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-500 ${
-              pct >= 70 ? 'bg-sv-red' : pct >= 45 ? 'bg-sv-amber' : 'bg-sv-teal'
-            }`} style={{ width: `${pct}%` }} />
-          </div>
-          <span className="text-xs text-sv-text-muted w-8 text-right font-mono">{pct}%</span>
         </div>
       </div>
 
-      {/* Treatment / Prevention accordion */}
       {(d.treatment || d.prevention) && (
         <>
           <button onClick={() => setOpen(o => !o)}
-            className="w-full flex items-center justify-between px-3 py-2 border-t border-sv-border text-xs text-sv-text-muted hover:text-white transition-colors bg-sv-bg/40">
-            <span className="font-medium">Treatment & Prevention</span>
-            {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            className="w-full flex items-center justify-between px-3.5 py-2 border-t border-sv-border text-xs text-sv-text-muted hover:text-white transition-colors bg-sv-bg/30">
+            <span className="font-semibold">Treatment &amp; Prevention</span>
+            {open ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
           </button>
           {open && (
-            <div className="px-3 py-3 border-t border-sv-border space-y-3 bg-sv-bg/60">
+            <div className="px-3.5 py-3 border-t border-sv-border space-y-3 bg-sv-bg/40">
               {d.treatment && (
                 <div>
-                  <p className="text-xs font-semibold text-sv-green uppercase tracking-wider mb-1">Treatment</p>
+                  <p className="text-[10px] font-bold text-sv-green uppercase tracking-widest mb-1">Treatment</p>
                   <p className="text-xs text-white/80 leading-relaxed">{d.treatment}</p>
                 </div>
               )}
               {d.prevention && (
                 <div>
-                  <p className="text-xs font-semibold text-sv-teal uppercase tracking-wider mb-1">Prevention</p>
+                  <p className="text-[10px] font-bold text-sv-teal uppercase tracking-widest mb-1">Prevention</p>
                   <p className="text-xs text-white/80 leading-relaxed">{d.prevention}</p>
                 </div>
               )}
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+function DrugCard({ drug }) {
+  const catLabel = { vaccine: 'Vaccine', antibiotic: 'Antibiotic', antiparasitic: 'Antiparasitic', vitamin: 'Vitamin' }[drug.category] || 'Other';
+  const catColor = { vaccine: 'text-sv-teal', antibiotic: 'text-sv-amber', antiparasitic: 'text-purple-400', vitamin: 'text-sv-green' }[drug.category] || 'text-sv-text-muted';
+  const vetStock = parseFloat(drug.total_vet_stock || drug.total_stock || 0);
+  const warehouseStock = parseFloat(drug.warehouse_stock || 0);
+  const inStock = vetStock > 0 || warehouseStock > 0;
+
+  return (
+    <div className="rounded-xl border border-sv-border bg-sv-bg-card overflow-hidden">
+      <div className="p-3.5">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div>
+            <p className="font-semibold text-white text-sm">{drug.product_name}</p>
+            <p className={`text-xs font-medium mt-0.5 ${catColor}`}>{catLabel}</p>
+          </div>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+            inStock ? 'text-sv-green border-sv-green/40 bg-sv-green/10' : 'text-sv-text-muted border-sv-border bg-sv-bg'
+          }`}>
+            {inStock ? 'IN STOCK' : 'LOW'}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-sv-bg rounded-lg px-3 py-2">
+            <p className="text-[10px] text-sv-text-muted mb-0.5 uppercase tracking-wide">Field stock</p>
+            <p className="text-sm font-bold text-white">{vetStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
+          </div>
+          <div className="bg-sv-bg rounded-lg px-3 py-2">
+            <p className="text-[10px] text-sv-text-muted mb-0.5 uppercase tracking-wide">Warehouse</p>
+            <p className="text-sm font-bold text-white">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
+          </div>
+        </div>
+      </div>
+      {drug.available_from_vets?.length > 0 && (
+        <div className="px-3.5 py-2 border-t border-sv-border bg-sv-bg/30">
+          <p className="text-[11px] text-sv-text-muted">Via: <span className="text-white">{drug.available_from_vets.join(', ')}</span></p>
+        </div>
       )}
     </div>
   );
@@ -108,19 +155,19 @@ export function CallCompanion() {
     transcriptSegments, openDispatchModal,
   } = useCallStore();
 
-  const [custom, setCustom]           = useState('');
-  const [severity, setSeverity]       = useState('moderate');
-  const [diagnoses, setDiagnoses]     = useState([]);
-  const [diagLoading, setDiagLoading] = useState(false);
-  const [isEmergency, setIsEmergency] = useState(false);
+  const [custom, setCustom]             = useState('');
+  const [severity, setSeverity]         = useState('moderate');
+  const [diagnoses, setDiagnoses]       = useState([]);
+  const [diagLoading, setDiagLoading]   = useState(false);
+  const [isEmergency, setIsEmergency]   = useState(false);
   const [isNotifiable, setIsNotifiable] = useState(false);
-  const [section, setSection]         = useState('symptoms');
+  const [section, setSection]           = useState('symptoms');
   const [drugSuggestions, setDrugSuggestions] = useState([]);
   const diagDebounce = useRef(null);
 
   useEffect(() => {
     clearTimeout(diagDebounce.current);
-    if (!symptoms.length) { setDiagnoses([]); return; }
+    if (!symptoms.length) { setDiagnoses([]); setIsEmergency(false); setIsNotifiable(false); return; }
     diagDebounce.current = setTimeout(async () => {
       setDiagLoading(true);
       try {
@@ -147,9 +194,10 @@ export function CallCompanion() {
 
   async function addSymptom(text) {
     const trimmed = text.trim();
-    if (!trimmed || !activeCall?.call_id) return;
+    if (!trimmed) return;
     const tempId = Date.now().toString();
     addSymptomLocal({ symptom: trimmed, severity, id: tempId });
+    if (!activeCall?.call_id) return;
     try {
       await api.post(`/calls/${activeCall.call_id}/symptoms`, { symptom: trimmed, severity });
     } catch {}
@@ -183,48 +231,60 @@ export function CallCompanion() {
   const activeLower = symptoms.map(s => s.symptom?.toLowerCase());
 
   const TABS = [
-    { id: 'symptoms', label: 'Symptoms & AI', icon: Stethoscope },
-    { id: 'drugs',    label: 'Drugs',          icon: Package,  dot: drugSuggestions.length > 0 },
-    { id: 'notes',    label: 'Notes',           icon: FileText, dot: !!callNotes },
+    { id: 'symptoms', label: 'Symptoms', icon: Stethoscope },
+    { id: 'diagnosis', label: 'AI Diagnosis', icon: Zap, dot: diagnoses.length > 0 },
+    { id: 'drugs',    label: 'Drugs',    icon: Package,  dot: drugSuggestions.length > 0 },
+    { id: 'notes',    label: 'Notes',    icon: FileText,  dot: !!callNotes },
   ];
 
-  return (
-    <div className="flex flex-col h-full text-sm bg-sv-bg">
+  const sevCfg = SEVERITY_CONFIG.find(s => s.v === severity);
 
-      {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-sv-border flex-shrink-0 bg-sv-bg-card">
-        <Activity size={13} className="text-sv-teal" />
-        <span className="font-bold text-white text-xs tracking-wide uppercase">Call Companion</span>
+  return (
+    <div className="flex flex-col h-full bg-sv-bg text-sm">
+
+      {/* ── Header ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-sv-border bg-sv-bg-card flex-shrink-0">
+        <Activity size={13} className="text-sv-teal flex-shrink-0" />
+        <span className="font-bold text-white text-xs uppercase tracking-widest">Call Companion</span>
+
         {symptoms.length > 0 && (
-          <span className="text-xs bg-sv-green/15 text-sv-green px-2 py-0.5 rounded-full border border-sv-green/30 font-medium">
+          <span className="text-[11px] bg-sv-green/15 text-sv-green px-2 py-0.5 rounded-full border border-sv-green/25 font-semibold">
             {symptoms.length} symptom{symptoms.length !== 1 ? 's' : ''}
           </span>
         )}
-        {isEmergency && (
-          <span className="ml-auto flex items-center gap-1 text-xs bg-sv-red/10 text-sv-red border border-sv-red/40 px-2.5 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
-            <AlertTriangle size={10} /> Emergency
-          </span>
-        )}
-        {isNotifiable && !isEmergency && (
-          <span className="ml-auto text-xs bg-sv-amber/10 text-sv-amber border border-sv-amber/40 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">
-            Notify Authorities
-          </span>
-        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          {isEmergency && (
+            <span className="flex items-center gap-1 text-[11px] bg-sv-red/10 text-sv-red border border-sv-red/40 px-2.5 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
+              <AlertTriangle size={10} /> Emergency
+            </span>
+          )}
+          {isNotifiable && !isEmergency && (
+            <span className="text-[11px] bg-sv-amber/10 text-sv-amber border border-sv-amber/40 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">
+              Notify Authorities
+            </span>
+          )}
+          {!activeCall && (
+            <span className="text-[11px] text-sv-text-muted border border-sv-border px-2 py-0.5 rounded-full">
+              No active call — local mode
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex border-b border-sv-border flex-shrink-0 bg-sv-bg-card">
+      {/* ── Tab bar ───────────────────────────────────────────── */}
+      <div className="flex border-b border-sv-border bg-sv-bg-card flex-shrink-0">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setSection(t.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold uppercase tracking-wide transition-colors relative ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors relative ${
               section === t.id
-                ? 'text-white border-b-2 border-sv-green'
+                ? 'text-white border-b-2 border-sv-green bg-sv-green/5'
                 : 'text-sv-text-muted hover:text-white'
             }`}>
             <t.icon size={11} />
             {t.label}
             {t.dot && (
-              <span className="absolute top-2 right-[calc(50%-22px)] w-1.5 h-1.5 rounded-full bg-sv-amber" />
+              <span className="absolute top-2 right-[calc(50%-20px)] w-1.5 h-1.5 rounded-full bg-sv-amber" />
             )}
           </button>
         ))}
@@ -232,41 +292,42 @@ export function CallCompanion() {
 
       <div className="flex-1 overflow-y-auto scrollbar-thin">
 
-        {/* ══ SYMPTOMS & AI ══════════════════════════════════════════════════════ */}
+        {/* ══ SYMPTOMS ════════════════════════════════════════════ */}
         {section === 'symptoms' && (
           <div className="p-4 space-y-5">
 
-            {!activeCall && (
-              <div className="text-center text-sv-text-muted py-8 text-xs">
-                <Activity size={28} className="mx-auto mb-3 opacity-20" />
-                Start a call to track symptoms
+            {/* Severity selector */}
+            <div>
+              <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-2">Severity for new selections</p>
+              <div className="flex gap-2">
+                {SEVERITY_CONFIG.map(({ v, label, chip }) => (
+                  <button key={v} onClick={() => setSeverity(v)}
+                    className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                      severity === v ? `${chip} ring-1 ring-inset ${sevCfg?.ring}` : 'border-sv-border text-sv-text-muted hover:text-white'
+                    }`}>
+                    {label}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
             {/* Symptom groups */}
             {SYMPTOM_GROUPS.map(group => (
               <div key={group.label}>
-                <p className="text-xs font-bold text-sv-text-muted uppercase tracking-widest mb-2">
-                  {group.label}
-                </p>
+                <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-2">{group.label}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {group.symptoms.map(s => {
                     const active = activeLower.includes(s.toLowerCase());
+                    const activeSym = symptoms.find(x => x.symptom.toLowerCase() === s.toLowerCase());
+                    const chipCls = active
+                      ? SEVERITY_CONFIG.find(c => c.v === activeSym?.severity)?.chip || 'border-sv-green/50 bg-sv-green/10 text-sv-green'
+                      : 'border-sv-border text-sv-text-muted hover:border-sv-green/50 hover:text-white bg-sv-bg-input';
                     return (
                       <button key={s}
-                        disabled={!activeCall}
-                        onClick={() => active
-                          ? removeSymptom(symptoms.find(x => x.symptom.toLowerCase() === s.toLowerCase())?.id)
-                          : addSymptom(s)
-                        }
-                        className={`text-xs px-3 py-1 rounded-full border font-medium transition-all ${
-                          active
-                            ? 'bg-sv-green border-sv-green text-white shadow-sv-glow'
-                            : activeCall
-                              ? 'border-sv-border text-sv-text-muted hover:border-sv-green/60 hover:text-white bg-sv-bg-input'
-                              : 'border-sv-border/30 text-sv-border/50 cursor-not-allowed'
-                        }`}>
-                        {active ? '✓ ' : ''}{s}
+                        onClick={() => active ? removeSymptom(activeSym?.id) : addSymptom(s)}
+                        className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${chipCls}`}>
+                        {active && <Check size={10} />}
+                        {s}
                       </button>
                     );
                   })}
@@ -274,158 +335,97 @@ export function CallCompanion() {
               </div>
             ))}
 
-            {/* Severity */}
-            {activeCall && (
-              <div>
-                <p className="text-xs font-bold text-sv-text-muted uppercase tracking-widest mb-2">Severity</p>
-                <div className="flex gap-2">
-                  {[
-                    { v: 'mild',     label: 'Mild',     cls: 'border-sv-green/60 text-sv-green hover:bg-sv-green/10',  active: 'bg-sv-green/20 border-sv-green text-sv-green' },
-                    { v: 'moderate', label: 'Moderate', cls: 'border-sv-amber/60 text-sv-amber hover:bg-sv-amber/10',  active: 'bg-sv-amber/20 border-sv-amber text-sv-amber' },
-                    { v: 'severe',   label: 'Severe',   cls: 'border-sv-red/60 text-sv-red hover:bg-sv-red/10',        active: 'bg-sv-red/20 border-sv-red text-sv-red' },
-                  ].map(({ v, label, cls, active }) => (
-                    <button key={v} onClick={() => setSeverity(v)}
-                      className={`flex-1 py-1.5 text-xs font-semibold rounded-full border transition-all ${
-                        severity === v ? active : `border-sv-border text-sv-text-muted hover:${cls}`
-                      }`}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Custom symptom input */}
+            <form onSubmit={handleCustomAdd} className="flex gap-2">
+              <input value={custom} onChange={e => setCustom(e.target.value)}
+                placeholder="Type a custom symptom…"
+                className="flex-1 bg-sv-bg-input border border-sv-border rounded-full px-4 py-2 text-xs text-white placeholder-sv-text-muted focus:outline-none focus:border-sv-green transition-colors" />
+              <button type="submit" disabled={!custom.trim()}
+                className="px-3 py-2 bg-sv-green hover:bg-sv-green-d text-white rounded-full disabled:opacity-40 transition-colors">
+                <Plus size={13} />
+              </button>
+            </form>
 
-            {/* Custom symptom */}
-            {activeCall && (
-              <form onSubmit={handleCustomAdd} className="flex gap-2">
-                <input value={custom} onChange={e => setCustom(e.target.value)}
-                  placeholder="Describe symptom in farmer's words…"
-                  className="flex-1 bg-sv-bg-input border border-sv-border rounded-full px-4 py-2 text-xs text-white placeholder-sv-text-muted focus:outline-none focus:border-sv-green transition-colors" />
-                <button type="submit" disabled={!custom.trim()}
-                  className="px-3 py-2 bg-sv-green hover:bg-sv-green-d text-white rounded-full disabled:opacity-40 transition-colors">
-                  <Plus size={13} />
-                </button>
-              </form>
-            )}
-
-            {/* Selected symptoms list */}
+            {/* Selected list */}
             {symptoms.length > 0 && (
               <div>
-                <p className="text-xs font-bold text-sv-text-muted uppercase tracking-widest mb-2">
+                <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-2">
                   Logged ({symptoms.length})
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {symptoms.map(s => (
-                    <span key={s.id} className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${
-                      s.severity === 'severe'   ? 'border-sv-red/50 bg-sv-red/10 text-sv-red' :
-                      s.severity === 'mild'     ? 'border-sv-green/50 bg-sv-green/10 text-sv-green' :
-                                                  'border-sv-amber/50 bg-sv-amber/10 text-sv-amber'
-                    }`}>
-                      {s.symptom}
-                      <button onClick={() => removeSymptom(s.id)} className="opacity-50 hover:opacity-100 transition-opacity">
-                        <X size={10} />
-                      </button>
-                    </span>
-                  ))}
+                  {symptoms.map(s => {
+                    const cfg = SEVERITY_CONFIG.find(c => c.v === s.severity);
+                    return (
+                      <span key={s.id} className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${cfg?.chip || 'border-sv-border text-sv-text-muted'}`}>
+                        {s.symptom}
+                        <button onClick={() => removeSymptom(s.id)} className="opacity-50 hover:opacity-100 transition-opacity ml-0.5">
+                          <X size={9} />
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* Divider before AI */}
-            {(diagnoses.length > 0 || diagLoading) && (
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-sv-border" />
-                </div>
-                <div className="relative flex justify-center">
-                  <span className="bg-sv-bg px-3 flex items-center gap-1.5 text-xs text-sv-text-muted font-semibold uppercase tracking-wider">
-                    <Zap size={10} className="text-sv-green" />
-                    AI Diagnosis
-                    {diagLoading && <span className="animate-pulse">…</span>}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Disease cards */}
-            {diagnoses.map((d, i) => (
-              <DiseaseCard key={d.name} d={d} rank={i} />
-            ))}
-
-            {activeCall && !symptoms.length && (
-              <p className="text-center text-sv-text-muted text-xs py-4">
-                Select symptoms above → AI diagnosis appears instantly
+            {symptoms.length === 0 && (
+              <p className="text-center text-sv-text-muted text-xs py-2">
+                Select symptoms above — AI diagnosis runs instantly
               </p>
             )}
           </div>
         )}
 
-        {/* ══ DRUGS ══════════════════════════════════════════════════════════════ */}
+        {/* ══ AI DIAGNOSIS ════════════════════════════════════════ */}
+        {section === 'diagnosis' && (
+          <div className="p-4 space-y-4">
+            {diagLoading && (
+              <div className="flex items-center gap-2 text-xs text-sv-text-muted animate-pulse">
+                <Zap size={12} className="text-sv-green" /> Running diagnosis…
+              </div>
+            )}
+
+            {!symptoms.length && !diagLoading && (
+              <div className="text-center py-10 text-sv-text-muted">
+                <Zap size={28} className="mx-auto mb-3 opacity-20" />
+                <p className="text-xs">Add symptoms first to get an AI diagnosis</p>
+              </div>
+            )}
+
+            {diagnoses.map((d, i) => (
+              <DiseaseCard key={d.name} d={d} rank={i} />
+            ))}
+          </div>
+        )}
+
+        {/* ══ DRUGS ════════════════════════════════════════════════ */}
         {section === 'drugs' && (
           <div className="p-4 space-y-3">
             {!diagnoses.length ? (
-              <div className="text-center text-sv-text-muted py-8 text-xs">
+              <div className="text-center py-10 text-sv-text-muted">
                 <Package size={28} className="mx-auto mb-3 opacity-20" />
-                Add symptoms first to get drug suggestions
+                <p className="text-xs">Add symptoms to get drug suggestions</p>
               </div>
             ) : (
               <>
                 <p className="text-xs text-sv-text-muted">
                   Based on: <span className="text-white font-medium">{diagnoses.slice(0, 2).map(d => d.name).join(', ')}</span>
                 </p>
-
-                {drugSuggestions.length === 0 && (
+                {drugSuggestions.length === 0 ? (
                   <p className="text-xs text-sv-text-muted text-center py-4">No inventory data for these diagnoses</p>
-                )}
-
-                {drugSuggestions.map((drug, i) => {
-                  const catLabel = { vaccine: 'Vaccine', antibiotic: 'Antibiotic', antiparasitic: 'Antiparasitic', vitamin: 'Vitamin' }[drug.category] || 'Other';
-                  const catColor = { vaccine: 'text-sv-teal', antibiotic: 'text-sv-amber', antiparasitic: 'text-purple-400', vitamin: 'text-sv-green' }[drug.category] || 'text-sv-text-muted';
-                  const vetStock = parseFloat(drug.total_vet_stock || drug.total_stock || 0);
-                  const warehouseStock = parseFloat(drug.warehouse_stock || 0);
-
-                  return (
-                    <div key={i} className="rounded-xl border border-sv-border bg-sv-bg-card overflow-hidden">
-                      <div className="p-3">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <p className="font-semibold text-white text-xs">{drug.product_name}</p>
-                            <p className={`text-xs font-medium ${catColor}`}>{catLabel}</p>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-sv-bg rounded-lg px-3 py-2">
-                            <p className="text-xs text-sv-text-muted mb-0.5">Vet field stock</p>
-                            <p className="text-sm font-bold text-white">{vetStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
-                          </div>
-                          <div className="bg-sv-bg rounded-lg px-3 py-2">
-                            <p className="text-xs text-sv-text-muted mb-0.5">Warehouse</p>
-                            <p className="text-sm font-bold text-white">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="px-3 py-2 border-t border-sv-border bg-sv-bg/40">
-                        <p className="text-xs text-sv-text-muted">From: <span className="text-white">{drug.available_from_vets?.join(', ')}</span></p>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {drugSuggestions.length > 0 && (
-                  <p className="text-xs text-sv-text-muted text-center pt-1">
-                    Vets update field stock after each visit
-                  </p>
+                ) : (
+                  drugSuggestions.map((drug, i) => <DrugCard key={i} drug={drug} />)
                 )}
               </>
             )}
           </div>
         )}
 
-        {/* ══ NOTES ══════════════════════════════════════════════════════════════ */}
+        {/* ══ NOTES ═══════════════════════════════════════════════ */}
         {section === 'notes' && (
-          <div className="p-4 space-y-3">
+          <div className="p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-sv-text-muted uppercase tracking-widest">Call Notes</p>
+              <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest">Call Notes</p>
               {transcriptSegments.length > 0 && (
                 <button onClick={pullFromTranscript}
                   className="flex items-center gap-1 text-xs text-sv-teal hover:text-white transition-colors border border-sv-teal/30 hover:border-sv-teal/60 rounded-full px-2.5 py-1 font-medium">
@@ -437,30 +437,29 @@ export function CallCompanion() {
             <textarea
               value={callNotes}
               onChange={e => setCallNotes(e.target.value)}
-              placeholder={activeCall
-                ? "Take notes here — flock size, age, housing conditions, farmer's history…\n\nThese notes will be sent to the vet on dispatch."
-                : "Notes available during an active call."}
-              rows={9}
+              placeholder="Flock size, age, housing, farmer's history, observations…&#10;&#10;These notes will be sent to the vet on dispatch."
+              rows={8}
               className="w-full bg-sv-bg-input border border-sv-border rounded-xl px-4 py-3 text-xs text-white placeholder-sv-text-muted focus:outline-none focus:border-sv-green resize-none leading-relaxed transition-colors"
             />
 
+            {/* Vet handover preview */}
             {(symptoms.length > 0 || callNotes) && (
-              <div className="rounded-xl border border-sv-border bg-sv-bg-card p-3 space-y-1.5">
-                <p className="text-xs font-bold text-sv-text-muted uppercase tracking-widest mb-2">Vet Preview</p>
+              <div className="rounded-xl border border-sv-border bg-sv-bg-card p-3.5 space-y-2">
+                <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest">Vet Handover Preview</p>
                 {symptoms.length > 0 && (
-                  <p className="text-xs text-white/80">
+                  <p className="text-xs text-white/80 leading-relaxed">
                     <span className="text-sv-text-muted">Symptoms: </span>
                     {symptoms.map(s => s.symptom).join(', ')}
                   </p>
                 )}
                 {diagnoses[0] && (
                   <p className="text-xs text-white/80">
-                    <span className="text-sv-text-muted">Top diagnosis: </span>
-                    {diagnoses[0].name} ({Math.round(diagnoses[0].confidence * 100)}% confidence)
+                    <span className="text-sv-text-muted">Top AI diagnosis: </span>
+                    {diagnoses[0].name} <span className="text-sv-text-muted">({Math.round(diagnoses[0].confidence * 100)}%)</span>
                   </p>
                 )}
                 {callNotes && (
-                  <p className="text-xs text-white/80 whitespace-pre-wrap">
+                  <p className="text-xs text-white/80 whitespace-pre-wrap leading-relaxed">
                     <span className="text-sv-text-muted">Notes: </span>{callNotes}
                   </p>
                 )}
@@ -470,19 +469,20 @@ export function CallCompanion() {
         )}
       </div>
 
-      {/* Dispatch button */}
+      {/* ── Dispatch footer ───────────────────────────────────── */}
       {activeCall && (
         <div className="p-3 border-t border-sv-border flex-shrink-0 bg-sv-bg-card">
-          <button onClick={() => openDispatchModal({ urgency: isEmergency ? 'emergency' : 'scheduled' })}
+          <button
+            onClick={() => openDispatchModal({ urgency: isEmergency ? 'emergency' : 'scheduled' })}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-bold text-xs uppercase tracking-widest transition-all border ${
               isEmergency
                 ? 'bg-sv-red border-sv-red text-white animate-pulse hover:bg-sv-red-d'
                 : 'bg-sv-green border-sv-green text-white hover:bg-sv-green-d'
             }`}>
-            <Truck size={14} />
+            <Truck size={13} />
             {isEmergency ? 'Emergency Vet Dispatch' : 'Dispatch Vet'}
             {symptoms.length > 0 && (
-              <span className="opacity-60 font-normal normal-case tracking-normal">({symptoms.length} symptoms)</span>
+              <span className="opacity-60 font-normal normal-case tracking-normal text-[11px]">({symptoms.length} symptoms)</span>
             )}
           </button>
         </div>
