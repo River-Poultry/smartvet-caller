@@ -4,12 +4,6 @@ import { diagnoseFromSymptoms, buildDiagnosisSummary } from '../services/disease
 
 const router = Router();
 
-/**
- * POST /api/diagnose
- * Instant synchronous diagnosis — no call context needed.
- * Body: { symptoms: string[], free_text?: string, bird_type?: string }
- * Returns ranked differential diagnoses with treatment + prevention.
- */
 router.post('/', requireAuth, (req, res) => {
   const { symptoms = [], free_text = '', bird_type = 'chicken' } = req.body;
 
@@ -21,8 +15,8 @@ router.post('/', requireAuth, (req, res) => {
   const summary = buildDiagnosisSummary(diagnoses, symptoms);
 
   res.json({
-    diagnoses,          // [{ name, confidence, is_emergency, is_zoonotic, is_notifiable, treatment, prevention }]
-    summary,            // human-readable string
+    diagnoses,
+    summary,
     is_emergency: diagnoses.some(d => d.is_emergency && d.confidence > 0.4),
     is_notifiable: diagnoses.some(d => d.is_notifiable && d.confidence > 0.3),
     top_disease: diagnoses[0]?.name || null,
