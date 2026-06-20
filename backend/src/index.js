@@ -28,8 +28,8 @@ app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true); // allow server-to-server / curl
     if (allowedOrigins.includes(origin)) return cb(null, true);
-    // allow any vercel preview deployments for this project
-    if (/^https:\/\/smartvet-caller[-\w]*\.vercel\.app$/.test(origin)) return cb(null, true);
+    // allow any vercel preview/prod deployments for either project name
+    if (/^https:\/\/smartvet-(?:caller|ai-callcenter)[-\w]*\.vercel\.app$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
