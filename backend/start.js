@@ -9,15 +9,30 @@ async function seedAdmin() {
   const name = process.env.SEED_ADMIN_NAME || 'Admin';
   if (!email || !password) return;
 
-  const { rows } = await query('SELECT id FROM agents WHERE is_admin = true LIMIT 1');
-  if (rows.length) return; // admin already exists
+  // Check if THIS specific email already exists
+  const existing = await query('SELECT id, password_hash FROM agents WHERE email = $1', [email.toLowerCase()]);
+  if (existing.rows.length) {
+    // If the stored hash is our placeholder, overwrite it with the real password
+    const isPlaceholder = existing.rows[0].password_hash?.includes('placeholder');
+    if (!isPlaceholder) {
+      console.log(`[start] Admin ${email} already exists — skipping seed`);
+      return;
+    }
+    const hash = await bcrypt.hash(password, 12);
+    await query(
+      `UPDATE agents SET password_hash = $1, is_admin = true, is_verified = true WHERE email = $2`,
+      [hash, email.toLowerCase()]
+    );
+    console.log(`[start] Updated placeholder hash for ${email}`);
+    return;
+  }
 
   const hash = await bcrypt.hash(password, 12);
   await query(
     `INSERT INTO agents (name, email, password_hash, is_admin, is_verified, status)
      VALUES ($1, $2, $3, true, true, 'offline')
-     ON CONFLICT (email) DO NOTHING`,
-    [name, email, hash]
+     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, is_admin = true, is_verified = true`,
+    [name, email.toLowerCase(), hash]
   );
   console.log(`[start] Admin account created for ${email}`);
 }

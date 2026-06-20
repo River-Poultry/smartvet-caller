@@ -17,11 +17,19 @@ const server = http.createServer(app);
 initWebSocket(server);
 
 app.use(helmet());
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5174')
-  .split(',').map(s => s.trim());
+const allowedOrigins = [
+  'http://localhost:5174',
+  'http://localhost:5173',
+  'https://smartvet-caller.vercel.app',
+  ...( process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(s => s.trim()) : [] ),
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true); // allow server-to-server / curl
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    // allow any vercel preview deployments for this project
+    if (/^https:\/\/smartvet-caller[-\w]*\.vercel\.app$/.test(origin)) return cb(null, true);
     cb(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
