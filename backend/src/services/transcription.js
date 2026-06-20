@@ -1,16 +1,19 @@
-import twilioClient from '../config/twilio.js';
+import twilio from 'twilio';
 import { query } from '../config/db.js';
 import { generateSuggestions } from './aiSuggestions.js';
 import { logger } from '../config/logger.js';
 
 export async function requestTranscription(callSid, recordingSid) {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  if (!sid || !token) {
+    logger.warn('Twilio credentials not set — skipping transcription');
+    return;
+  }
   try {
-    await twilioClient.intelligence.v2.transcripts.create({
-      channel: {
-        media_properties: {
-          source_sid: recordingSid,
-        },
-      },
+    const client = twilio(sid, token);
+    await client.intelligence.v2.transcripts.create({
+      channel: { media_properties: { source_sid: recordingSid } },
     });
     logger.info('Transcription requested', { callSid, recordingSid });
   } catch (err) {
