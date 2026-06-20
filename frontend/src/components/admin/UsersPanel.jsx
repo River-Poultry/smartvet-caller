@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, UserPlus, Shield, User, Pencil, Check, Loader2, Phone, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, UserPlus, Shield, User, Pencil, Check, Loader2, Phone, Mail, Lock, Eye, EyeOff, RefreshCw, Copy, AlertCircle } from 'lucide-react';
 import api from '../../services/api.js';
 
 const EMPTY_FORM = { name: '', email: '', phone: '', password: '', isAdmin: false };
@@ -163,6 +163,48 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
   );
 }
 
+function ImportResults({ results, onClose }) {
+  const [copied, setCopied] = useState(null);
+
+  function copy(text, id) {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  return (
+    <div className="px-4 py-4 border-b border-sv-border bg-amber-950/20 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <AlertCircle size={13} className="text-amber-400" />
+          <p className="text-xs font-bold text-amber-300">
+            {results.imported} imported from SmartVet — save these passwords now
+          </p>
+        </div>
+        <button onClick={onClose} className="text-gray-500 hover:text-white"><X size={12} /></button>
+      </div>
+      <p className="text-xs text-amber-400/70">Temporary passwords are shown once. Users must change on first login.</p>
+      <div className="space-y-2 max-h-52 overflow-y-auto">
+        {results.users.map(u => (
+          <div key={u.id} className="flex items-center gap-2 bg-sv-bg-input rounded-lg px-3 py-2 text-xs">
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-medium truncate">{u.name}</p>
+              <p className="text-sv-text-muted truncate">{u.email}</p>
+            </div>
+            <code className="text-amber-300 bg-amber-950/40 px-2 py-0.5 rounded font-mono text-[11px] flex-shrink-0">
+              {u.temp_password}
+            </code>
+            <button onClick={() => copy(`${u.email} / ${u.temp_password}`, u.id)}
+              className="text-gray-500 hover:text-white flex-shrink-0">
+              {copied === u.id ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function UsersPanel({ onClose }) {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -171,6 +213,8 @@ export default function UsersPanel({ onClose }) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [importResults, setImportResults] = useState(null);
 
   useEffect(() => {
     api.get('/agents').then(r => setAgents(r.data || [])).finally(() => setLoading(false));
@@ -179,6 +223,26 @@ export default function UsersPanel({ onClose }) {
   function flash(msg) {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(''), 3000);
+  }
+
+  async function handleSync() {
+    setSyncing(true);
+    setImportResults(null);
+    try {
+      const { data } = await api.post('/agents/sync-django');
+      setImportResults(data);
+      if (data.imported > 0) {
+        const { data: fresh } = await api.get('/agents');
+        setAgents(fresh || []);
+        flash(`${data.imported} user${data.imported !== 1 ? 's' : ''} imported from SmartVet`);
+      } else {
+        flash('No new users to import');
+      }
+    } catch (err) {
+      setSaveError(err.response?.data?.error || 'Sync failed');
+    } finally {
+      setSyncing(false);
+    }
   }
 
   async function handleSave(form, isEdit) {
@@ -232,10 +296,17 @@ export default function UsersPanel({ onClose }) {
           </div>
           <div className="flex items-center gap-2">
             {!showAddForm && !formAgent && (
-              <button onClick={() => setShowAddForm(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sv-green/10 border border-sv-green/40 text-sv-green text-xs font-bold hover:bg-sv-green/20 transition-colors">
-                <UserPlus size={11} /> Add User
-              </button>
+              <>
+                <button onClick={handleSync} disabled={syncing}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sv-teal/10 border border-sv-teal/40 text-sv-teal text-xs font-bold hover:bg-sv-teal/20 disabled:opacity-50 transition-colors">
+                  <RefreshCw size={11} className={syncing ? 'animate-spin' : ''} />
+                  {syncing ? 'Importing…' : 'Import SmartVet'}
+                </button>
+                <button onClick={() => setShowAddForm(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sv-green/10 border border-sv-green/40 text-sv-green text-xs font-bold hover:bg-sv-green/20 transition-colors">
+                  <UserPlus size={11} /> Add User
+                </button>
+              </>
             )}
             <button onClick={onClose} className="p-1.5 rounded text-gray-500 hover:text-white transition-colors">
               <X size={14} />
@@ -247,6 +318,10 @@ export default function UsersPanel({ onClose }) {
           <div className="flex items-center gap-2 px-4 py-2 bg-sv-green/10 border-b border-sv-green/30 text-sv-green text-xs font-medium">
             <Check size={11} /> {successMsg}
           </div>
+        )}
+
+        {importResults && (
+          <ImportResults results={importResults} onClose={() => setImportResults(null)} />
         )}
 
         {/* Add form */}

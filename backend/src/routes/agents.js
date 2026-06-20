@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listAgents, updateStatus, createAgent, updateAgent, getMetrics } from '../controllers/agentController.js';
+import { listAgents, updateStatus, createAgent, updateAgent, getMetrics, syncFromDjango } from '../controllers/agentController.js';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
@@ -11,5 +11,6 @@ router.get('/metrics', requireAdmin, getMetrics);
 router.patch('/status', updateStatus);
 router.post('/', requireAdmin, createAgent);
 router.patch('/:agentId', requireAdmin, updateAgent);
+router.post('/sync-django', requireAdmin, syncFromDjango);
 
 export default router;

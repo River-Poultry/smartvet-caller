@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { query } from '../config/db.js';
 import { broadcast } from '../services/websocket.js';
+import { listVets } from '../services/smartvetCore.js';
 
 export async function listAgents(req, res) {
   const { rows } = await query(
@@ -88,4 +90,42 @@ export async function getMetrics(req, res) {
     calls: callRows.rows[0],
     dispatches: dispatchRows.rows[0],
   });
+}
+
+export async function syncFromDjango(req, res) {
+  try {
+    const { vets } = await listVets({ page: 1 });
+    if (!vets.length) return res.json({ imported: 0, skipped: 0, users: [] });
+
+    const imported = [];
+    let skipped = 0;
+
+    for (const vet of vets) {
+      if (!vet.email && !vet.phone) { skipped++; continue; }
+
+      const email = vet.email || `${vet.phone.replace(/\D/g, '')}@smartvet.auto`;
+      const existing = await query(
+        `SELECT id FROM agents WHERE email = $1 OR django_id = $2`,
+        [email, vet.django_id]
+      );
+
+      if (existing.rows.length) { skipped++; continue; }
+
+      const tempPassword = crypto.randomBytes(8).toString('hex');
+      const hash = await bcrypt.hash(tempPassword, 12);
+
+      const { rows } = await query(
+        `INSERT INTO agents (name, email, phone_number, password_hash, is_admin, is_verified, django_id, django_role)
+         VALUES ($1, $2, $3, $4, false, true, $5, $6)
+         RETURNING id, name, email, phone_number, is_admin, django_id, django_role`,
+        [vet.name, email, vet.phone || null, hash, vet.django_id, vet.role || 'paravet']
+      );
+
+      imported.push({ ...rows[0], temp_password: tempPassword });
+    }
+
+    res.json({ imported: imported.length, skipped, users: imported });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }
