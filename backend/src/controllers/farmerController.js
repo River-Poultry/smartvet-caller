@@ -128,3 +128,16 @@ export async function getDistricts(req, res) {
     res.json([]);
   }
 }
+
+export function getUnknownFarmerTemplate(req, res) {
+  res.json({
+    name: '',
+    phone: req.query.phone || '',
+    email: '',
+    farm_name: '',
+    address: '',
+    district: '',
+    chicken_type: 'broiler',
+    preferred_language: 'English',
+  });
+}
