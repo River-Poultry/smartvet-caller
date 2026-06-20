@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     rootDir: backend
-    buildCommand: npm install && npm run migrate
+    buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
     envVars:

@@ -2,18 +2,15 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pg from 'pg';
-import dotenv from 'dotenv';
 import { MIGRATION_FILES } from '../config/migrations.js';
-
-dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { Pool } = pg;
 
-async function runMigrations() {
+export async function runMigrations() {
   if (!process.env.DATABASE_URL) {
-    console.error('[migrate] DATABASE_URL is not set');
-    process.exit(1);
+    console.error('[migrate] DATABASE_URL is not set — skipping migrations');
+    return;
   }
 
   const isProduction = process.env.NODE_ENV === 'production';
@@ -38,7 +35,7 @@ async function runMigrations() {
         [file]
       );
       if (rows.length > 0) {
-        console.log(`[skip] ${file} already applied`);
+        console.log(`[skip] ${file}`);
         continue;
       }
 
@@ -50,15 +47,17 @@ async function runMigrations() {
       console.log(`[ok]   ${file}`);
     }
 
-    console.log('Migrations complete.');
+    console.log('[migrate] Done.');
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
-    console.error('Migration failed:', err.message);
-    process.exit(1);
+    console.error('[migrate] Failed:', err.message);
+    throw err;
   } finally {
     client.release();
     await pool.end();
   }
 }
 
-runMigrations();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  import('dotenv/config').then(() => runMigrations()).catch(() => process.exit(1));
+}

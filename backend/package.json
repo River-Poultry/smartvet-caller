@@ -5,10 +5,9 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
-    "migrate": "node src/migrations/run.js",
-    "migrate:rollback": "node src/migrations/rollback.js"
+    "dev": "nodemon start.js",
+    "start": "node start.js",
+    "migrate": "node src/migrations/run.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
