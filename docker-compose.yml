@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: smartvet
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: smartvet_callcenter
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U smartvet']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - '4600:4600'
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://smartvet:password@postgres:5432/smartvet_callcenter
+      PORT: 4600
+    env_file:
+      - ./backend/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c 'node src/migrations/run.js && node src/index.js'
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '5174:80'
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Build outputs
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Coverage
+coverage/
+
+# Temporary
+*.tmp
+*.temp
+
+# Claude Code editor files
+.claude/

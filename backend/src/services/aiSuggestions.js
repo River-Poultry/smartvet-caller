@@ -1,0 +1,174 @@
+import { query } from '../config/db.js';
+import { queryKnowledgeBase } from './smartvetCore.js';
+import { diagnoseFromSymptoms, buildDiagnosisSummary } from './diseaseDiagnosis.js';
+import { logger } from '../config/logger.js';
+
+const EMERGENCY_KEYWORDS = [
+  'dying', 'dead', 'mortality', 'many dead', 'all dying', 'emergency',
+  'suddenly', 'collapsed', 'not moving', 'bleeding', 'haemorrhage'
+];
+
+const DISEASE_KEYWORDS = [
+  'diarrhea', 'not eating', 'sneezing', 'coughing', 'swollen', 'limping',
+  'ruffled feathers', 'drooping', 'watery eyes', 'paralysis', 'twisted neck',
+  'gasping', 'lesions', 'scabs', 'nasal discharge', 'rattling', 'gurgling',
+  'pale comb', 'blue comb', 'blood', 'whitish', 'huddling', 'depression'
+];
+
+const VET_REQUEST_KEYWORDS = [
+  'vet', 'doctor', 'visit', 'come', 'check', 'diagnose', 'vaccination'
+];
+
+function detectIntent(text) {
+  const lower = text.toLowerCase();
+  if (EMERGENCY_KEYWORDS.some(k => lower.includes(k))) return { intent: 'disease_diagnosis', isEmergency: true };
+  if (DISEASE_KEYWORDS.some(k => lower.includes(k))) return { intent: 'disease_diagnosis', isEmergency: false };
+  if (VET_REQUEST_KEYWORDS.some(k => lower.includes(k))) return { intent: 'vet_request', isEmergency: false };
+  if (lower.includes('price') || lower.includes('cost') || lower.includes('how much')) return { intent: 'pricing_question', isEmergency: false };
+  if (lower.includes('vaccine') || lower.includes('vaccination')) return { intent: 'vaccination_inquiry', isEmergency: false };
+  return { intent: 'other', isEmergency: false };
+}
+
+function extractKeywordSymptoms(text) {
+  return DISEASE_KEYWORDS.filter(k => text.toLowerCase().includes(k));
+}
+
+function extractAnimalType(text) {
+  const lower = text.toLowerCase();
+  if (lower.includes('broiler')) return 'broiler';
+  if (lower.includes('layer')) return 'layer';
+  if (lower.includes('chick')) return 'chick';
+  return 'poultry';
+}
+
+export async function generateSuggestions(callId, transcriptText, trackedSymptoms = []) {
+  try {
+    const { intent, isEmergency } = detectIntent(transcriptText);
+    const keywordSymptoms = extractKeywordSymptoms(transcriptText);
+    const animalType = extractAnimalType(transcriptText);
+
+    // Merge transcript-detected symptoms with manually tracked ones
+    const allSymptoms = [...new Set([...trackedSymptoms, ...keywordSymptoms])];
+
+    const suggestions = [];
+
+    if ((intent === 'disease_diagnosis' || allSymptoms.length > 0)) {
+      // 1. Run local offline diagnosis engine first (always available)
+      const localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType);
+
+      if (localDiagnoses.length > 0) {
+        const diagnosisText = buildDiagnosisSummary(localDiagnoses, allSymptoms);
+        const topDiagnosis = localDiagnoses[0];
+        const anyEmergency = localDiagnoses.some(d => d.is_emergency) || isEmergency;
+        const anyNotifiable = localDiagnoses.some(d => d.is_notifiable);
+
+        suggestions.push({
+          callId,
+          category: 'disease_diagnosis',
+          text: diagnosisText,
+          confidence: topDiagnosis.confidence,
+          diagnoses: localDiagnoses,
+          actions: [
+            anyEmergency || anyNotifiable
+              ? { label: '🚨 Emergency Vet Dispatch', action: 'open_dispatch_modal', urgency: 'emergency' }
+              : { label: '📋 Schedule Vet Visit', action: 'open_dispatch_modal', urgency: 'scheduled' },
+            { label: '📖 View Treatment Guide', action: 'show_treatment', disease: topDiagnosis.name },
+          ],
+        });
+
+        if (anyNotifiable) {
+          suggestions.push({
+            callId,
+            category: 'escalation_alert',
+            text: '🚨 NOTIFIABLE DISEASE SUSPECTED\n\nAvian Influenza or similar notifiable disease indicators detected.\n\n• Quarantine the farm immediately\n• Do NOT move birds or equipment\n• Contact District Veterinary Officer now\n• Log this call for authorities',
+            confidence: 0.95,
+            actions: [
+              { label: '🚨 Emergency Dispatch', action: 'open_dispatch_modal', urgency: 'emergency' },
+              { label: '📞 Call DVS Hotline', action: 'call', phone: '0800-100-066' },
+            ],
+          });
+        }
+      } else if (allSymptoms.length > 0) {
+        // Symptoms reported but no match — request more info
+        suggestions.push({
+          callId,
+          category: 'disease_diagnosis',
+          text: `Symptoms reported: ${allSymptoms.join(', ')}.\n\nInsufficient symptoms for confident diagnosis. Ask farmer:\n• How many birds are affected?\n• How long has this been happening?\n• Any recent feed or water changes?\n• Were birds recently vaccinated?`,
+          confidence: 0.3,
+          actions: [{ label: 'Request Vet Visit', action: 'open_dispatch_modal', urgency: 'scheduled' }],
+        });
+      }
+
+      // 2. Also try SmartVet KB (if connected) — non-blocking
+      if (allSymptoms.length > 0) {
+        queryKnowledgeBase({ symptoms: allSymptoms.join(','), animalType })
+          .then(kbResult => {
+            if (kbResult?.diagnoses?.length) {
+              query(
+                `INSERT INTO ai_suggestions (call_id, suggestion_text, category, confidence_score, actions)
+                 VALUES ($1, $2, $3, $4, $5)`,
+                [callId,
+                 `SmartVet KB: ${kbResult.diagnoses[0].name} — ${kbResult.diagnoses[0].treatment_summary}`,
+                 'disease_diagnosis', kbResult.diagnoses[0].confidence,
+                 JSON.stringify([{ label: 'View KB Article', action: 'open_kb' }])]
+              ).catch(() => {});
+            }
+          })
+          .catch(() => {});
+      }
+
+      if (isEmergency && !suggestions.some(s => s.category === 'escalation_alert')) {
+        suggestions.push({
+          callId,
+          category: 'escalation_alert',
+          text: '⚠️ HIGH MORTALITY INDICATORS\n\nFarmer reports birds dying. This may be an emergency.\n\n• Ask: how many birds dead?\n• Ask: how quickly did it start?\n• Dispatch nearest available vet immediately',
+          confidence: 0.9,
+          actions: [{ label: '🚨 Emergency Dispatch', action: 'open_dispatch_modal', urgency: 'emergency' }],
+        });
+      }
+    }
+
+    if (intent === 'vet_request' && !suggestions.length) {
+      suggestions.push({
+        callId,
+        category: 'general_advice',
+        text: 'Farmer is requesting a vet visit. Collect:\n• Farm name and location\n• Number of birds affected\n• Main symptoms observed\n• Urgency level',
+        confidence: 0.9,
+        actions: [{ label: '📋 Schedule Vet Visit', action: 'open_dispatch_modal', urgency: 'scheduled' }],
+      });
+    }
+
+    if (intent === 'vaccination_inquiry') {
+      suggestions.push({
+        callId,
+        category: 'vaccination',
+        text: 'Vaccination schedule reminder:\n• Day 1: Newcastle + IB (eye drop)\n• Day 7: Gumboro (drinking water)\n• Day 14: Gumboro booster\n• Day 21: Newcastle booster\n• Day 28: Fowl Typhoid\n• Day 35: Fowl Pox\n• Day 42: Final Newcastle booster',
+        confidence: 0.95,
+        actions: [],
+      });
+    }
+
+    // Persist all suggestions
+    for (const s of suggestions) {
+      await query(
+        `INSERT INTO ai_suggestions (call_id, suggestion_text, category, confidence_score, actions)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [callId, s.text, s.category, s.confidence, JSON.stringify(s.actions || [])]
+      );
+    }
+
+    // Update call intent and emergency flag
+    const anyEmergency = isEmergency || suggestions.some(s => s.category === 'escalation_alert');
+    if (intent !== 'other' || allSymptoms.length > 0) {
+      await query(
+        `UPDATE calls SET call_intent = $1, is_emergency = $2 WHERE id = $3`,
+        [intent === 'other' ? 'disease_diagnosis' : intent, anyEmergency, callId]
+      );
+    }
+
+    return suggestions;
+  } catch (err) {
+    logger.error('AI suggestion generation failed', { callId, error: err.message });
+    return [];
+  }
+}

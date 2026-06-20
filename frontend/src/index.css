@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  /* Dark mode — River Poultry olive-dark palette */
+  :root {
+    color-scheme: dark;
+    --page-bg:    #141c0a;
+    --card-bg:    #1d2810;
+    --input-bg:   #263318;
+    --border:     #364826;
+    --border-l:   #445e30;
+    --text:       #f2f5ec;
+    --text-muted: #7a9460;
+  }
+
+  /* Light mode — warm parchment / field notebook feel */
+  html.light {
+    color-scheme: light;
+    --page-bg:    #f4f6ee;
+    --card-bg:    #ffffff;
+    --input-bg:   #eef2e6;
+    --border:     #c8d8a8;
+    --border-l:   #b0c890;
+    --text:       #1a2410;
+    --text-muted: #5a7040;
+  }
+
+  body {
+    background-color: var(--page-bg);
+    color: var(--text);
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  /* River Poultry-style headings — bold, impactful */
+  h1, h2, h3 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  /* Override Tailwind sv-* classes to use CSS vars */
+  .bg-sv-bg         { background-color: var(--page-bg) !important; }
+  .bg-sv-bg-card    { background-color: var(--card-bg) !important; }
+  .bg-sv-bg-input   { background-color: var(--input-bg) !important; }
+  .border-sv-border { border-color: var(--border) !important; }
+  .border-sv-border-l { border-color: var(--border-l) !important; }
+  .text-sv-text-muted { color: var(--text-muted) !important; }
+
+  /* Light mode text overrides */
+  html.light .text-white        { color: #1a2410 !important; }
+  html.light .text-gray-300     { color: #3a5020 !important; }
+  html.light .text-gray-400     { color: #4a6430 !important; }
+  html.light .text-gray-500     { color: #5a7040 !important; }
+  html.light .text-gray-600     { color: #6a8050 !important; }
+  html.light .text-gray-700     { color: #7a9060 !important; }
+  html.light .bg-gray-800       { background-color: #e8f0d8 !important; }
+  html.light .bg-gray-900       { background-color: #f0f4e4 !important; }
+  html.light .border-gray-700   { border-color: #c8d8a8 !important; }
+  html.light .border-gray-800   { border-color: #d4e0b8 !important; }
+  html.light .divide-sv-border > * + * { border-color: var(--border) !important; }
+
+  html.light input,
+  html.light select,
+  html.light textarea {
+    color: #1a2410;
+    background-color: var(--input-bg);
+  }
+  html.light input::placeholder,
+  html.light textarea::placeholder {
+    color: #8aaa60;
+  }
+
+  /* River Poultry pill button style */
+  .btn-rp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    border: 1.5px solid currentColor;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .btn-rp:hover {
+    background-color: rgba(255,255,255,0.08);
+  }
+  .btn-rp-solid {
+    border-color: #5cb830;
+    background-color: #5cb830;
+    color: #fff;
+  }
+  .btn-rp-solid:hover {
+    background-color: #3f8f1e;
+  }
+  .btn-rp-danger {
+    border-color: #e8431a;
+    background-color: #e8431a;
+    color: #fff;
+  }
+  .btn-rp-danger:hover {
+    background-color: #c43515;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* Olive-tinted glass card — used for feature panels */
+  .card-olive {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+  }
+}
