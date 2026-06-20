@@ -10,28 +10,28 @@
     letter-spacing: -0.01em;
   }
 
-  /* Dark mode — River Poultry olive-dark palette */
+  /* ── Light mode (default — matches smartvet.africa aesthetic) ─────────── */
   :root {
-    color-scheme: dark;
-    --page-bg:    #141c0a;
-    --card-bg:    #1d2810;
-    --input-bg:   #263318;
-    --border:     #364826;
-    --border-l:   #445e30;
-    --text:       #f2f5ec;
-    --text-muted: #a8bf88;
+    color-scheme: light;
+    --page-bg:    #f9fafb;   /* gray-50  */
+    --card-bg:    #ffffff;   /* white    */
+    --input-bg:   #f3f4f6;   /* gray-100 */
+    --border:     #e5e7eb;   /* gray-200 */
+    --border-l:   #d1d5db;   /* gray-300 */
+    --text:       #111827;   /* gray-900 */
+    --text-muted: #6b7280;   /* gray-500 — 4.6:1 on white, WCAG AA */
   }
 
-  /* Light mode — clean, high-contrast, WCAG AA accessible */
-  html.light {
-    color-scheme: light;
-    --page-bg:    #f5f7f5;
-    --card-bg:    #ffffff;
-    --input-bg:   #edf0ed;
-    --border:     #c8d0c8;
-    --border-l:   #a0b0a0;
-    --text:       #111811;
-    --text-muted: #3d4f3d;
+  /* ── Dark mode — slate palette, less olive than before ───────────────── */
+  html.dark {
+    color-scheme: dark;
+    --page-bg:    #0f172a;   /* slate-900 */
+    --card-bg:    #1e293b;   /* slate-800 */
+    --input-bg:   #334155;   /* slate-700 */
+    --border:     #475569;   /* slate-600 */
+    --border-l:   #64748b;   /* slate-500 */
+    --text:       #f1f5f9;   /* slate-100 */
+    --text-muted: #94a3b8;   /* slate-400 — 4.5:1 on slate-900, WCAG AA */
   }
 
   body {
@@ -40,98 +40,115 @@
     transition: background-color 0.2s, color 0.2s;
   }
 
-  /* River Poultry-style headings — bold, impactful */
   h1, h2, h3 {
     font-weight: 800;
     letter-spacing: -0.02em;
   }
 
-  /* Override Tailwind sv-* classes to use CSS vars */
-  .bg-sv-bg         { background-color: var(--page-bg) !important; }
-  .bg-sv-bg-card    { background-color: var(--card-bg) !important; }
+  /* ── Tailwind sv-* classes → CSS vars (both modes) ───────────────────── */
+  .bg-sv-bg         { background-color: var(--page-bg)  !important; }
+  .bg-sv-bg-card    { background-color: var(--card-bg)  !important; }
   .bg-sv-bg-input   { background-color: var(--input-bg) !important; }
-  .border-sv-border { border-color: var(--border) !important; }
-  .border-sv-border-l { border-color: var(--border-l) !important; }
-  .text-sv-text-muted { color: var(--text-muted) !important; }
+  .border-sv-border { border-color: var(--border)       !important; }
+  .border-sv-border-l { border-color: var(--border-l)   !important; }
+  .text-sv-text-muted { color: var(--text-muted)        !important; }
 
-  /* Light mode text overrides — WCAG AA contrast on white/light-grey */
-  html.light .text-white        { color: #111811 !important; }
-  html.light .text-gray-300     { color: #2d3d2d !important; }
-  html.light .text-gray-400     { color: #374937 !important; }
-  html.light .text-gray-500     { color: #3d4f3d !important; }
-  html.light .text-gray-600     { color: #4a5e4a !important; }
-  html.light .text-gray-700     { color: #566656 !important; }
-  html.light .bg-gray-800       { background-color: #e4e8e4 !important; }
-  html.light .bg-gray-900       { background-color: #eff1ef !important; }
-  html.light .bg-gray-950       { background-color: #f5f7f5 !important; }
-  html.light .border-gray-700   { border-color: #b8c4b8 !important; }
-  html.light .border-gray-800   { border-color: #c4d0c4 !important; }
-  html.light .divide-sv-border > * + * { border-color: var(--border) !important; }
+  /* ── Light mode: gray tailwind classes → readable on white ───────────── */
+  :root .text-white        { color: var(--text)    !important; }
+  :root .text-gray-300     { color: #374151        !important; }
+  :root .text-gray-400     { color: #4b5563        !important; }
+  :root .text-gray-500     { color: #6b7280        !important; }
+  :root .text-gray-600     { color: #9ca3af        !important; }
+  :root .text-gray-700     { color: #d1d5db        !important; }
+  :root .bg-gray-800       { background-color: #f3f4f6 !important; }
+  :root .bg-gray-900       { background-color: #f9fafb !important; }
+  :root .bg-gray-950       { background-color: #f9fafb !important; }
+  :root .border-gray-700   { border-color: #e5e7eb !important; }
+  :root .border-gray-800   { border-color: #f3f4f6 !important; }
 
-  html.light input,
-  html.light select,
-  html.light textarea {
-    color: #111811;
+  /* Light inputs */
+  :root input,
+  :root select,
+  :root textarea {
+    color: #111827;
     background-color: var(--input-bg);
     border-color: var(--border);
   }
-  html.light input::placeholder,
-  html.light textarea::placeholder {
-    color: #6a806a;
+  :root input::placeholder,
+  :root textarea::placeholder {
+    color: #9ca3af;
   }
 
-  /* Ensure dark overlays don't bleed through in light mode */
-  html.light .bg-black\/60 { background-color: rgba(0,0,0,0.45) !important; }
-  html.light .bg-sv-red\/10  { background-color: rgba(232,67,26,0.08) !important; }
-  html.light .bg-sv-green\/10 { background-color: rgba(92,184,48,0.10) !important; }
-  html.light .bg-sv-teal\/10  { background-color: rgba(61,191,184,0.10) !important; }
-  html.light .bg-sv-amber\/10 { background-color: rgba(240,180,41,0.10) !important; }
+  /* Light mode tinted backgrounds — keep them subtle on white */
+  :root .bg-sv-red\/10   { background-color: rgba(220,38,38,0.07)  !important; }
+  :root .bg-sv-green\/10 { background-color: rgba(22,163,74,0.08)  !important; }
+  :root .bg-sv-green\/15 { background-color: rgba(22,163,74,0.10)  !important; }
+  :root .bg-sv-teal\/10  { background-color: rgba(13,148,136,0.08) !important; }
+  :root .bg-sv-amber\/10 { background-color: rgba(217,119,6,0.08)  !important; }
+  :root .bg-black\/50    { background-color: rgba(0,0,0,0.40)      !important; }
+  :root .bg-black\/60    { background-color: rgba(0,0,0,0.50)      !important; }
 
-  /* River Poultry pill button style */
-  .btn-rp {
+  /* ── Dark mode overrides (only when html.dark) ───────────────────────── */
+  html.dark .text-white  { color: #f1f5f9 !important; }
+  html.dark .text-gray-300 { color: #cbd5e1 !important; }
+  html.dark .text-gray-400 { color: #94a3b8 !important; }
+  html.dark .text-gray-500 { color: #64748b !important; }
+  html.dark .text-gray-600 { color: #475569 !important; }
+  html.dark .bg-gray-800  { background-color: #1e293b !important; }
+  html.dark .bg-gray-900  { background-color: #0f172a !important; }
+  html.dark .bg-gray-950  { background-color: #020617 !important; }
+  html.dark .border-gray-700 { border-color: #334155 !important; }
+  html.dark .border-gray-800 { border-color: #1e293b !important; }
+
+  html.dark input,
+  html.dark select,
+  html.dark textarea {
+    color: #f1f5f9;
+    background-color: var(--input-bg);
+    border-color: var(--border);
+  }
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748b;
+  }
+
+  /* ── SmartVet-matching card & button styles ───────────────────────────── */
+  .card-sv {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  /* Pill button — matches SmartVet "Create Account →" style */
+  .btn-sv {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1.25rem;
-    border-radius: 9999px;
-    border: 1.5px solid currentColor;
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.5rem;
     font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: background-color 0.15s, color 0.15s;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    transition: background-color 0.15s, box-shadow 0.15s;
   }
-  .btn-rp:hover {
-    background-color: rgba(255,255,255,0.08);
-  }
-  .btn-rp-solid {
-    border-color: #5cb830;
-    background-color: #5cb830;
+  .btn-sv-primary {
+    background-color: #16a34a;
     color: #fff;
+    border: none;
   }
-  .btn-rp-solid:hover {
-    background-color: #3f8f1e;
-  }
-  .btn-rp-danger {
-    border-color: #e8431a;
-    background-color: #e8431a;
+  .btn-sv-primary:hover { background-color: #15803d; }
+  .btn-sv-danger {
+    background-color: #dc2626;
     color: #fff;
+    border: none;
   }
-  .btn-rp-danger:hover {
-    background-color: #c43515;
-  }
+  .btn-sv-danger:hover { background-color: #b91c1c; }
 }
 
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
-  }
-
-  /* Olive-tinted glass card — used for feature panels */
-  .card-olive {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
   }
 }

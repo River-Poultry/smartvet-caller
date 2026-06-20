@@ -1,48 +1,42 @@
 import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 
-function getInitialTheme() {
+function getInitialDark() {
   const saved = localStorage.getItem('sv_theme');
-  if (saved) return saved === 'light';
-  return window.matchMedia?.('(prefers-color-scheme: light)').matches ?? false;
+  if (saved) return saved === 'dark';
+  // default light — matches SmartVet system aesthetic
+  return false;
 }
 
-function applyTheme(light) {
-  document.documentElement.classList.toggle('light', light);
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
 }
 
 export function ThemeToggle() {
-  const [light, setLight] = useState(getInitialTheme);
+  const [dark, setDark] = useState(getInitialDark);
 
-  useEffect(() => { applyTheme(light); }, []);
+  useEffect(() => { applyTheme(dark); }, [dark]);
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
-    const handler = (e) => {
-      if (!localStorage.getItem('sv_theme')) {
-        setLight(e.matches);
-        applyTheme(e.matches);
-      }
-    };
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    // Apply on mount so SSR/hydration doesn't flicker
+    applyTheme(getInitialDark());
   }, []);
 
   function toggle() {
-    const next = !light;
-    setLight(next);
+    const next = !dark;
+    setDark(next);
     applyTheme(next);
-    localStorage.setItem('sv_theme', next ? 'light' : 'dark');
+    localStorage.setItem('sv_theme', next ? 'dark' : 'light');
   }
 
   return (
     <button
       onClick={toggle}
-      title={light ? 'Switch to dark mode' : 'Switch to light mode'}
-      className="p-1.5 rounded-lg border border-sv-border text-gray-400
+      title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="p-1.5 rounded-lg border border-sv-border text-sv-text-muted
                  hover:text-sv-green hover:border-sv-green/40 transition-colors"
     >
-      {light ? <Moon size={15} /> : <Sun size={15} />}
+      {dark ? <Sun size={15} /> : <Moon size={15} />}
     </button>
   );
 }

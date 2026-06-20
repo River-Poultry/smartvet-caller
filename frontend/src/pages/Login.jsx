@@ -18,87 +18,81 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex bg-sv-bg">
-      {/* Left — River Poultry brand panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12"
-           style={{ background: 'linear-gradient(160deg, #1d2a10 0%, #141c0a 60%, #0e1508 100%)' }}>
+
+      {/* Left — SmartVet green brand panel */}
+      <div className="hidden lg:flex flex-col justify-between w-[45%] p-12"
+           style={{ background: 'linear-gradient(150deg, #166534 0%, #15803d 50%, #16a34a 100%)' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="SmartVet" className="h-10 w-auto"
             onError={e => { e.currentTarget.src = '/logo.svg'; }} />
           <div>
             <p className="text-white font-bold text-base leading-none">SmartVet</p>
-            <p className="text-sv-teal text-xs leading-none mt-0.5">Call Centre</p>
+            <p className="text-green-200 text-xs leading-none mt-0.5">Call Centre</p>
           </div>
         </div>
 
         <div>
-          <h1 className="text-5xl font-extrabold text-white leading-tight tracking-tight mb-4">
-            Transforming<br />African Poultry
+          <h1 className="text-5xl font-extrabold text-white leading-tight tracking-tight mb-5">
+            Every farmer.<br />Every flock.<br />Every call<br />matters.
           </h1>
-          <p className="text-lg text-white/60 leading-relaxed mb-2">
-            Through connected farms, AI-powered food safety, and on-demand veterinary support
-          </p>
-          <p className="text-sm text-sv-green font-medium">
-            Every farmer. Every flock. Every call — matters.
+          <p className="text-base text-green-100/80 leading-relaxed">
+            AI-powered call centre for SmartVet agents — log symptoms, diagnose instantly, dispatch vets.
           </p>
         </div>
 
-        <div className="flex items-center gap-6 text-xs text-white/30">
-          <span>riverpoultry.com</span>
-          <span>·</span>
-          <span>SmartVet Africa</span>
-        </div>
+        <p className="text-xs text-green-200/50">River Poultry · SmartVet Africa</p>
       </div>
 
-      {/* Right — Login form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      {/* Right — Login form, white card like SmartVet signup */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-gray-50">
         <div className="w-full max-w-sm">
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <img src="/logo.png" alt="SmartVet" className="h-10 w-auto"
+          <div className="flex flex-col items-center gap-3 mb-8 lg:hidden">
+            <img src="/logo.png" alt="SmartVet" className="h-14 w-auto"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-            <div>
-              <p className="text-white font-bold text-base leading-none">SmartVet</p>
-              <p className="text-sv-teal text-xs leading-none mt-0.5">Call Centre</p>
-            </div>
+            <p className="text-sv-green-dd font-extrabold text-xl tracking-tight">SmartVet Call Centre</p>
           </div>
 
-          <h2 className="text-2xl font-extrabold text-white mb-1 tracking-tight">Sign In</h2>
-          <p className="text-sv-text-muted text-sm mb-8">Log in to access the dispatch portal</p>
+          {/* Card */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+            <h2 className="text-2xl font-extrabold text-sv-green-dd mb-1 tracking-tight">Sign in</h2>
+            <p className="text-sv-text-muted text-sm mb-7">Access the agent dispatch portal</p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-sv-red/10 border border-sv-red/40 text-red-300 text-sm rounded-xl px-4 py-3">
-                {error}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-semibold text-sv-green-dd mb-1.5">
+                  Email or Phone
+                </label>
+                <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)} required
+                  autoFocus
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-sv-green focus:ring-2 focus:ring-sv-green/20 transition-colors placeholder-gray-400"
+                  placeholder="agent@smartvet.africa or +256…" />
               </div>
-            )}
 
-            <div>
-              <label className="block text-xs font-semibold text-sv-text-muted uppercase tracking-wider mb-2">
-                Email or Phone
-              </label>
-              <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)} required
-                autoFocus
-                className="w-full bg-sv-bg-input border border-sv-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-sv-green focus:ring-1 focus:ring-sv-green/20 transition-colors placeholder-sv-text-muted"
-                placeholder="agent@smartvet.africa or +256…" />
-            </div>
+              <div>
+                <label className="block text-sm font-semibold text-sv-green-dd mb-1.5">
+                  Password
+                </label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 text-sm focus:outline-none focus:border-sv-green focus:ring-2 focus:ring-sv-green/20 transition-colors placeholder-gray-400"
+                  placeholder="••••••••" />
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-sv-text-muted uppercase tracking-wider mb-2">
-                Password
-              </label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                className="w-full bg-sv-bg-input border border-sv-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-sv-green focus:ring-1 focus:ring-sv-green/20 transition-colors placeholder-sv-text-muted"
-                placeholder="••••••••" />
-            </div>
+              <button type="submit" disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-sm text-white bg-sv-green hover:bg-sv-green-d disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-1">
+                {loading ? <><Loader2 size={15} className="animate-spin" /> Signing in…</> : 'Sign In →'}
+              </button>
+            </form>
+          </div>
 
-            <button type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm uppercase tracking-widest text-white transition-all border border-sv-green bg-sv-green hover:bg-sv-green-d disabled:opacity-50 disabled:cursor-not-allowed mt-2">
-              {loading ? <><Loader2 size={15} className="animate-spin" /> Signing in…</> : 'Sign In →'}
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-sv-text-muted mt-8">
+          <p className="text-center text-xs text-gray-400 mt-6">
             River Poultry · SmartVet Africa · Powered by AI
           </p>
         </div>
