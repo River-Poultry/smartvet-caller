@@ -53,13 +53,7 @@
   .border-sv-border-l { border-color: var(--border-l)   !important; }
   .text-sv-text-muted { color: var(--text-muted)        !important; }
 
-  /* ── Light mode: gray tailwind classes → readable on white ───────────── */
-  :root .text-white        { color: var(--text)    !important; }
-  :root .text-gray-300     { color: #374151        !important; }
-  :root .text-gray-400     { color: #4b5563        !important; }
-  :root .text-gray-500     { color: #6b7280        !important; }
-  :root .text-gray-600     { color: #9ca3af        !important; }
-  :root .text-gray-700     { color: #d1d5db        !important; }
+  /* ── Light mode: dark bg classes → light equivalents ────────────────── */
   :root .bg-gray-800       { background-color: #f3f4f6 !important; }
   :root .bg-gray-900       { background-color: #f9fafb !important; }
   :root .bg-gray-950       { background-color: #f9fafb !important; }
