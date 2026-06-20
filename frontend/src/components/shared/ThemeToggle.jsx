@@ -4,7 +4,6 @@ import { Sun, Moon } from 'lucide-react';
 function getInitialTheme() {
   const saved = localStorage.getItem('sv_theme');
   if (saved) return saved === 'light';
-  // Default to system preference
   return window.matchMedia?.('(prefers-color-scheme: light)').matches ?? false;
 }
 
@@ -15,10 +14,8 @@ function applyTheme(light) {
 export function ThemeToggle() {
   const [light, setLight] = useState(getInitialTheme);
 
-  // Sync on initial mount
   useEffect(() => { applyTheme(light); }, []);
 
-  // Follow system preference changes when user hasn't manually set a preference
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: light)');
     const handler = (e) => {

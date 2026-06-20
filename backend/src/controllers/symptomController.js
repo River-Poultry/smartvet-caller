@@ -12,7 +12,6 @@ export async function addSymptom(req, res) {
     [callId, symptom.trim(), severity]
   );
 
-  // Re-run AI suggestions with updated symptom list
   const allSymptoms = await query(
     `SELECT symptom FROM call_symptoms WHERE call_id = $1`,
     [callId]
@@ -20,7 +19,6 @@ export async function addSymptom(req, res) {
   const trackedSymptoms = allSymptoms.rows.map(r => r.symptom);
   const suggestions = await generateSuggestions(callId, trackedSymptoms.join(', '), trackedSymptoms);
 
-  // Notify agent with full suggestions payload
   const callRes = await query('SELECT agent_id FROM calls WHERE id = $1', [callId]);
   if (callRes.rows[0]?.agent_id) {
     notifyAgent(callRes.rows[0].agent_id, 'AI_SUGGESTION', { suggestions, symptom: rows[0] });

@@ -1,6 +1,3 @@
-/**
- * CallCompanion — unified symptom tracker + AI diagnosis + call notes.
- */
 import { useState, useEffect, useRef } from 'react';
 import {
   X, Plus, Activity, Stethoscope, Zap, FileText, ExternalLink,
@@ -8,8 +5,6 @@ import {
 } from 'lucide-react';
 import { useCallStore } from '../../store/callStore.js';
 import api from '../../services/api.js';
-
-// ─── Symptom groups ───────────────────────────────────────────────────────────
 
 const SYMPTOM_GROUPS = [
   { label: 'Feeding & Digestion', symptoms: ['Not eating', 'Diarrhea', 'Bloody droppings', 'Watery droppings', 'Green droppings'] },
@@ -19,8 +14,6 @@ const SYMPTOM_GROUPS = [
   { label: 'Mortality',           symptoms: ['High mortality', 'Sudden death', 'Many dead'] },
   { label: 'Production',          symptoms: ['Reduced egg production', 'Soft shell eggs', 'No shell eggs'] },
 ];
-
-// ─── Disease card ─────────────────────────────────────────────────────────────
 
 function DiseaseCard({ d, rank }) {
   const [open, setOpen] = useState(rank === 0);
@@ -108,8 +101,6 @@ function DiseaseCard({ d, rank }) {
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 export function CallCompanion() {
   const {
     activeCall, symptoms, callNotes,
@@ -127,7 +118,6 @@ export function CallCompanion() {
   const [drugSuggestions, setDrugSuggestions] = useState([]);
   const diagDebounce = useRef(null);
 
-  // Auto-diagnose on symptom change
   useEffect(() => {
     clearTimeout(diagDebounce.current);
     if (!symptoms.length) { setDiagnoses([]); return; }
@@ -147,7 +137,6 @@ export function CallCompanion() {
     return () => clearTimeout(diagDebounce.current);
   }, [symptoms]);
 
-  // Drug suggestions from top diagnoses
   useEffect(() => {
     if (!diagnoses.length) { setDrugSuggestions([]); return; }
     const top = diagnoses.slice(0, 2).map(d => d.name).join(',');
@@ -192,8 +181,6 @@ export function CallCompanion() {
   }
 
   const activeLower = symptoms.map(s => s.symptom?.toLowerCase());
-
-  // ─── Tabs ────────────────────────────────────────────────────────────────────
 
   const TABS = [
     { id: 'symptoms', label: 'Symptoms & AI', icon: Stethoscope },

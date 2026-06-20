@@ -113,7 +113,6 @@ export async function getCallDetail(req, res) {
 
   if (!callRes.rows.length) return res.status(404).json({ error: 'Call not found' });
 
-  // Non-admin agents can only see their own calls
   if (!req.agent.is_admin && callRes.rows[0].agent_id !== req.agent.id) {
     return res.status(403).json({ error: 'Access denied' });
   }
@@ -135,9 +134,7 @@ export async function triggerSuggestions(req, res) {
   res.json({ suggestions });
 }
 
-/** Create a demo/test call so agents can test symptoms + AI without Twilio */
 export async function startDemoCall(req, res) {
-  // End any existing open demo call for this agent first
   await query(
     `UPDATE calls SET ended_at = NOW() WHERE agent_id = $1 AND ended_at IS NULL AND twilio_call_sid LIKE 'DEMO-%'`,
     [req.agent.id]

@@ -16,7 +16,6 @@ const ANIMAL_TYPES = ['Broilers', 'Layers', 'Chicks', 'Sasso / Local', 'Mixed po
 export function VetDispatchModal() {
   const { activeCall, dispatchModalOpen, closeDispatchModal, symptoms, callNotes, dispatchUrgency } = useCallStore();
 
-  // Build rich context for the vet from symptoms + notes + call
   function buildVetContext() {
     const parts = [];
     if (symptoms?.length) {
@@ -44,7 +43,6 @@ export function VetDispatchModal() {
   const [availableVets, setAvailableVets] = useState([]);
   const [selectedVetId, setSelectedVetId] = useState('');
 
-  // Reset form when modal opens
   useEffect(() => {
     if (!dispatchModalOpen) return;
     setStatus('idle');

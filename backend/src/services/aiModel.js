@@ -1,20 +1,10 @@
-/**
- * Pluggable AI model service.
- * Set AI_MODEL_URL in .env to point to your own model endpoint.
- * Falls back to the local diseaseDiagnosis engine when not configured.
- */
 import { diagnoseFromSymptoms, buildDiagnosisSummary } from './diseaseDiagnosis.js';
 import { logger } from '../config/logger.js';
 
 const AI_MODEL_URL = process.env.AI_MODEL_URL || '';
 const AI_MODEL_KEY = process.env.AI_MODEL_KEY || '';
 
-/**
- * Query the AI model (or fallback) with a free-text question or symptom list.
- * Returns: { answer, diagnoses, source }
- */
 export async function queryAIModel({ question, symptoms = [], bird_type = 'chicken', context = '' }) {
-  // If a model URL is configured, proxy to it
   if (AI_MODEL_URL) {
     try {
       const res = await fetch(AI_MODEL_URL, {
@@ -42,7 +32,6 @@ export async function queryAIModel({ question, symptoms = [], bird_type = 'chick
     }
   }
 
-  // Local fallback — offline diagnosis engine
   const allText = [question, ...symptoms].join(' ');
   const diagnoses = diagnoseFromSymptoms(symptoms, allText, bird_type);
   const summary = buildDiagnosisSummary(diagnoses, symptoms);

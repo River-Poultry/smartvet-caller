@@ -1,7 +1,6 @@
 export function Logo({ size = 'md', showText = false }) {
   const sizes = { sm: 'h-8', md: 'h-10', lg: 'h-14' };
 
-  // Prefer PNG logo if available, fall back to SVG
   return (
     <div className="flex items-center gap-2">
       <img

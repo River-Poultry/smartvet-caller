@@ -4,7 +4,6 @@ const listeners = new Map();
 export function connectWS(token) {
   if (ws?.readyState === WebSocket.OPEN) return;
 
-  // VITE_WS_URL overrides for cross-domain production deployments (e.g. Vercel + Railway)
   const wsBase = import.meta.env.VITE_WS_URL
     || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
   ws = new WebSocket(`${wsBase}/ws?token=${token}`);
@@ -18,7 +17,6 @@ export function connectWS(token) {
   };
 
   ws.onclose = () => {
-    // Reconnect after 3s if we still have a token
     if (localStorage.getItem('sv_token')) {
       setTimeout(() => connectWS(localStorage.getItem('sv_token')), 3000);
     }

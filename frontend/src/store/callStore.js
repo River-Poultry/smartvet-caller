@@ -22,7 +22,6 @@ return ({
         activeCall: hasCall ? data : null,
         transcriptSegments: data.transcript_segments || [],
       });
-      // Restore symptoms from backend so they survive page refresh
       if (hasCall) {
         try {
           const symRes = await api.get(`/calls/${data.call_id}/symptoms`);
@@ -35,7 +34,6 @@ return ({
   fetchSuggestions: async (callId) => {
     try {
       const { data } = await api.get(`/calls/${callId}/suggestions`);
-      // DB format already uses suggestion_text / confidence_score — use as-is
       set({ suggestions: data.suggestions || [] });
     } catch {}
   },

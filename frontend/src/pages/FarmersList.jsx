@@ -10,7 +10,7 @@ import { VetDispatchModal } from '../components/agent/VetDispatchModal.jsx';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 
-const BIRD_TYPE_COLOR = { broiler: 'blue', layer: 'green', sasso: 'yellow', kuroiler: 'yellow', rainbow_rooster: 'yellow', layer: 'green' };
+const BIRD_TYPE_COLOR = { broiler: 'blue', layer: 'green', sasso: 'yellow', kuroiler: 'yellow', rainbow_rooster: 'yellow' };
 const STAGE_COLOR = { brooding: 'blue', growing: 'green', finishing: 'yellow', laying: 'green' };
 const TASK_TYPE_ICON = { vaccination: '💉', 'routine activity': '📋', treatment: '💊', inspection: '🔍', 'data collection': '📊' };
 

@@ -1,7 +1,3 @@
-/**
- * Vet controller — serves live data from the Django SmartVet backend.
- * Dispatch assignments are stored in local call-centre DB only.
- */
 import { query } from '../config/db.js';
 import { broadcast } from '../services/websocket.js';
 import { listVets as djangoList } from '../services/smartvetCore.js';
@@ -13,12 +9,10 @@ export async function listVets(req, res) {
   try {
     const { count, vets } = await djangoList({ search, page });
 
-    // Apply client-side filters (Django API doesn't support all our filters yet)
     let filtered = vets;
     if (available === 'true') filtered = filtered.filter(v => v.is_available);
     if (role) filtered = filtered.filter(v => v.role === role);
 
-    // Enrich with local dispatch stats
     const djangoIds = filtered.map(v => v.django_id).filter(Boolean);
     let dispatchStats = {};
     if (djangoIds.length) {
@@ -46,16 +40,13 @@ export async function listVets(req, res) {
 
 export async function getVet(req, res) {
   const { vetId } = req.params;
-  // vetId is "django-vet-{id}" or raw numeric
   const djangoId = vetId.replace('django-vet-', '');
 
   try {
-    // Find in live Django list
     const { vets } = await djangoList({ search: '' });
     const vet = vets.find(v => String(v.django_id) === djangoId);
     if (!vet) return res.status(404).json({ error: 'Vet not found' });
 
-    // Recent dispatches from local DB
     const { rows: dispatches } = await query(
       `SELECT d.id, d.created_at, d.urgency_level, d.status, d.visit_type,
               d.symptoms_description, d.farmer_name, d.farmer_phone
@@ -77,7 +68,6 @@ export async function assignVetToDispatch(req, res) {
   const { vet_id } = req.body;
   if (!vet_id) return res.status(400).json({ error: 'vet_id required' });
 
-  // Resolve vet from Django list
   const djangoId = String(vet_id).replace('django-vet-', '');
   const { vets } = await djangoList({ search: '' }).catch(() => ({ vets: [] }));
   const vet = vets.find(v => String(v.django_id) === djangoId || v.id === vet_id);
@@ -103,7 +93,6 @@ export async function assignVetToDispatch(req, res) {
 }
 
 export async function toggleAvailability(req, res) {
-  // Availability is now managed by the Django backend; this is a no-op in the call centre
   res.json({ message: 'Availability is managed by the SmartVet app' });
 }
 

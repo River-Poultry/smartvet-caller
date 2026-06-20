@@ -1,10 +1,12 @@
 import { create } from 'zustand';
-import api from '../services/api.js';
+import api, { onTokenRefreshed } from '../services/api.js';
 import { connectWS, disconnectWS } from '../services/websocket.js';
 
 const stored = localStorage.getItem('sv_agent');
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set) => {
+  onTokenRefreshed((token) => set({ token }));
+  return {
   agent: stored ? JSON.parse(stored) : null,
   token: localStorage.getItem('sv_token') || null,
   loading: false,
@@ -36,4 +38,5 @@ export const useAuthStore = create((set) => ({
     disconnectWS();
     set({ agent: null, token: null });
   },
-}));
+};
+});

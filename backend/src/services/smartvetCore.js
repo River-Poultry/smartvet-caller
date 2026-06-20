@@ -1,8 +1,3 @@
-/**
- * SmartVet Core API bridge — connects to the live Django backend at smartvet.africa
- * API is AllowAny so no auth token needed for reads.
- * Writes (create farmer) use the /auth/api/signup/ endpoint.
- */
 import { logger } from '../config/logger.js';
 
 const BASE = process.env.SMARTVET_CORE_API || 'https://smartvet.africa';
@@ -30,7 +25,6 @@ async function post(path, body) {
   return data;
 }
 
-/** Look up a farmer by phone number from the live Django system */
 export async function getFarmerByPhone(phone) {
   try {
     const data = await get(`/vet/farmers/?search=${encodeURIComponent(phone)}&format=json`);
@@ -43,7 +37,6 @@ export async function getFarmerByPhone(phone) {
   }
 }
 
-/** Get paginated farmer list from Django, with optional search */
 export async function listFarmers({ search = '', page = 1 } = {}) {
   try {
     const params = new URLSearchParams({ format: 'json', page });
@@ -60,7 +53,6 @@ export async function listFarmers({ search = '', page = 1 } = {}) {
   }
 }
 
-/** Get paginated vet list from Django */
 export async function listVets({ search = '', page = 1 } = {}) {
   try {
     const params = new URLSearchParams({ format: 'json', page });
@@ -77,7 +69,6 @@ export async function listVets({ search = '', page = 1 } = {}) {
   }
 }
 
-/** Get a single farmer's batches from Django */
 export async function getFarmerBatches(djangoFarmerId) {
   try {
     const data = await get(`/vet/api/farmers/${djangoFarmerId}/batches/?format=json`);
@@ -88,9 +79,7 @@ export async function getFarmerBatches(djangoFarmerId) {
   }
 }
 
-/** Create a new farmer in the Django system via signup */
 export async function createFarmerInDjango({ full_name, phone, email, farm_name, address, chicken_type, preferred_language, latitude, longitude }) {
-  // Django signup creates both User + FarmerProfile in one shot
   const [first_name, ...rest] = (full_name || 'Unknown').split(' ');
   const last_name = rest.join(' ') || full_name;
 
@@ -100,7 +89,7 @@ export async function createFarmerInDjango({ full_name, phone, email, farm_name,
     last_name,
     phone,
     email: email || `${phone.replace(/\+/g, '')}@smartvet.auto`,
-    password: `sv_${phone.slice(-6)}_auto`,  // auto-generated password, farmer logs in via OTP
+    password: `sv_${phone.slice(-6)}_auto`,
     farm_name: farm_name || '',
     address: address || '',
     chicken_type: chicken_type || '',
@@ -110,10 +99,8 @@ export async function createFarmerInDjango({ full_name, phone, email, farm_name,
   });
 }
 
-/** Get available paravets near a location */
 export async function getAvailableParavets({ lat, lng, urgency }) {
   try {
-    // Django API doesn't have availability filtering yet — return all active vets
     const data = await get('/vet/vets/?format=json');
     return (data.results || []).map(normalizeVet).slice(0, 5);
   } catch (err) {
@@ -122,25 +109,18 @@ export async function getAvailableParavets({ lat, lng, urgency }) {
   }
 }
 
-/** Create a vet dispatch request in Django (not yet implemented — stored locally only) */
 export async function createVetRequest(dispatchData) {
-  // Django doesn't have a dispatch API yet; stored in local call-centre DB only
   logger.info('createVetRequest: local-only', { farmer: dispatchData.farmer_name });
   return null;
 }
 
-/** Query knowledge base — currently uses local diagnosis engine, not Django */
 export async function queryKnowledgeBase({ symptoms, animalType }) {
-  // SmartVet's KB is the search page at smartvet.africa/?q=...
-  // For structured diagnosis we use the local diseaseDiagnosis.js engine.
   return null;
 }
 
-// ─── Normalizers ─────────────────────────────────────────────────────────────
-
 function normalizeFarmer(f) {
   return {
-    id: `django-${f.id}`,          // prefix to avoid PK collisions with local DB
+    id: `django-${f.id}`,
     django_id: f.id,
     name: f.fullname,
     full_name: f.fullname,
@@ -194,7 +174,6 @@ function normalizeVet(v) {
 
 function extractDistrict(address) {
   if (!address) return '';
-  // Try to get last meaningful word as district
   const parts = address.split(',').map(s => s.trim());
   return parts[parts.length - 1] || address;
 }

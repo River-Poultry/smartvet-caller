@@ -3,7 +3,6 @@ import { connectWS, on } from '../services/websocket.js';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 
-/** Normalize suggestion from service format (.text/.confidence) or DB format (.suggestion_text/.confidence_score) */
 function norm(s) {
   return {
     id: s.id || `ws-${Date.now()}-${Math.random()}`,
@@ -37,8 +36,6 @@ export function useWebSocket() {
       on('CALL_ENDED', () => clearCall()),
       on('TRANSCRIPT_SEGMENT', (seg) => addTranscriptSegment(seg)),
       on('AI_SUGGESTION', (data) => {
-        // symptomController sends { suggestions: [...], symptom: {...} }
-        // twilioController may send a single suggestion object
         if (data?.suggestions && Array.isArray(data.suggestions)) {
           setSuggestions(data.suggestions.map(norm));
         } else if (data) {

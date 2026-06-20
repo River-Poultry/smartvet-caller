@@ -4,14 +4,13 @@ import jwt from 'jsonwebtoken';
 import { query } from '../config/db.js';
 import { sendOtpEmail } from '../utils/email.js';
 
-// ── helpers ─────────────────────────────────────────────────────────────
-
 export function normalisePhone(raw) {
-  if (!raw) return null;
-  const digits = raw.replace(/\D/g, '');
-  if (digits.startsWith('256')) return `+${digits}`;
-  if (digits.startsWith('0'))   return `+256${digits.slice(1)}`;
-  if (digits.length === 9)      return `+256${digits}`;
+  if (!raw || typeof raw !== 'string') return null;
+  const digits = raw.trim().replace(/\D/g, '');
+  if (!digits) return null;
+  if (digits.startsWith('256') && digits.length >= 12) return `+${digits}`;
+  if (digits.startsWith('0') && digits.length === 10)  return `+256${digits.slice(1)}`;
+  if (digits.length === 9)                              return `+256${digits}`;
   return `+${digits}`;
 }
 
@@ -23,7 +22,7 @@ function validatePassword(password) {
 }
 
 function generateOtp() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(crypto.randomInt(100000, 1000000));
 }
 
 function signAccess(agent) {
@@ -45,8 +44,6 @@ async function issueRefreshToken(agentId) {
   return raw;
 }
 
-// ── login ────────────────────────────────────────────────────────────────
-
 export async function login(req, res) {
   const { identifier, email, password } = req.body;
   const id = (identifier || email || '').trim();
@@ -55,7 +52,6 @@ export async function login(req, res) {
     return res.status(400).json({ error: 'Identifier and password are required' });
   }
 
-  // Multi-identifier: email OR normalised phone (matching Django AbstractUser pattern)
   const phone = normalisePhone(id.includes('@') ? null : id);
   const { rows } = await query(
     `SELECT * FROM agents WHERE email = $1 OR phone = $2 LIMIT 1`,
@@ -66,7 +62,6 @@ export async function login(req, res) {
 
   const agent = rows[0];
 
-  // Account lock check
   if (agent.locked_until && new Date(agent.locked_until) > new Date()) {
     const wait = Math.ceil((new Date(agent.locked_until) - Date.now()) / 60000);
     return res.status(429).json({ error: `Account locked. Try again in ${wait} minute(s).` });
@@ -83,7 +78,6 @@ export async function login(req, res) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
-  // OTP gate: if env flag is on and agent not yet verified
   if (process.env.REQUIRE_EMAIL_VERIFICATION === 'true' && !agent.is_verified) {
     const code = generateOtp();
     const exp  = new Date(Date.now() + 10 * 60 * 1000);
@@ -103,7 +97,6 @@ export async function login(req, res) {
     });
   }
 
-  // Reset login failure counters
   await query(
     `UPDATE agents SET failed_logins = 0, locked_until = NULL, status = 'online', updated_at = NOW() WHERE id = $1`,
     [agent.id]
@@ -126,8 +119,6 @@ export async function login(req, res) {
   });
 }
 
-// ── token refresh ────────────────────────────────────────────────────────
-
 export async function refresh(req, res) {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(400).json({ error: 'Refresh token required' });
@@ -144,7 +135,6 @@ export async function refresh(req, res) {
   if (!rows.length) return res.status(401).json({ error: 'Invalid or expired refresh token' });
 
   const rec = rows[0];
-  // Rotate: revoke old, issue new pair (prevents token reuse)
   await query(`UPDATE refresh_tokens SET revoked = true WHERE id = $1`, [rec.id]);
 
   const accessToken = signAccess({ id: rec.agent_id, email: rec.email, is_admin: rec.is_admin });
@@ -152,8 +142,6 @@ export async function refresh(req, res) {
 
   res.json({ token: accessToken, refreshToken: newRefresh });
 }
-
-// ── logout ────────────────────────────────────────────────────────────────
 
 export async function logout(req, res) {
   const { refreshToken } = req.body;
@@ -164,8 +152,6 @@ export async function logout(req, res) {
   await query(`UPDATE agents SET status = 'offline', updated_at = NOW() WHERE id = $1`, [req.agent.id]);
   res.json({ message: 'Logged out' });
 }
-
-// ── OTP: request / verify ─────────────────────────────────────────────────
 
 export async function requestOtp(req, res) {
   const { agentId, purpose = 'verify' } = req.body;
@@ -214,8 +200,6 @@ export async function verifyOtp(req, res) {
   res.json({ message: 'Verified', purpose });
 }
 
-// ── password change ───────────────────────────────────────────────────────
-
 export async function changePassword(req, res) {
   const { currentPassword, newPassword } = req.body;
 
@@ -228,12 +212,9 @@ export async function changePassword(req, res) {
 
   const hash = await bcrypt.hash(newPassword, 12);
   await query(`UPDATE agents SET password_hash = $1, updated_at = NOW() WHERE id = $2`, [hash, req.agent.id]);
-  // Invalidate all sessions on password change
   await query(`UPDATE refresh_tokens SET revoked = true WHERE agent_id = $1`, [req.agent.id]);
   res.json({ message: 'Password updated. Please log in again.' });
 }
-
-// ── admin: create agent ────────────────────────────────────────────────────
 
 export async function createAgent(req, res) {
   const { name, email, phone, password, isAdmin = false } = req.body;

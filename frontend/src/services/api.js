@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { connectWS } from './websocket.js';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -12,6 +13,11 @@ api.interceptors.request.use((config) => {
 
 let isRefreshing = false;
 let refreshQueue = [];
+let _onTokenRefreshed = null;
+
+export function onTokenRefreshed(cb) {
+  _onTokenRefreshed = cb;
+}
 
 api.interceptors.response.use(
   (r) => r,
@@ -43,14 +49,19 @@ api.interceptors.response.use(
           `${api.defaults.baseURL}/auth/refresh`,
           { refreshToken }
         );
-        localStorage.setItem('sv_token', data.token);
-        localStorage.setItem('sv_refresh', data.refreshToken);
-        api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+        const newToken = data.token;
 
-        refreshQueue.forEach(({ resolve }) => resolve(data.token));
+        localStorage.setItem('sv_token', newToken);
+        localStorage.setItem('sv_refresh', data.refreshToken);
+        api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+
+        _onTokenRefreshed?.(newToken);
+        connectWS(newToken);
+
+        refreshQueue.forEach(({ resolve }) => resolve(newToken));
         refreshQueue = [];
 
-        original.headers.Authorization = `Bearer ${data.token}`;
+        original.headers.Authorization = `Bearer ${newToken}`;
         return api(original);
       } catch {
         refreshQueue.forEach(({ reject }) => reject(err));

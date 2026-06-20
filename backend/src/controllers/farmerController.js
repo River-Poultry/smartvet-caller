@@ -1,7 +1,3 @@
-/**
- * Farmer controller — serves live data from the Django SmartVet backend.
- * Falls back to local call-centre DB for call history, batches recorded here.
- */
 import { query } from '../config/db.js';
 import { listFarmers as djangoList, getFarmerByPhone as djangoGetByPhone,
          getFarmerBatches, createFarmerInDjango } from '../services/smartvetCore.js';
@@ -13,7 +9,6 @@ export async function listFarmers(req, res) {
   try {
     const { count, farmers } = await djangoList({ search, page });
 
-    // Enrich each farmer with call history count from local DB
     const phones = farmers.map(f => f.phone).filter(Boolean);
     let callCounts = {};
     if (phones.length) {
@@ -25,11 +20,7 @@ export async function listFarmers(req, res) {
       rows.forEach(r => { callCounts[r.phone_number] = parseInt(r.total_calls); });
     }
 
-    const enriched = farmers.map(f => ({
-      ...f,
-      total_calls: callCounts[f.phone] || 0,
-    }));
-
+    const enriched = farmers.map(f => ({ ...f, total_calls: callCounts[f.phone] || 0 }));
     res.json({ farmers: enriched, total: count, page: parseInt(page) });
   } catch (err) {
     logger.error('listFarmers error', { error: err.message });
@@ -39,19 +30,14 @@ export async function listFarmers(req, res) {
 
 export async function getFarmer(req, res) {
   const { farmerId } = req.params;
-  // farmerId is "django-{id}" from the bridge, or a raw Django id
   const djangoId = farmerId.replace('django-', '');
 
   try {
-    // Pull farmer profile
     const { farmers } = await djangoList({ search: '' });
     const farmer = farmers.find(f => String(f.django_id) === djangoId);
     if (!farmer) return res.status(404).json({ error: 'Farmer not found' });
 
-    // Pull batches from Django
     const batches = await getFarmerBatches(djangoId);
-
-    // Pull call history from local call centre DB
     const callsRes = await query(
       `SELECT id, started_at, duration_seconds, call_intent, is_emergency, outcome, agent_notes
        FROM calls WHERE phone_number = $1 ORDER BY started_at DESC LIMIT 10`,
@@ -77,7 +63,7 @@ export async function getFarmerByPhone(req, res) {
   try {
     const farmer = await djangoGetByPhone(phone);
     res.json(farmer || null);
-  } catch (err) {
+  } catch {
     res.json(null);
   }
 }
@@ -92,32 +78,21 @@ export async function createFarmer(req, res) {
   const farmerName = full_name || name;
 
   try {
-    // 1. Check if already exists in Django
     const existing = await djangoGetByPhone(phone);
-    if (existing) {
-      return res.status(200).json({ farmer: existing, already_exists: true });
-    }
+    if (existing) return res.status(200).json({ farmer: existing, already_exists: true });
 
-    // 2. Create in Django (registers on main app + mobile app immediately)
     const result = await createFarmerInDjango({
-      full_name: farmerName,
-      phone,
-      email,
-      farm_name,
-      address: address || district,
-      chicken_type,
-      preferred_language,
-      latitude,
-      longitude,
+      full_name: farmerName, phone, email, farm_name,
+      address: address || district, chicken_type,
+      preferred_language, latitude, longitude,
     });
 
-    // 3. Also save to local call-centre DB for call linkage
     await query(
       `INSERT INTO farmers (name, phone, district, notes, created_at)
        VALUES ($1, $2, $3, $4, NOW())
        ON CONFLICT (phone) DO NOTHING`,
       [farmerName, phone, district || '', notes || '']
-    ).catch(() => {}); // ignore if local insert fails
+    ).catch(() => {});
 
     logger.info('Farmer created in Django', { phone, name: farmerName });
     res.status(201).json({ farmer: result, created_in: 'django' });
@@ -125,7 +100,6 @@ export async function createFarmer(req, res) {
   } catch (err) {
     const body = err.body || {};
     logger.error('createFarmer error', { phone, error: err.message, body });
-    // If Django says duplicate, treat as success
     if (body.phone?.[0]?.includes('already exists')) {
       const existing = await djangoGetByPhone(phone).catch(() => null);
       return res.status(200).json({ farmer: existing, already_exists: true });
@@ -135,7 +109,6 @@ export async function createFarmer(req, res) {
 }
 
 export async function updateFarmer(req, res) {
-  // Update in local DB only (Django updates happen via the app)
   const { farmerId } = req.params;
   const { notes, district } = req.body;
   const { rows } = await query(
@@ -147,25 +120,11 @@ export async function updateFarmer(req, res) {
 }
 
 export async function getDistricts(req, res) {
-  // Extract districts from the live Django dataset
   try {
     const { farmers } = await djangoList({ search: '', page: 1 });
-    const districts = [...new Set(
-      farmers.map(f => f.district).filter(Boolean).sort()
-    )];
+    const districts = [...new Set(farmers.map(f => f.district).filter(Boolean).sort())];
     res.json(districts);
   } catch {
     res.json([]);
   }
-}
-
-export function getUnknownFarmerTemplate(req, res) {
-  const { phone } = req.query;
-  res.json({
-    farmer: { id: null, name: '', phone: phone || '', district: null, notes: null },
-    farms: [],
-    batches: [],
-    call_history: [],
-    is_unknown: true,
-  });
 }

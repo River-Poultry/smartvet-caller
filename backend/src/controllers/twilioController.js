@@ -8,7 +8,6 @@ import { logger } from '../config/logger.js';
 
 const { twiml: { VoiceResponse } } = twilio;
 
-// Find least-busy online agent
 async function getLeastBusyAgent() {
   const { rows } = await query(
     `SELECT id, name FROM agents WHERE status = 'online' ORDER BY total_calls ASC LIMIT 1`
@@ -128,7 +127,6 @@ export async function handleRecordingComplete(req, res) {
 
 export async function handleTranscriptionCallback(req, res) {
   const { CallSid } = req.body;
-  // Twilio Intelligence sends transcript as JSON body
   const transcriptData = req.body.transcript || [];
 
   try {

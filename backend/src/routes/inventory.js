@@ -7,14 +7,12 @@ import {
 
 const router = Router();
 
-// Vet field inventory
 router.get('/',              requireAuth,  getInventory);
 router.get('/suggestions',   requireAuth,  getDrugSuggestions);
 router.post('/',             requireAdmin, upsertInventoryItem);
 router.patch('/:id/stock',   requireAdmin, adjustStock);
-router.patch('/:id/vet-stock', requireAuth, vetUpdateStock); // vets report own stock
+router.patch('/:id/vet-stock', requireAuth, vetUpdateStock);
 
-// Warehouse / central store
 router.get('/warehouse',              requireAuth,  getWarehouse);
 router.patch('/warehouse/:id/stock',  requireAdmin, updateWarehouseStock);
 router.post('/warehouse/allocate',    requireAdmin, allocateToVet);

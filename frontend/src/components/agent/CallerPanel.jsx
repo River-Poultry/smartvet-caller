@@ -123,7 +123,6 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
   const [selectedFarmer, setSelectedFarmer] = useState(activeCall?.farmer || null);
   const searchRef = useRef(null);
 
-  // If call already has a farmer, show profile
   useEffect(() => {
     if (activeCall?.farmer?.id) {
       setSelectedFarmer(activeCall.farmer);
@@ -134,7 +133,6 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
     }
   }, [activeCall?.farmer?.id]);
 
-  // Search as user types
   useEffect(() => {
     if (!query.trim()) { setResults([]); return; }
     const t = setTimeout(async () => {

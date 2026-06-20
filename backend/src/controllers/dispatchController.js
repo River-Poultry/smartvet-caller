@@ -16,7 +16,6 @@ export async function createDispatch(req, res) {
     return res.status(400).json({ error: 'farmer_id and urgency_level are required' });
   }
 
-  // Query SmartVet core for available paravets
   let assignedParavet = null;
   let coreJobId = null;
 
@@ -30,7 +29,6 @@ export async function createDispatch(req, res) {
       assignedParavet = paravets?.[0] || null;
     }
 
-    // Create job in SmartVet core if farm_id known
     if (farm_id) {
       const coreJob = await createVetRequest(farm_id, {
         urgency: urgency_level,
@@ -44,7 +42,6 @@ export async function createDispatch(req, res) {
     }
   } catch (err) {
     logger.warn('SmartVet core integration error during dispatch', err.message);
-    // Continue — save locally even if core fails
   }
 
   const { rows } = await query(
@@ -72,10 +69,8 @@ export async function createDispatch(req, res) {
 
   const dispatch = rows[0];
 
-  // Broadcast to admin dashboard
   broadcast('DISPATCH_CREATED', { dispatch });
 
-  // Update call record if linked
   if (call_id) {
     await query(
       `UPDATE calls SET call_intent = 'vet_request', updated_at = NOW() WHERE id = $1`,

@@ -1,7 +1,3 @@
-/**
- * AdminDashboard — FBI-style Dispatch Operations Centre
- * Left: escalation queue | Center: kanban board | Right: vet resources
- */
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
@@ -16,8 +12,6 @@ import { useWebSocket } from '../hooks/useWebSocket.js';
 import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
 import { Badge } from '../components/shared/Badge.jsx';
 
-// ─── Escalation config ────────────────────────────────────────────────────────
-
 const LEVELS = {
   1: { label: 'L1 · Agent',     color: 'text-gray-400',  bg: 'bg-gray-800',   border: 'border-gray-600' },
   2: { label: 'L2 · Paravet',   color: 'text-blue-400',  bg: 'bg-blue-950',   border: 'border-blue-600' },
@@ -31,8 +25,6 @@ const STATUS_COLS = [
   { id: 'completed', label: 'Resolved',  icon: CheckCircle,   color: 'text-green-400' },
   { id: 'cancelled', label: 'Cancelled', icon: X,             color: 'text-red-400' },
 ];
-
-// ─── Small helpers ─────────────────────────────────────────────────────────────
 
 function EscalationBadge({ level = 1 }) {
   const cfg = LEVELS[level] || LEVELS[1];
@@ -59,7 +51,6 @@ function ElapsedTimer({ createdAt }) {
   return <span className="font-mono text-xs text-gray-600">{elapsed}</span>;
 }
 
-// ─── Dispatch card ─────────────────────────────────────────────────────────────
 
 function DispatchCard({ dispatch: d, vets, onEscalate, onAssign, onResolve, onCancel }) {
   const [expanded, setExpanded] = useState(false);
@@ -175,7 +166,6 @@ function DispatchCard({ dispatch: d, vets, onEscalate, onAssign, onResolve, onCa
   );
 }
 
-// ─── Vet resource card ─────────────────────────────────────────────────────────
 
 function VetCard({ vet, inventory }) {
   const items = inventory.filter(i => String(i.vet_django_id) === String(vet.django_id));
@@ -208,7 +198,6 @@ function VetCard({ vet, inventory }) {
   );
 }
 
-// ─── Main ──────────────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
   const { agent, logout } = useAuthStore();

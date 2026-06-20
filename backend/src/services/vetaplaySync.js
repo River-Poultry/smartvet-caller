@@ -13,7 +13,6 @@ export async function syncFromVetaplay() {
     return { synced: 0 };
   }
 
-  // Sync vets
   const vpVets = db.prepare('SELECT * FROM dashboard_vet').all();
   for (const v of vpVets) {
     await query(`
@@ -23,7 +22,6 @@ export async function syncFromVetaplay() {
     `, [v.name, v.phone, v.email || null, v.location || null, v.latitude || null, v.longitude || null, v.specialization || 'Poultry']);
   }
 
-  // Sync farmers
   const vpFarmers = db.prepare('SELECT * FROM dashboard_farmer').all();
   for (const f of vpFarmers) {
     await query(`
@@ -33,7 +31,6 @@ export async function syncFromVetaplay() {
     `, [f.name, f.whatsapp || f.email, f.location || null, f.latitude || null, f.longitude || null]);
   }
 
-  // Sync batches and tasks
   const vpBatches = db.prepare(`
     SELECT b.*, f.whatsapp as farmer_phone, v.phone as vet_phone
     FROM dashboard_batch b
@@ -62,7 +59,6 @@ export async function syncFromVetaplay() {
     if (!batchRes.rows.length) continue;
     const batchId = batchRes.rows[0].id;
 
-    // Sync tasks for this batch
     const vpTasks = db.prepare('SELECT * FROM dashboard_task WHERE batch_id = ?').all(b.id);
     for (const t of vpTasks) {
       await query(`

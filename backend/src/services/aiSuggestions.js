@@ -47,13 +47,11 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
     const keywordSymptoms = extractKeywordSymptoms(transcriptText);
     const animalType = extractAnimalType(transcriptText);
 
-    // Merge transcript-detected symptoms with manually tracked ones
     const allSymptoms = [...new Set([...trackedSymptoms, ...keywordSymptoms])];
 
     const suggestions = [];
 
     if ((intent === 'disease_diagnosis' || allSymptoms.length > 0)) {
-      // 1. Run local offline diagnosis engine first (always available)
       const localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType);
 
       if (localDiagnoses.length > 0) {
@@ -89,7 +87,6 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
           });
         }
       } else if (allSymptoms.length > 0) {
-        // Symptoms reported but no match — request more info
         suggestions.push({
           callId,
           category: 'disease_diagnosis',
@@ -99,7 +96,6 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
         });
       }
 
-      // 2. Also try SmartVet KB (if connected) — non-blocking
       if (allSymptoms.length > 0) {
         queryKnowledgeBase({ symptoms: allSymptoms.join(','), animalType })
           .then(kbResult => {
@@ -148,7 +144,6 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
       });
     }
 
-    // Persist all suggestions
     for (const s of suggestions) {
       await query(
         `INSERT INTO ai_suggestions (call_id, suggestion_text, category, confidence_score, actions)
@@ -157,7 +152,6 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
       );
     }
 
-    // Update call intent and emergency flag
     const anyEmergency = isEmergency || suggestions.some(s => s.category === 'escalation_alert');
     if (intent !== 'other' || allSymptoms.length > 0) {
       await query(
