@@ -34,3 +34,4 @@ coverage/
 
 # Claude Code editor files
 .claude/
+frontend/.vercel/
