@@ -1,16 +1,41 @@
 import { useState } from 'react';
-import { Phone, PhoneOff, Mic, Pause, AlertTriangle, UserPlus, FlaskConical } from 'lucide-react';
+import { Phone, PhoneOff, Mic, Pause, AlertTriangle, UserPlus, RefreshCw, ExternalLink, FlaskConical } from 'lucide-react';
 import { Badge } from '../shared/Badge.jsx';
 import { useCallTimer } from '../../hooks/useCallTimer.js';
 import { useCallStore } from '../../store/callStore.js';
-import { UnknownFarmerPanel } from './UnknownFarmerPanel.jsx';
 import api from '../../services/api.js';
+
+const SIGNUP_URL = 'https://smartvet.africa/login/farmer-signup/';
+
+function openSignupPopup() {
+  const w = 520, h = 720;
+  const left = Math.round(window.screenX + (window.outerWidth - w) / 2);
+  const top  = Math.round(window.screenY + (window.outerHeight - h) / 2);
+  window.open(SIGNUP_URL, 'smartvet_signup',
+    `width=${w},height=${h},left=${left},top=${top},toolbar=0,menubar=0,scrollbars=1,resizable=1`);
+}
 
 export function CallDisplay({ onEnd }) {
   const { activeCall, openDispatchModal, setActiveCall } = useCallStore();
   const timer = useCallTimer(!!activeCall);
   const [showRegister, setShowRegister] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+
+  async function refreshFarmer() {
+    const phone = activeCall?.farmer?.phone || activeCall?.phone_number;
+    if (!phone) return;
+    setRefreshing(true);
+    try {
+      const { data } = await api.get(`/farmers?search=${encodeURIComponent(phone)}&limit=5`);
+      const match = (data.farmers || []).find(f =>
+        f.phone?.replace(/\D/g, '').endsWith(phone.replace(/\D/g, '').slice(-9))
+      );
+      if (match) setActiveCall({ ...activeCall, farmer: match });
+    } catch {}
+    setRefreshing(false);
+    setShowRegister(false);
+  }
 
   async function startDemo() {
     setDemoLoading(true);
@@ -79,7 +104,24 @@ export function CallDisplay({ onEnd }) {
       )}
 
       {showRegister && (
-        <UnknownFarmerPanel phone={farmer?.phone} onClose={() => setShowRegister(false)} onRegistered={() => setShowRegister(false)} />
+        <div className="rounded-xl border border-sv-amber/40 bg-sv-amber/5 p-3 space-y-2.5">
+          <p className="text-xs text-sv-amber font-semibold">Register on SmartVet</p>
+          <p className="text-[11px] text-sv-text-muted leading-relaxed">
+            Opens the official SmartVet registration form. After registering, click <span className="font-semibold">Find farmer</span> to link them to this call.
+          </p>
+          <button onClick={openSignupPopup}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-sv-green/10 border border-sv-green/40 text-sv-green text-xs font-bold hover:bg-sv-green/20 transition-colors">
+            <ExternalLink size={11} /> Open SmartVet Registration
+          </button>
+          <button onClick={refreshFarmer} disabled={refreshing}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-sv-border text-sv-text-muted text-xs font-medium hover:text-white hover:border-sv-border-l disabled:opacity-50 transition-colors">
+            <RefreshCw size={11} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Searching…' : 'Find farmer after registering'}
+          </button>
+          <button onClick={() => setShowRegister(false)} className="w-full text-xs text-sv-text-muted hover:text-white transition-colors py-1">
+            Cancel
+          </button>
+        </div>
       )}
 
       {/* Call card */}
