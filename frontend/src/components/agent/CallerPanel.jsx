@@ -63,50 +63,153 @@ function FarmerProfile({ farmer }) {
   );
 }
 
+const COUNTRY_CODES = [
+  { code: '+256', label: 'UG +256' },
+  { code: '+254', label: 'KE +254' },
+  { code: '+255', label: 'TZ +255' },
+  { code: '+250', label: 'RW +250' },
+  { code: '+257', label: 'BI +257' },
+  { code: '+211', label: 'SS +211' },
+  { code: '+243', label: 'CD +243' },
+];
+
+const CHICKEN_TYPES = ['Broilers', 'Layers', 'Sasso', 'Kroiler/Kiyenyeji'];
+
+function Field({ label, required, children }) {
+  return (
+    <div>
+      <label className="block text-[10px] font-semibold text-sv-text-muted uppercase tracking-wider mb-1">
+        {label}{required && <span className="text-sv-red ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+const INPUT_CLS = 'w-full bg-sv-bg-input border border-sv-border rounded-lg px-3 py-2 text-xs text-white placeholder-sv-text-muted focus:outline-none focus:border-sv-green transition-colors';
+const SELECT_CLS = `${INPUT_CLS} appearance-none cursor-pointer`;
+
 function QuickRegisterForm({ phone, onDone }) {
-  const [form, setForm] = useState({ name: '', phone: phone || '', district: '', chicken_type: '' });
+  const [countryCode, setCountryCode] = useState('+256');
+  const [form, setForm] = useState({
+    name: '',
+    phone: phone ? phone.replace(/^\+\d+/, '') : '',
+    email: '',
+    farm_name: '',
+    farm_location: '',
+    chicken_type: '',
+    vet_support: '',
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
   async function submit(e) {
     e.preventDefault();
-    if (!form.name || !form.phone) { setError('Name and phone required'); return; }
+    if (!form.name.trim()) { setError('Farmer name is required'); return; }
+    if (!form.phone.trim()) { setError('Phone number is required'); return; }
     setSaving(true);
+    setError('');
     try {
+      const fullPhone = `${countryCode}${form.phone.replace(/^0/, '')}`;
       const { data } = await api.post('/farmers', {
-        full_name: form.name, phone: form.phone,
-        district: form.district, chicken_type: form.chicken_type,
+        full_name: form.name.trim(),
+        phone: fullPhone,
+        email: form.email.trim() || undefined,
+        farm_name: form.farm_name.trim() || undefined,
+        address: form.farm_location.trim() || undefined,
+        chicken_type: form.chicken_type || undefined,
+        needs_vet_support: form.vet_support === 'yes',
       });
       onDone(data.farmer || data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to register');
+      setError(err.response?.data?.error || 'Registration failed — please try again');
     }
     setSaving(false);
   }
 
   return (
-    <form onSubmit={submit} className="space-y-2 mt-2">
-      <p className="text-xs font-semibold text-sv-green uppercase tracking-wide">Quick Register</p>
-      {error && <p className="text-xs text-red-400 bg-red-950/30 border border-red-700/40 rounded px-2 py-1">{error}</p>}
-      {[['Name *', 'name', 'text', 'Full name'],
-        ['Phone *', 'phone', 'tel', '+256...'],
-        ['District', 'district', 'text', 'e.g. Gulu'],
-        ['Bird type', 'chicken_type', 'text', 'broiler / layer / sasso']
-      ].map(([label, key, type, ph]) => (
-        <div key={key}>
-          <label className="text-xs text-gray-500">{label}</label>
-          <input type={type} value={form[key]} placeholder={ph}
-            onChange={e => setForm(f => ({...f, [key]: e.target.value}))}
-            className="w-full mt-0.5 bg-sv-bg-input border border-sv-border rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-sv-green" />
-        </div>
-      ))}
+    <form onSubmit={submit} className="space-y-3 mt-1">
+      {/* Section: Personal */}
+      <div className="rounded-lg border border-sv-border bg-sv-bg/40 p-3 space-y-2.5">
+        <p className="text-[10px] font-bold text-sv-green uppercase tracking-widest">Personal Info</p>
+
+        <Field label="Farmer Name" required>
+          <input type="text" value={form.name} onChange={set('name')} placeholder="Full name"
+            className={INPUT_CLS} />
+        </Field>
+
+        <Field label="Phone Number" required>
+          <div className="flex gap-1.5">
+            <select value={countryCode} onChange={e => setCountryCode(e.target.value)}
+              className="bg-sv-bg-input border border-sv-border rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-sv-green appearance-none cursor-pointer flex-shrink-0">
+              {COUNTRY_CODES.map(c => (
+                <option key={c.code} value={c.code}>{c.label}</option>
+              ))}
+            </select>
+            <input type="tel" value={form.phone} onChange={set('phone')} placeholder="7XX XXX XXX"
+              className={INPUT_CLS} />
+          </div>
+        </Field>
+
+        <Field label="Email Address">
+          <input type="email" value={form.email} onChange={set('email')} placeholder="farmer@example.com"
+            className={INPUT_CLS} />
+        </Field>
+      </div>
+
+      {/* Section: Farm */}
+      <div className="rounded-lg border border-sv-border bg-sv-bg/40 p-3 space-y-2.5">
+        <p className="text-[10px] font-bold text-sv-teal uppercase tracking-widest">Farm Details</p>
+
+        <Field label="Farm Name">
+          <input type="text" value={form.farm_name} onChange={set('farm_name')} placeholder="e.g. Okello Farm"
+            className={INPUT_CLS} />
+        </Field>
+
+        <Field label="Farm Location">
+          <input type="text" value={form.farm_location} onChange={set('farm_location')} placeholder="District / village / address"
+            className={INPUT_CLS} />
+        </Field>
+
+        <Field label="Type of Chicken" required>
+          <select value={form.chicken_type} onChange={set('chicken_type')} className={SELECT_CLS}>
+            <option value="">Select chicken type…</option>
+            {CHICKEN_TYPES.map(t => <option key={t} value={t.toLowerCase()}>{t}</option>)}
+          </select>
+        </Field>
+
+        <Field label="Need Vet Support?">
+          <div className="flex gap-3 mt-0.5">
+            {['yes', 'no'].map(v => (
+              <label key={v} className={`flex items-center gap-2 flex-1 rounded-lg border px-3 py-2 cursor-pointer text-xs font-medium transition-all ${
+                form.vet_support === v
+                  ? 'border-sv-green bg-sv-green/10 text-white'
+                  : 'border-sv-border text-sv-text-muted hover:border-sv-green/40'
+              }`}>
+                <input type="radio" name="vet_support" value={v}
+                  checked={form.vet_support === v}
+                  onChange={set('vet_support')}
+                  className="sr-only" />
+                {v === 'yes' ? '✅ Yes' : '❌ No'}
+              </label>
+            ))}
+          </div>
+        </Field>
+      </div>
+
+      {error && (
+        <p className="text-xs text-sv-red bg-sv-red/10 border border-sv-red/30 rounded-lg px-3 py-2">{error}</p>
+      )}
+
       <div className="flex gap-2">
         <button type="submit" disabled={saving}
-          className="flex-1 py-1.5 bg-sv-green hover:bg-green-700 text-white text-xs rounded font-medium disabled:opacity-50 flex items-center justify-center gap-1">
-          <Check size={12} /> {saving ? 'Registering…' : 'Register & Link'}
+          className="flex-1 py-2 bg-sv-green hover:bg-sv-green-d text-white text-xs rounded-lg font-bold disabled:opacity-50 flex items-center justify-center gap-1.5 transition-colors">
+          <Check size={12} /> {saving ? 'Registering…' : 'Register & Link Farmer'}
         </button>
         <button type="button" onClick={() => onDone(null)}
-          className="px-2.5 py-1.5 border border-sv-border text-gray-400 text-xs rounded hover:text-white transition-colors">
+          className="px-3 py-2 border border-sv-border text-sv-text-muted text-xs rounded-lg hover:text-white transition-colors">
           <X size={12} />
         </button>
       </div>

@@ -194,10 +194,9 @@ export function CallCompanion() {
 
   async function addSymptom(text) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || !activeCall?.call_id) return;
     const tempId = Date.now().toString();
     addSymptomLocal({ symptom: trimmed, severity, id: tempId });
-    if (!activeCall?.call_id) return;
     try {
       await api.post(`/calls/${activeCall.call_id}/symptoms`, { symptom: trimmed, severity });
     } catch {}
@@ -264,11 +263,6 @@ export function CallCompanion() {
               Notify Authorities
             </span>
           )}
-          {!activeCall && (
-            <span className="text-[11px] text-sv-text-muted border border-sv-border px-2 py-0.5 rounded-full">
-              No active call — local mode
-            </span>
-          )}
         </div>
       </div>
 
@@ -324,8 +318,9 @@ export function CallCompanion() {
                       : 'border-sv-border text-sv-text-muted hover:border-sv-green/50 hover:text-white bg-sv-bg-input';
                     return (
                       <button key={s}
+                        disabled={!activeCall}
                         onClick={() => active ? removeSymptom(activeSym?.id) : addSymptom(s)}
-                        className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${chipCls}`}>
+                        className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${!active && !activeCall ? 'border-sv-border/30 text-sv-border/40 bg-sv-bg-input' : chipCls}`}>
                         {active && <Check size={10} />}
                         {s}
                       </button>
@@ -335,8 +330,8 @@ export function CallCompanion() {
               </div>
             ))}
 
-            {/* Custom symptom input */}
-            <form onSubmit={handleCustomAdd} className="flex gap-2">
+            {/* Custom symptom input — only during active call */}
+            <form onSubmit={handleCustomAdd} className={`flex gap-2 ${!activeCall ? 'opacity-40 pointer-events-none' : ''}`}>
               <input value={custom} onChange={e => setCustom(e.target.value)}
                 placeholder="Type a custom symptom…"
                 className="flex-1 bg-sv-bg-input border border-sv-border rounded-full px-4 py-2 text-xs text-white placeholder-sv-text-muted focus:outline-none focus:border-sv-green transition-colors" />
@@ -368,7 +363,14 @@ export function CallCompanion() {
               </div>
             )}
 
-            {symptoms.length === 0 && (
+            {!activeCall && (
+              <div className="text-center py-6 text-sv-text-muted">
+                <Activity size={24} className="mx-auto mb-2 opacity-20" />
+                <p className="text-xs">Start or receive a call to log symptoms</p>
+              </div>
+            )}
+
+            {activeCall && symptoms.length === 0 && (
               <p className="text-center text-sv-text-muted text-xs py-2">
                 Select symptoms above — AI diagnosis runs instantly
               </p>
