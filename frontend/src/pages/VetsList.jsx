@@ -6,6 +6,7 @@ import { Badge } from '../components/shared/Badge.jsx';
 import { Button } from '../components/shared/Button.jsx';
 import { Logo } from '../components/shared/Logo.jsx';
 import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
+import { OutreachPanel } from '../components/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 
 function VetCard({ vet, selected, onClick }) {
@@ -119,6 +120,12 @@ function VetDetail({ vet, dispatchId, onAssign }) {
               : 'Currently Unavailable'}
           </Button>
         )}
+
+        <OutreachPanel
+          farmer={{ id: vet.id, name: vet.name, phone: vet.phone }}
+          activeCall={null}
+          recipientType="vet"
+        />
       </div>
 
       {/* Recent dispatches */}

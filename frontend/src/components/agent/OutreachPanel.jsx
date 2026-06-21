@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { Phone, MessageSquare, Loader2, CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../../services/api.js';
 
-const SMS_TEMPLATES = [
+const FARMER_TEMPLATES = [
   {
     label: 'Vaccination reminder',
     text: 'Hello {name}, this is SmartVet. Your flock is due for vaccination soon. Please call us on this number or visit your nearest vet to schedule. Thank you.',
@@ -30,11 +30,35 @@ const SMS_TEMPLATES = [
   },
 ];
 
+const VET_TEMPLATES = [
+  {
+    label: 'Dispatch assignment',
+    text: 'Hello {name}, you have been assigned a new farm visit on SmartVet. Please check your dispatch details and confirm availability. Thank you.',
+  },
+  {
+    label: 'Urgent visit request',
+    text: 'Hello {name}, there is an urgent farm visit request on SmartVet requiring your attention. Please call us back as soon as possible.',
+  },
+  {
+    label: 'Schedule confirmation',
+    text: 'Hello {name}, this is SmartVet confirming your scheduled visit. Please call us if you need to reschedule or have any questions.',
+  },
+  {
+    label: 'Availability check',
+    text: 'Hello {name}, SmartVet is checking your availability for an upcoming farm visit. Please reply or call us to confirm.',
+  },
+  {
+    label: 'Training reminder',
+    text: 'Hello {name}, this is a reminder from SmartVet about your upcoming training session. Please contact us for details or to confirm attendance.',
+  },
+];
+
 function applyTemplate(text, farmerName) {
   return text.replace(/\{name\}/g, farmerName || 'Farmer');
 }
 
-export function OutreachPanel({ farmer, activeCall }) {
+export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) {
+  const SMS_TEMPLATES = recipientType === 'vet' ? VET_TEMPLATES : FARMER_TEMPLATES;
   const [tab, setTab]         = useState('sms');
   const [message, setMessage] = useState('');
   const [templateOpen, setTemplateOpen] = useState(false);
