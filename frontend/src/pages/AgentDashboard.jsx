@@ -14,9 +14,9 @@ import { Badge } from '../components/shared/Badge.jsx';
 import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
 
 const NAV_ITEMS = [
-  { to: '/agent', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/agent/farmers', icon: Users, label: 'Farmers' },
-  { to: '/agent/vets', icon: Stethoscope, label: 'Vets' },
+  { to: '/agent',          icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/agent/farmers',  icon: Users,           label: 'Farmers'   },
+  { to: '/agent/vets',     icon: Stethoscope,     label: 'Vets'      },
 ];
 
 const STATUS_COLOR = { online: 'green', on_call: 'red', on_break: 'yellow', offline: 'gray' };
@@ -35,16 +35,17 @@ export default function AgentDashboard() {
   }, [activeCall?.call_id]);
 
   return (
-    <div className="min-h-screen bg-sv-bg flex flex-col">
-      {/* Top bar — River Poultry style */}
-      <header className="flex items-center justify-between px-4 py-2.5 border-b border-sv-border bg-sv-bg-card flex-shrink-0">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+
+      {/* Top bar */}
+      <header className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-5">
           <Link to="/agent" className="flex items-center gap-2.5 flex-shrink-0">
             <img src="/logo.png" alt="SmartVet" className="h-8 w-auto"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div className="leading-tight hidden sm:block">
-              <p className="text-sm font-extrabold text-white leading-none tracking-tight">SmartVet</p>
-              <p className="text-xs text-sv-teal leading-none mt-0.5">Call Centre</p>
+              <p className="text-sm font-extrabold text-gray-900 leading-none">SmartVet</p>
+              <p className="text-xs text-green-700 leading-none mt-0.5">Call Centre</p>
             </div>
           </Link>
 
@@ -53,12 +54,12 @@ export default function AgentDashboard() {
               const active = location.pathname === to;
               return (
                 <Link key={to} to={to}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     active
-                      ? 'text-white bg-sv-green border border-sv-green'
-                      : 'text-sv-text-muted hover:text-white hover:bg-sv-bg-input border border-transparent'
+                      ? 'bg-green-700 text-white'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}>
-                  <Icon size={11} />
+                  <Icon size={12} />
                   {label}
                 </Link>
               );
@@ -68,34 +69,33 @@ export default function AgentDashboard() {
 
         <div className="flex items-center gap-3">
           {activeCall && (
-            <span className="flex items-center gap-1.5 text-xs text-sv-red border border-sv-red/50 bg-sv-red/10 px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-sv-red" />
+            <span className="flex items-center gap-1.5 text-xs text-red-600 border border-red-200 bg-red-50 px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
               Live Call
             </span>
           )}
           <ThemeToggle />
-          <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize text-xs rounded-full">
+          <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize">
             {agent?.status?.replace('_', ' ')}
           </Badge>
-          <span className="text-sm font-semibold text-white hidden sm:inline">{agent?.name}</span>
+          <span className="text-sm font-semibold text-gray-700 hidden sm:inline">{agent?.name}</span>
           <button onClick={logout} title="Logout"
-            className="text-sv-text-muted hover:text-sv-red transition-colors p-1 rounded-full">
+            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
             <LogOut size={15} />
           </button>
         </div>
       </header>
 
-      {/* Main layout — 3 columns with collapsible transcript */}
+      {/* Main layout */}
       <div className="flex-1 flex overflow-hidden">
 
-        {/* Left — call info + caller panel (fixed narrow) */}
-        <div className="w-64 flex-shrink-0 border-r border-sv-border bg-sv-bg-card flex flex-col overflow-y-auto">
+        {/* Left — call info + caller panel */}
+        <div className="w-64 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-y-auto">
           <CallDisplay onEnd={clearCall} />
-          <div className="border-t border-sv-border flex-1 overflow-y-auto">
+          <div className="border-t border-gray-200 flex-1 overflow-y-auto">
             <CallerPanel
               activeCall={activeCall}
               onFarmerSelect={(farmer) => {
-                // Update the active call with the selected farmer
                 if (activeCall) {
                   useCallStore.setState(s => ({
                     activeCall: { ...s.activeCall, farmer }
@@ -107,16 +107,16 @@ export default function AgentDashboard() {
         </div>
 
         {/* Center — collapsible transcript */}
-        <div className={`flex flex-col border-r border-sv-border bg-sv-bg transition-all duration-200 ${
+        <div className={`flex flex-col border-r border-gray-200 bg-gray-50 transition-all duration-200 ${
           transcriptOpen ? 'w-64 flex-shrink-0' : 'w-8 flex-shrink-0'
         }`}>
-          <div className="flex items-center justify-between px-3 py-2 border-b border-sv-border flex-shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 flex-shrink-0">
             {transcriptOpen && (
-              <span className="text-xs font-medium text-gray-400 truncate">Live Transcript</span>
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">Live Transcript</span>
             )}
             <button onClick={() => setTranscriptOpen(o => !o)}
-              className="text-gray-500 hover:text-white transition-colors flex-shrink-0 ml-auto"
-              title={transcriptOpen ? 'Collapse transcript' : 'Expand transcript'}>
+              className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 ml-auto"
+              title={transcriptOpen ? 'Collapse' : 'Expand'}>
               {transcriptOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
             </button>
           </div>
@@ -127,8 +127,8 @@ export default function AgentDashboard() {
           )}
         </div>
 
-        {/* Right — Call Companion (takes remaining space) */}
-        <div className="flex-1 min-w-0 flex flex-col bg-sv-bg-card overflow-hidden">
+        {/* Right — Call Companion */}
+        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden">
           <CallCompanion />
         </div>
       </div>

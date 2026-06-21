@@ -131,11 +131,11 @@ function DrugCard({ drug }) {
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-sv-bg rounded-lg px-3 py-2">
             <p className="text-[10px] text-sv-text-muted mb-0.5 uppercase tracking-wide">Field stock</p>
-            <p className="text-sm font-bold text-white">{vetStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
+            <p className="text-sm font-bold text-gray-900">{vetStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
           </div>
           <div className="bg-sv-bg rounded-lg px-3 py-2">
             <p className="text-[10px] text-sv-text-muted mb-0.5 uppercase tracking-wide">Warehouse</p>
-            <p className="text-sm font-bold text-white">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
+            <p className="text-sm font-bold text-gray-900">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-sv-text-muted">{drug.unit}</span></p>
           </div>
         </div>
       </div>

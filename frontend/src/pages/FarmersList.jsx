@@ -49,7 +49,7 @@ function BatchCard({ batch }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold text-white">{(batch.total_birds || 0).toLocaleString()}</p>
+          <p className="text-lg font-bold text-gray-900">{(batch.total_birds || 0).toLocaleString()}</p>
           <p className="text-xs text-gray-500">birds</p>
         </div>
       </div>
@@ -145,7 +145,7 @@ function FarmerDetail({ farmer, onDispatch }) {
       <div className="bg-sv-bg-card border border-sv-border rounded-xl p-5">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold text-white mb-1">{farmer.name}</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">{farmer.name}</h2>
             <p className="text-gray-400 flex items-center gap-1.5 text-sm">
               <Phone size={14} /> {farmer.phone}
               {farmer.alt_phone && <span className="text-gray-600 ml-1">· {farmer.alt_phone}</span>}
@@ -204,7 +204,7 @@ function FarmerDetail({ farmer, onDispatch }) {
       {/* Call history */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
             Call History
           </h3>
           <span className="text-xs text-sv-text-muted">{callHistory.length} call{callHistory.length !== 1 ? 's' : ''}</span>

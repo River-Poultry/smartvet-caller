@@ -137,7 +137,7 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
       {/* Caller info bar */}
       <div className="flex items-center gap-2">
         <Phone size={12} className="text-sv-green flex-shrink-0" />
-        <span className="text-xs text-white font-mono truncate">{activeCall.phone_number || activeCall.farmer?.phone || 'Unknown'}</span>
+        <span className="text-xs text-gray-900 font-mono truncate">{activeCall.phone_number || activeCall.farmer?.phone || 'Unknown'}</span>
         {activeCall.is_demo && <span className="text-xs text-amber-400 border border-amber-700 px-1 rounded">DEMO</span>}
       </div>
 

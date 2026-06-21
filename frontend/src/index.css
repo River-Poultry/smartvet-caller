@@ -7,137 +7,96 @@
   html {
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.01em;
   }
 
-  /* ── Light mode (default — matches smartvet.africa aesthetic) ─────────── */
+  /* ── Light mode (default) ────────────────────────────────────────────────── */
   :root {
-    color-scheme: light;
-    --page-bg:    #f9fafb;   /* gray-50  */
-    --card-bg:    #ffffff;   /* white    */
-    --input-bg:   #f3f4f6;   /* gray-100 */
-    --border:     #e5e7eb;   /* gray-200 */
-    --border-l:   #d1d5db;   /* gray-300 */
-    --text:       #111827;   /* gray-900 */
-    --text-muted: #6b7280;   /* gray-500 — 4.6:1 on white, WCAG AA */
+    --page-bg:    #f9fafb;
+    --card-bg:    #ffffff;
+    --input-bg:   #f3f4f6;
+    --border:     #e5e7eb;
+    --border-l:   #d1d5db;
+    --text:       #111827;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
   }
 
-  /* ── Dark mode — slate palette, less olive than before ───────────────── */
+  /* ── Dark mode ───────────────────────────────────────────────────────────── */
   html.dark {
-    color-scheme: dark;
-    --page-bg:    #0f172a;   /* slate-900 */
-    --card-bg:    #1e293b;   /* slate-800 */
-    --input-bg:   #334155;   /* slate-700 */
-    --border:     #475569;   /* slate-600 */
-    --border-l:   #64748b;   /* slate-500 */
-    --text:       #f1f5f9;   /* slate-100 */
-    --text-muted: #94a3b8;   /* slate-400 — 4.5:1 on slate-900, WCAG AA */
+    --page-bg:    #0f172a;
+    --card-bg:    #1e293b;
+    --input-bg:   #334155;
+    --border:     #475569;
+    --border-l:   #64748b;
+    --text:       #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-light: #64748b;
   }
 
   body {
     background-color: var(--page-bg);
     color: var(--text);
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.15s, color 0.15s;
   }
 
-  h1, h2, h3 {
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
+  /* ── CSS-variable utility classes ────────────────────────────────────────── */
+  .bg-sv-bg        { background-color: var(--page-bg)  !important; }
+  .bg-sv-bg-card   { background-color: var(--card-bg)  !important; }
+  .bg-sv-bg-input  { background-color: var(--input-bg) !important; }
+  .border-sv-border   { border-color: var(--border)    !important; }
+  .border-sv-border-l { border-color: var(--border-l)  !important; }
+  .text-sv-text-muted { color: var(--text-muted)       !important; }
 
-  /* ── Tailwind sv-* classes → CSS vars (both modes) ───────────────────── */
-  .bg-sv-bg         { background-color: var(--page-bg)  !important; }
-  .bg-sv-bg-card    { background-color: var(--card-bg)  !important; }
-  .bg-sv-bg-input   { background-color: var(--input-bg) !important; }
-  .border-sv-border { border-color: var(--border)       !important; }
-  .border-sv-border-l { border-color: var(--border-l)   !important; }
-  .text-sv-text-muted { color: var(--text-muted)        !important; }
+  /* ── Light mode: fix dark text classes so they stay readable ─────────────── */
+  /* text-white → primary text colour in light mode */
+  :root .text-white   { color: var(--text)        !important; }
+  :root .text-gray-300 { color: #374151           !important; }
+  :root .text-gray-400 { color: var(--text-muted) !important; }
+  :root .text-gray-500 { color: var(--text-muted) !important; }
+  :root .text-gray-600 { color: var(--text-light) !important; }
 
-  /* ── Light mode: dark bg classes → light equivalents ────────────────── */
-  :root .bg-gray-800       { background-color: #f3f4f6 !important; }
-  :root .bg-gray-900       { background-color: #f9fafb !important; }
-  :root .bg-gray-950       { background-color: #f9fafb !important; }
-  :root .border-gray-700   { border-color: #e5e7eb !important; }
-  :root .border-gray-800   { border-color: #f3f4f6 !important; }
+  /* dark backgrounds → light equivalents in light mode */
+  :root .bg-gray-800  { background-color: var(--card-bg)  !important; }
+  :root .bg-gray-900  { background-color: var(--page-bg)  !important; }
+  :root .bg-gray-950  { background-color: var(--page-bg)  !important; }
+  :root .border-gray-700 { border-color: var(--border)    !important; }
+  :root .border-gray-800 { border-color: var(--border)    !important; }
 
-  /* Light inputs */
-  :root input,
-  :root select,
-  :root textarea {
-    color: #111827;
+  /* Exception: elements that explicitly use green/teal/red bg keep white text */
+  :root .text-white.on-color,
+  :root [class*="bg-sv-green"] .text-white,
+  :root [class*="bg-green-"]   .text-white,
+  :root [class*="bg-sv-red"]   .text-white,
+  :root [class*="bg-sv-teal"]  .text-white { color: #ffffff !important; }
+
+  /* Inputs in light mode */
+  :root input, :root select, :root textarea {
+    color: var(--text);
     background-color: var(--input-bg);
     border-color: var(--border);
   }
   :root input::placeholder,
-  :root textarea::placeholder {
-    color: #9ca3af;
-  }
+  :root textarea::placeholder { color: var(--text-light); }
 
-  /* Light mode tinted backgrounds — keep them subtle on white */
-  :root .bg-sv-red\/10   { background-color: rgba(220,38,38,0.07)  !important; }
-  :root .bg-sv-green\/10 { background-color: rgba(22,163,74,0.08)  !important; }
-  :root .bg-sv-green\/15 { background-color: rgba(22,163,74,0.10)  !important; }
-  :root .bg-sv-teal\/10  { background-color: rgba(13,148,136,0.08) !important; }
-  :root .bg-sv-amber\/10 { background-color: rgba(217,119,6,0.08)  !important; }
-  :root .bg-black\/50    { background-color: rgba(0,0,0,0.40)      !important; }
-  :root .bg-black\/60    { background-color: rgba(0,0,0,0.50)      !important; }
+  /* ── Dark mode: restore original colours ─────────────────────────────────── */
+  html.dark .text-white    { color: #f1f5f9  !important; }
+  html.dark .text-gray-300 { color: #cbd5e1  !important; }
+  html.dark .text-gray-400 { color: #94a3b8  !important; }
+  html.dark .text-gray-500 { color: #64748b  !important; }
+  html.dark .text-gray-600 { color: #475569  !important; }
+  html.dark .bg-gray-800   { background-color: #1e293b !important; }
+  html.dark .bg-gray-900   { background-color: #0f172a !important; }
+  html.dark .bg-gray-950   { background-color: #020617 !important; }
+  html.dark .border-gray-700 { border-color: #334155  !important; }
+  html.dark .border-gray-800 { border-color: #1e293b  !important; }
 
-  /* ── Dark mode overrides (only when html.dark) ───────────────────────── */
-  html.dark .text-white  { color: #f1f5f9 !important; }
-  html.dark .text-gray-300 { color: #cbd5e1 !important; }
-  html.dark .text-gray-400 { color: #94a3b8 !important; }
-  html.dark .text-gray-500 { color: #64748b !important; }
-  html.dark .text-gray-600 { color: #475569 !important; }
-  html.dark .bg-gray-800  { background-color: #1e293b !important; }
-  html.dark .bg-gray-900  { background-color: #0f172a !important; }
-  html.dark .bg-gray-950  { background-color: #020617 !important; }
-  html.dark .border-gray-700 { border-color: #334155 !important; }
-  html.dark .border-gray-800 { border-color: #1e293b !important; }
-
-  html.dark input,
-  html.dark select,
-  html.dark textarea {
+  html.dark input, html.dark select, html.dark textarea {
     color: #f1f5f9;
     background-color: var(--input-bg);
     border-color: var(--border);
   }
   html.dark input::placeholder,
-  html.dark textarea::placeholder {
-    color: #64748b;
-  }
-
-  /* ── SmartVet-matching card & button styles ───────────────────────────── */
-  .card-sv {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  }
-
-  /* Pill button — matches SmartVet "Create Account →" style */
-  .btn-sv {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-    letter-spacing: -0.01em;
-    transition: background-color 0.15s, box-shadow 0.15s;
-  }
-  .btn-sv-primary {
-    background-color: #16a34a;
-    color: #fff;
-    border: none;
-  }
-  .btn-sv-primary:hover { background-color: #15803d; }
-  .btn-sv-danger {
-    background-color: #dc2626;
-    color: #fff;
-    border: none;
-  }
-  .btn-sv-danger:hover { background-color: #b91c1c; }
+  html.dark textarea::placeholder { color: #64748b; }
 }
 
 @layer utilities {

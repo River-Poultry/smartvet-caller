@@ -162,7 +162,7 @@ export function PostCallForm({ lastCallId }) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-sv-border flex-shrink-0">
           <div className="flex items-center gap-2.5">
             <ClipboardList size={16} className="text-sv-green" />
-            <h3 className="text-sm font-bold text-white">Post-Call Summary</h3>
+            <h3 className="text-sm font-bold text-gray-900">Post-Call Summary</h3>
           </div>
           <button onClick={closePostCall} className="text-sv-text-muted hover:text-white transition-colors">
             <X size={16} />

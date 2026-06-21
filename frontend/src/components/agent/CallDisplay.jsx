@@ -86,7 +86,7 @@ export function CallDisplay({ onEnd }) {
           <span className="text-xl font-mono font-bold text-white">{timer}</span>
         </div>
 
-        <p className="text-lg font-bold text-white">{farmer?.name || 'Unknown Caller'}</p>
+        <p className="text-lg font-bold text-gray-900">{farmer?.name || 'Unknown Caller'}</p>
         <p className="text-sm text-sv-text-muted mt-0.5">{farmer?.phone}</p>
 
         {farmer?.farms?.length > 0 && (

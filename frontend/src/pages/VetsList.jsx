@@ -70,7 +70,7 @@ function VetDetail({ vet, dispatchId, onAssign }) {
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-xl font-bold text-white">{vet.name}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{vet.name}</h2>
               <Badge variant={vet.role === 'vet' ? 'blue' : 'green'} className="capitalize">{vet.role}</Badge>
             </div>
             <p className="text-gray-400 flex items-center gap-1.5 text-sm">
