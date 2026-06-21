@@ -197,6 +197,7 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
         </>
       )}
 
+      {/* Outreach when farmer is linked */}
       {mode === 'profile' && selectedFarmer && (
         <>
           <button onClick={() => setMode('search')} className="text-xs text-gray-500 hover:text-sv-green transition-colors flex items-center gap-1">
@@ -205,6 +206,14 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
           <FarmerProfile farmer={selectedFarmer} />
           <OutreachPanel farmer={selectedFarmer} activeCall={activeCall} />
         </>
+      )}
+
+      {/* Outreach using caller number when no farmer is linked yet */}
+      {mode === 'search' && activeCall?.phone_number && (
+        <OutreachPanel
+          farmer={{ phone: activeCall.phone_number, name: 'Caller' }}
+          activeCall={activeCall}
+        />
       )}
     </div>
   );

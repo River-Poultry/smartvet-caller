@@ -7,6 +7,7 @@ import { Button } from '../components/shared/Button.jsx';
 import { Logo } from '../components/shared/Logo.jsx';
 import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
 import { VetDispatchModal } from '../components/agent/VetDispatchModal.jsx';
+import { OutreachPanel } from '../components/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 
@@ -160,6 +161,8 @@ function FarmerDetail({ farmer, onDispatch }) {
             🚑 Dispatch Vet
           </Button>
         </div>
+
+        <OutreachPanel farmer={farmer} activeCall={null} />
 
         {/* Assigned vet */}
         {matchedVet && (
