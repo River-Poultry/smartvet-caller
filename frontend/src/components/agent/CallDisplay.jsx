@@ -6,7 +6,7 @@ import { useCallStore } from '../../store/callStore.js';
 import api from '../../services/api.js';
 
 export function CallDisplay({ onEnd }) {
-  const { activeCall, openDispatchModal, setActiveCall } = useCallStore();
+  const { activeCall, isMuted, isOnHold, toggleMute, toggleHold, openDispatchModal, setActiveCall } = useCallStore();
   const timer = useCallTimer(!!activeCall);
   const [demoLoading, setDemoLoading] = useState(false);
 
@@ -100,11 +100,23 @@ export function CallDisplay({ onEnd }) {
 
       {/* Controls */}
       <div className="flex gap-2">
-        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-sv-bg-input border border-sv-border text-sv-text-muted hover:text-white hover:border-sv-border-l text-xs font-medium transition-colors">
-          <Mic size={14} /> Mute
+        <button
+          onClick={toggleMute}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border text-xs font-medium transition-colors ${
+            isMuted
+              ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+              : 'bg-sv-bg-input border-sv-border text-sv-text-muted hover:text-white hover:border-sv-border-l'
+          }`}>
+          <Mic size={14} /> {isMuted ? 'Unmute' : 'Mute'}
         </button>
-        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-sv-bg-input border border-sv-border text-sv-text-muted hover:text-white hover:border-sv-border-l text-xs font-medium transition-colors">
-          <Pause size={14} /> Hold
+        <button
+          onClick={toggleHold}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border text-xs font-medium transition-colors ${
+            isOnHold
+              ? 'bg-blue-500/15 border-blue-500/40 text-blue-400'
+              : 'bg-sv-bg-input border-sv-border text-sv-text-muted hover:text-white hover:border-sv-border-l'
+          }`}>
+          <Pause size={14} /> {isOnHold ? 'Resume' : 'Hold'}
         </button>
         <button onClick={endCall}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-sv-red/15 border border-sv-red/40 text-sv-red hover:bg-sv-red hover:text-white text-xs font-semibold transition-colors">

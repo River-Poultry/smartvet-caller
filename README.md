@@ -16,7 +16,7 @@ smartvet-ai-callcenter/
 - **State**: Zustand (`authStore`, `callStore`)
 - **Routing**: React Router v6
 - **Realtime**: WebSocket via `useWebSocket` hook
-- **Theme**: Dark olive (River Poultry brand), light mode supported
+- **Theme**: SmartVet green brand (`#16a34a`), light/dark mode supported
 
 ### Backend (Express ESM)
 - **Auth**: JWT (8h expiry) + bcryptjs

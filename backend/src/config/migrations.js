@@ -8,4 +8,5 @@ export const MIGRATION_FILES = [
   '006_warehouse_inventory.sql',
   '007_auth_security.sql',
   '008_django_link.sql',
+  '009_agent_roles.sql',
 ];

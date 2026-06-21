@@ -1,5 +1,11 @@
+import twilio from 'twilio';
 import { query } from '../config/db.js';
 import { generateSuggestions } from '../services/aiSuggestions.js';
+import { logger } from '../config/logger.js';
+
+function twilioClient() {
+  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
 
 export async function getActiveCall(req, res) {
   const agentId = req.params.agentId || req.agent.id;
@@ -167,7 +173,77 @@ export async function startDemoCall(req, res) {
   });
 }
 
-/** End the demo call */
+export async function toggleMute(req, res) {
+  const { callId } = req.params;
+  const { muted } = req.body;
+
+  const { rows } = await query(
+    `SELECT twilio_call_sid FROM calls WHERE id = $1 AND agent_id = $2 AND ended_at IS NULL`,
+    [callId, req.agent.id]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'Active call not found' });
+
+  const callSid = rows[0].twilio_call_sid;
+  if (!callSid || callSid.startsWith('DEMO-')) {
+    return res.json({ muted: !!muted, demo: true });
+  }
+
+  try {
+    const conferenceName = `smartvet-call-${callId}`;
+    const conferences = await twilioClient().conferences.list({ friendlyName: conferenceName, status: 'in-progress', limit: 1 });
+
+    if (conferences.length) {
+      const participants = await conferences[0].participants().list({ limit: 10 });
+      const farmer = participants.find(p => p.callSid === callSid) || participants[0];
+      if (farmer) await farmer.update({ muted: !!muted });
+    }
+
+    res.json({ muted: !!muted });
+  } catch (err) {
+    logger.warn('Mute toggle failed', { callId, error: err.message });
+    res.json({ muted: !!muted, warning: 'Call control unavailable' });
+  }
+}
+
+export async function toggleHold(req, res) {
+  const { callId } = req.params;
+  const { hold } = req.body;
+
+  const { rows } = await query(
+    `SELECT twilio_call_sid FROM calls WHERE id = $1 AND agent_id = $2 AND ended_at IS NULL`,
+    [callId, req.agent.id]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'Active call not found' });
+
+  const callSid = rows[0].twilio_call_sid;
+  if (!callSid || callSid.startsWith('DEMO-')) {
+    return res.json({ hold: !!hold, demo: true });
+  }
+
+  try {
+    const conferenceName = `smartvet-call-${callId}`;
+    const conferences = await twilioClient().conferences.list({ friendlyName: conferenceName, status: 'in-progress', limit: 1 });
+
+    if (conferences.length) {
+      const participants = await conferences[0].participants().list({ limit: 10 });
+      const farmer = participants.find(p => p.callSid === callSid) || participants[0];
+      if (farmer) {
+        await farmer.update({
+          hold: !!hold,
+          holdUrl: hold
+            ? `${process.env.APP_URL}/api/twilio/wait-music`
+            : undefined,
+        });
+      }
+    }
+
+    res.json({ hold: !!hold });
+  } catch (err) {
+    logger.warn('Hold toggle failed', { callId, error: err.message });
+    res.json({ hold: !!hold, warning: 'Call control unavailable' });
+  }
+}
+
 export async function endDemoCall(req, res) {
   await query(
     `UPDATE calls SET ended_at = NOW()

@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import {
   getActiveCall, getCallSuggestions, submitPostCall,
-  listCalls, getCallDetail, triggerSuggestions, startDemoCall, endDemoCall
+  listCalls, getCallDetail, triggerSuggestions, startDemoCall, endDemoCall,
+  toggleMute, toggleHold,
 } from '../controllers/callController.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -17,5 +18,7 @@ router.get('/:callId', getCallDetail);
 router.get('/:callId/suggestions', getCallSuggestions);
 router.post('/:callId/suggestions', triggerSuggestions);
 router.post('/:callId/post-call', submitPostCall);
+router.patch('/:callId/mute', toggleMute);
+router.patch('/:callId/hold', toggleHold);
 
 export default router;

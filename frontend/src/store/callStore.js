@@ -5,6 +5,8 @@ export const useCallStore = create((set, get) => {
 if (import.meta.env.DEV) window.__callStore__ = { setState: (s) => set(s) };
 return ({
   activeCall: null,
+  isMuted: false,
+  isOnHold: false,
   suggestions: [],
   transcriptSegments: [],
   dispatchModalOpen: false,
@@ -12,7 +14,31 @@ return ({
   postCallOpen: false,
   loading: false,
 
-  setActiveCall: (call) => set({ activeCall: call }),
+  setActiveCall: (call) => set({ activeCall: call, isMuted: false, isOnHold: false }),
+
+  toggleMute: async () => {
+    const { activeCall, isMuted } = get();
+    if (!activeCall?.call_id) return;
+    const next = !isMuted;
+    set({ isMuted: next });
+    try {
+      await api.patch(`/calls/${activeCall.call_id}/mute`, { muted: next });
+    } catch {
+      set({ isMuted: isMuted });
+    }
+  },
+
+  toggleHold: async () => {
+    const { activeCall, isOnHold } = get();
+    if (!activeCall?.call_id) return;
+    const next = !isOnHold;
+    set({ isOnHold: next });
+    try {
+      await api.patch(`/calls/${activeCall.call_id}/hold`, { hold: next });
+    } catch {
+      set({ isOnHold: isOnHold });
+    }
+  },
 
   fetchActiveCall: async () => {
     try {
@@ -62,6 +88,8 @@ return ({
 
   clearCall: () => set({
     activeCall: null,
+    isMuted: false,
+    isOnHold: false,
     suggestions: [],
     transcriptSegments: [],
     symptoms: [],
