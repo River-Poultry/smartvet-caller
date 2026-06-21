@@ -137,6 +137,46 @@ export async function handleTranscriptionCallback(req, res) {
   res.sendStatus(204);
 }
 
+/**
+ * TwiML webhook — called when the farmer answers an agent-initiated callback.
+ * Puts the farmer into a named conference; the agent's Twilio Device joins
+ * the same conference via the OUTBOUND_CALL_STARTED WebSocket event.
+ */
+export async function handleCallbackAnswer(req, res) {
+  const { callId, agentId } = req.query;
+  const response = new VoiceResponse();
+
+  try {
+    const conferenceName = `sv-callback-${callId}`;
+
+    response.say({ language: 'en-US' },
+      'Thank you for calling SmartVet Africa. Please hold while we connect you to your agent.'
+    );
+
+    const dial = response.dial({
+      action: `${process.env.APP_URL}/api/twilio/call-ended`,
+      record: 'record-from-answer',
+      recordingStatusCallback: `${process.env.APP_URL}/api/twilio/recording-complete`,
+    });
+
+    dial.conference(conferenceName, {
+      startConferenceOnEnter: true,
+      endConferenceOnExit:    true,
+      waitUrl: `${process.env.APP_URL}/api/twilio/wait-music`,
+    });
+
+    // Re-notify agent in case WS event was missed
+    if (agentId) {
+      notifyAgent(agentId, 'CALLBACK_ANSWERED', { callId, conferenceName });
+    }
+  } catch (err) {
+    logger.error('Callback answer handler failed', err);
+    response.say('We are experiencing difficulties. Please try again shortly.');
+  }
+
+  res.type('text/xml').send(response.toString());
+}
+
 export function handleWaitMusic(req, res) {
   const response = new VoiceResponse();
   response.play({ loop: 10 }, 'https://com.twilio.music.classical.s3.amazonaws.com/ClockworkWaltz.mp3');

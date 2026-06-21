@@ -10,6 +10,7 @@ import symptomRoutes from './symptoms.js';
 import diagnoseRoutes from './diagnose.js';
 import aiRoutes from './ai.js';
 import inventoryRoutes from './inventory.js';
+import outreachRoutes from './outreach.js';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/vets', vetRoutes);
 router.use('/diagnose', diagnoseRoutes);
 router.use('/ai', aiRoutes);
 router.use('/inventory', inventoryRoutes);
+router.use('/outreach', outreachRoutes);
 
 export default router;

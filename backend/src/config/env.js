@@ -31,6 +31,12 @@ export const env = {
     apiSecret: process.env.TWILIO_API_SECRET || '',
   },
 
+  sms: {
+    apiKey:   process.env.CARRIER_SMS_API_KEY || '',
+    apiUrl:   process.env.CARRIER_SMS_URL     || 'https://api.mNotify.com/sms/quick',
+    senderId: process.env.CARRIER_SMS_SENDER_ID || 'SmartVet',
+  },
+
   smtp: {
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '465', 10),
