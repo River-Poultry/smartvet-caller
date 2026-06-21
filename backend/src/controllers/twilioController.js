@@ -4,6 +4,7 @@ import { getFarmerByPhone } from '../services/smartvetCore.js';
 import { requestTranscription, processTranscriptionCallback } from '../services/transcription.js';
 import { notifyAgent, broadcast } from '../services/websocket.js';
 import { logger } from '../config/logger.js';
+import { env } from '../config/env.js';
 
 const { twiml: { VoiceResponse } } = twilio;
 
@@ -34,7 +35,7 @@ export async function handleInbound(req, res) {
       response.say({ language: 'en-US' },
         'Thank you for calling SmartVet. All agents are currently busy. Please hold while we connect you.'
       );
-      response.enqueue({ waitUrl: `${process.env.APP_URL}/api/twilio/wait-music` }, 'smartvet-queue');
+      response.enqueue({ waitUrl: `${env.appUrl}/api/twilio/wait-music` }, 'smartvet-queue');
     } else {
       // Mark agent on call
       await query(`UPDATE agents SET status = 'on_call', updated_at = NOW() WHERE id = $1`, [agent.id]);
@@ -54,16 +55,16 @@ export async function handleInbound(req, res) {
 
       const dial = response.dial({
         record: 'record-from-ringing',
-        recordingStatusCallback: `${process.env.APP_URL}/api/twilio/recording-complete`,
+        recordingStatusCallback: `${env.appUrl}/api/twilio/recording-complete`,
         recordingStatusCallbackMethod: 'POST',
-        action: `${process.env.APP_URL}/api/twilio/call-ended`,
+        action: `${env.appUrl}/api/twilio/call-ended`,
       });
 
       // Use conference for better control
       dial.conference(`smartvet-call-${callId}`, {
         startConferenceOnEnter: true,
         endConferenceOnExit: false,
-        waitUrl: `${process.env.APP_URL}/api/twilio/wait-music`,
+        waitUrl: `${env.appUrl}/api/twilio/wait-music`,
       });
     }
   } catch (err) {
@@ -95,9 +96,8 @@ export async function handleCallEnded(req, res) {
           [agentId]
         );
         notifyAgent(agentId, 'CALL_ENDED', { callId, callSid: CallSid });
+        broadcast('AGENT_STATUS_CHANGED', { agentId, status: 'online' });
       }
-
-      broadcast('AGENT_STATUS_CHANGED', { agentId, status: 'online' });
     }
   } catch (err) {
     logger.error('Call ended handler failed', { CallSid, error: err.message });
@@ -154,15 +154,15 @@ export async function handleCallbackAnswer(req, res) {
     );
 
     const dial = response.dial({
-      action: `${process.env.APP_URL}/api/twilio/call-ended`,
+      action: `${env.appUrl}/api/twilio/call-ended`,
       record: 'record-from-answer',
-      recordingStatusCallback: `${process.env.APP_URL}/api/twilio/recording-complete`,
+      recordingStatusCallback: `${env.appUrl}/api/twilio/recording-complete`,
     });
 
     dial.conference(conferenceName, {
       startConferenceOnEnter: true,
       endConferenceOnExit:    true,
-      waitUrl: `${process.env.APP_URL}/api/twilio/wait-music`,
+      waitUrl: `${env.appUrl}/api/twilio/wait-music`,
     });
 
     // Re-notify agent in case WS event was missed
@@ -189,14 +189,14 @@ export async function getAgentToken(req, res) {
     const { VoiceGrant } = AccessToken;
 
     const grant = new VoiceGrant({
-      outgoingApplicationSid: process.env.TWILIO_TWIML_APP_SID,
+      outgoingApplicationSid: env.twilio.twimlAppSid,
       incomingAllow: true,
     });
 
     const token = new AccessToken(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_API_KEY || process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_API_SECRET || process.env.TWILIO_AUTH_TOKEN,
+      env.twilio.accountSid,
+      env.twilio.apiKey || env.twilio.accountSid,
+      env.twilio.apiSecret || env.twilio.authToken,
       { identity: req.agent.id, ttl: 28800 }
     );
     token.addGrant(grant);

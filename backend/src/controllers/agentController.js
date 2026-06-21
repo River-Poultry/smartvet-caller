@@ -8,7 +8,7 @@ const VALID_ROLES = ['admin', 'supervisor', 'agent', 'trainee'];
 
 export async function listAgents(req, res) {
   const { rows } = await query(
-    `SELECT id, name, email, phone_number, status, role, is_admin, total_calls, avg_call_duration_seconds, created_at
+    `SELECT id, name, email, phone, status, role, is_admin, total_calls, avg_call_duration_seconds, created_at
      FROM agents ORDER BY
        CASE role WHEN 'admin' THEN 1 WHEN 'supervisor' THEN 2 WHEN 'agent' THEN 3 ELSE 4 END,
        name`
@@ -33,7 +33,7 @@ export async function updateStatus(req, res) {
 }
 
 export async function createAgent(req, res) {
-  const { name, email, password, phone_number, role = 'agent', is_admin } = req.body;
+  const { name, email, password, phone, phone_number, role = 'agent', is_admin } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'name, email, and password are required' });
   }
@@ -43,18 +43,25 @@ export async function createAgent(req, res) {
 
   const resolvedIsAdmin = is_admin ?? role === 'admin';
   const hash = await bcrypt.hash(password, 12);
-  const { rows } = await query(
-    `INSERT INTO agents (name, email, password_hash, phone_number, role, is_admin)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, status, role, is_admin`,
-    [name, email, hash, phone_number || null, role, resolvedIsAdmin]
-  );
+  const normalizedPhone = phone || phone_number || null;
 
-  res.status(201).json(rows[0]);
+  try {
+    const { rows } = await query(
+      `INSERT INTO agents (name, email, password_hash, phone, role, is_admin)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, phone, status, role, is_admin`,
+      [name, email, hash, normalizedPhone, role, resolvedIsAdmin]
+    );
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Email or phone already registered' });
+    throw e;
+  }
 }
 
 export async function updateAgent(req, res) {
   const { agentId } = req.params;
-  const { name, phone_number, role } = req.body;
+  const { name, phone, phone_number, role } = req.body;
+  const normalizedPhone = phone || phone_number || undefined;
 
   if (role && !VALID_ROLES.includes(role)) {
     return res.status(400).json({ error: `role must be one of: ${VALID_ROLES.join(', ')}` });
@@ -64,13 +71,13 @@ export async function updateAgent(req, res) {
 
   const { rows } = await query(
     `UPDATE agents SET
-       name         = COALESCE($1, name),
-       phone_number = COALESCE($2, phone_number),
-       role         = COALESCE($3, role),
-       is_admin     = COALESCE($4, is_admin),
-       updated_at   = NOW()
-     WHERE id = $5 RETURNING id, name, email, phone_number, status, role, is_admin`,
-    [name, phone_number, role ?? null, isAdmin ?? null, agentId]
+       name     = COALESCE($1, name),
+       phone    = COALESCE($2, phone),
+       role     = COALESCE($3, role),
+       is_admin = COALESCE($4, is_admin),
+       updated_at = NOW()
+     WHERE id = $5 RETURNING id, name, email, phone, status, role, is_admin`,
+    [name ?? null, normalizedPhone ?? null, role ?? null, isAdmin ?? null, agentId]
   );
 
   if (!rows.length) return res.status(404).json({ error: 'Agent not found' });
@@ -118,7 +125,11 @@ export async function syncFromDjango(req, res) {
     for (const vet of vets) {
       if (!vet.email && !vet.phone) { skipped++; continue; }
 
-      const email = vet.email || `${vet.phone.replace(/\D/g, '')}@smartvet.auto`;
+      // Guard: email may be absent but phone present
+      const email = vet.email
+        ? vet.email
+        : `${(vet.phone || '').replace(/\D/g, '')}@smartvet.auto`;
+
       const existing = await query(
         `SELECT id FROM agents WHERE email = $1 OR django_id = $2`,
         [email, vet.django_id]
@@ -130,9 +141,9 @@ export async function syncFromDjango(req, res) {
       const hash = await bcrypt.hash(tempPassword, 12);
 
       const { rows } = await query(
-        `INSERT INTO agents (name, email, phone_number, password_hash, role, is_admin, is_verified, django_id, django_role)
+        `INSERT INTO agents (name, email, phone, password_hash, role, is_admin, is_verified, django_id, django_role)
          VALUES ($1, $2, $3, $4, 'agent', false, true, $5, $6)
-         RETURNING id, name, email, phone_number, role, is_admin, django_id, django_role`,
+         RETURNING id, name, email, phone, role, is_admin, django_id, django_role`,
         [vet.name, email, vet.phone || null, hash, vet.django_id, vet.role || 'paravet']
       );
 
