@@ -1,16 +1,33 @@
 /**
- * OutreachPanel — callback and SMS actions for the active/selected farmer.
- * Shown in CallerPanel when a farmer is linked to the call.
+ * OutreachPanel — agent initiates a call or sends an SMS to a farmer.
+ * Used from the Farmers list (proactive outreach / reminders) and
+ * from CallerPanel during an active inbound call.
  */
 import { useState } from 'react';
 import { Phone, MessageSquare, Loader2, CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../../services/api.js';
 
 const SMS_TEMPLATES = [
-  { label: 'Follow-up reminder', text: 'Hello {name}, this is SmartVet calling. Your vet visit is scheduled. Please ensure your birds are accessible. Call us on this number for questions.' },
-  { label: 'Treatment reminder',  text: 'Hello {name}, SmartVet reminder: Please continue the prescribed treatment for your flock as advised. Contact us if you notice any changes.' },
-  { label: 'Vet visit confirmed', text: 'Hello {name}, your SmartVet vet visit has been confirmed. Our vet will arrive at the scheduled time. Please keep your flock accessible.' },
-  { label: 'Emergency follow-up', text: 'Hello {name}, SmartVet is following up on your emergency report. Please call us immediately if your flock condition has worsened.' },
+  {
+    label: 'Vaccination reminder',
+    text: 'Hello {name}, this is SmartVet. Your flock is due for vaccination soon. Please call us on this number or visit your nearest vet to schedule. Thank you.',
+  },
+  {
+    label: 'Treatment follow-up',
+    text: 'Hello {name}, SmartVet is following up on your recent treatment. Please let us know how your flock is doing. Call us anytime on this number.',
+  },
+  {
+    label: 'Vet visit reminder',
+    text: 'Hello {name}, your scheduled vet visit is coming up. Our vet will contact you to confirm the time. Please ensure your flock is accessible.',
+  },
+  {
+    label: 'Health check reminder',
+    text: 'Hello {name}, SmartVet recommends a routine health check for your flock. Please call us to book a free consultation with one of our vets.',
+  },
+  {
+    label: 'Emergency follow-up',
+    text: 'Hello {name}, SmartVet is checking in after your recent emergency report. Please call us immediately if your flock condition has worsened.',
+  },
 ];
 
 function applyTemplate(text, farmerName) {
@@ -18,31 +35,31 @@ function applyTemplate(text, farmerName) {
 }
 
 export function OutreachPanel({ farmer, activeCall }) {
-  const [tab, setTab]           = useState('sms'); // 'call' | 'sms'
-  const [message, setMessage]   = useState('');
-  const [callStatus, setCallStatus] = useState('idle'); // idle | dialling | connected | error
-  const [smsStatus, setSmsStatus]   = useState('idle'); // idle | sending | sent | error
-  const [errorMsg, setErrorMsg] = useState('');
+  const [tab, setTab]         = useState('sms');
+  const [message, setMessage] = useState('');
   const [templateOpen, setTemplateOpen] = useState(false);
+
+  const [callStatus, setCallStatus] = useState('idle'); // idle | dialling | done | error
+  const [smsStatus,  setSmsStatus]  = useState('idle'); // idle | sending | sent | error
+  const [errorMsg,   setErrorMsg]   = useState('');
 
   const phone = farmer?.phone;
   const name  = farmer?.name || 'Farmer';
-  const charCount = message.length;
 
-  async function handleCallback() {
+  async function handleCall() {
     if (!phone) return;
     setCallStatus('dialling');
     setErrorMsg('');
     try {
       await api.post('/outreach/callback', {
-        farmer_id:    farmer.id,
+        farmer_id:    farmer.id || null,
         farmer_phone: phone,
         farmer_name:  name,
       });
-      setCallStatus('connected');
+      setCallStatus('done');
     } catch (err) {
       setCallStatus('error');
-      setErrorMsg(err.response?.data?.error || 'Call failed');
+      setErrorMsg(err.response?.data?.error || 'Call could not be initiated');
     }
   }
 
@@ -58,63 +75,78 @@ export function OutreachPanel({ farmer, activeCall }) {
         call_id:      activeCall?.call_id || null,
       });
       setSmsStatus('sent');
-      setTimeout(() => setSmsStatus('idle'), 3000);
+      setTimeout(() => { setSmsStatus('idle'); setMessage(''); }, 4000);
     } catch (err) {
       setSmsStatus('error');
-      setErrorMsg(err.response?.data?.error || 'SMS failed');
+      setErrorMsg(err.response?.data?.error || 'SMS failed to send');
     }
   }
 
-  if (!farmer) return null;
+  if (!phone) return null;
 
   return (
-    <div className="mt-3 border border-sv-border rounded-lg overflow-hidden">
-      {/* Tab bar */}
+    <div className="border border-sv-border rounded-xl overflow-hidden mt-3">
+      {/* Section label */}
+      <div className="px-3 py-2 bg-sv-bg-input border-b border-sv-border">
+        <p className="text-[11px] font-bold text-sv-text-muted uppercase tracking-widest">Contact Farmer</p>
+      </div>
+
+      {/* Tabs */}
       <div className="flex border-b border-sv-border">
         {[
-          { id: 'call', icon: Phone,         label: 'Call back' },
-          { id: 'sms',  icon: MessageSquare, label: 'Send SMS'  },
+          { id: 'call', icon: Phone,         label: 'Call'     },
+          { id: 'sms',  icon: MessageSquare, label: 'Send SMS' },
         ].map(({ id, icon: Icon, label }) => (
-          <button key={id} onClick={() => setTab(id)}
+          <button key={id} onClick={() => { setTab(id); setErrorMsg(''); }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold transition-colors ${
               tab === id
                 ? 'text-sv-green border-b-2 border-sv-green bg-sv-green/5'
                 : 'text-sv-text-muted hover:text-white'
             }`}>
-            <Icon size={11} />{label}
+            <Icon size={11} /> {label}
           </button>
         ))}
       </div>
 
-      <div className="p-3 space-y-2.5">
-        {/* ── Callback tab ── */}
+      <div className="p-3 space-y-3">
+
+        {/* ── Call tab ── */}
         {tab === 'call' && (
           <>
-            <p className="text-[11px] text-sv-text-muted">
-              Initiates an outbound call from SmartVet to <span className="text-white font-semibold">{phone}</span>. The farmer's call will be bridged to you automatically.
+            <p className="text-[11px] text-sv-text-muted leading-relaxed">
+              Initiates an outbound call to <span className="font-semibold text-white">{name}</span> at <span className="font-mono text-white">{phone}</span>. The system will dial the farmer and connect them to you.
             </p>
 
-            {callStatus === 'connected' && (
-              <div className="flex items-center gap-1.5 text-xs text-sv-green">
-                <CheckCircle size={13} /> Dialling farmer — join the conference in your call panel
+            {callStatus === 'done' && (
+              <div className="flex items-center gap-1.5 text-xs text-sv-green bg-sv-green/10 border border-sv-green/30 rounded-lg px-3 py-2">
+                <CheckCircle size={13} /> Dialling {name} — you will be connected shortly
               </div>
             )}
             {callStatus === 'error' && (
-              <div className="flex items-center gap-1.5 text-xs text-sv-red">
+              <div className="flex items-center gap-1.5 text-xs text-sv-red bg-sv-red/10 border border-sv-red/30 rounded-lg px-3 py-2">
                 <XCircle size={13} /> {errorMsg}
               </div>
             )}
 
             <button
-              onClick={handleCallback}
-              disabled={callStatus === 'dialling' || callStatus === 'connected'}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg
+              onClick={handleCall}
+              disabled={callStatus === 'dialling' || callStatus === 'done'}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg
                          bg-sv-green text-white text-xs font-bold
                          hover:bg-sv-green-d disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {callStatus === 'dialling'
                 ? <><Loader2 size={12} className="animate-spin" /> Dialling…</>
-                : <><Phone size={12} /> Call {name}</>}
+                : callStatus === 'done'
+                  ? <><CheckCircle size={12} /> Connected</>
+                  : <><Phone size={12} /> Call {name}</>}
             </button>
+
+            {callStatus === 'done' && (
+              <button onClick={() => setCallStatus('idle')}
+                className="w-full text-xs text-sv-text-muted hover:text-white transition-colors py-1 text-center">
+                Make another call
+              </button>
+            )}
           </>
         )}
 
@@ -125,43 +157,47 @@ export function OutreachPanel({ farmer, activeCall }) {
             <div className="border border-sv-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setTemplateOpen(o => !o)}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 bg-sv-bg-input text-[11px] text-sv-text-muted hover:text-white transition-colors">
-                <span>Templates</span>
+                className="w-full flex items-center justify-between px-2.5 py-2 bg-sv-bg-input text-[11px] text-sv-text-muted hover:text-white transition-colors">
+                <span>Pick a reminder template…</span>
                 {templateOpen ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
               </button>
-              {templateOpen && SMS_TEMPLATES.map((t, i) => (
-                <button key={i}
-                  onClick={() => { setMessage(applyTemplate(t.text, name)); setTemplateOpen(false); }}
-                  className="w-full text-left px-2.5 py-2 border-t border-sv-border/50 hover:bg-sv-bg-input transition-colors">
-                  <p className="text-[11px] font-semibold text-white">{t.label}</p>
-                  <p className="text-[10px] text-sv-text-muted truncate">{applyTemplate(t.text, name)}</p>
-                </button>
-              ))}
+              {templateOpen && (
+                <div className="divide-y divide-sv-border/50">
+                  {SMS_TEMPLATES.map((t, i) => (
+                    <button key={i}
+                      onClick={() => { setMessage(applyTemplate(t.text, name)); setTemplateOpen(false); }}
+                      className="w-full text-left px-3 py-2 hover:bg-sv-bg-input transition-colors">
+                      <p className="text-[11px] font-semibold text-white">{t.label}</p>
+                      <p className="text-[10px] text-sv-text-muted mt-0.5 line-clamp-2">{applyTemplate(t.text, name)}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>
               <textarea
                 value={message}
                 onChange={e => { setMessage(e.target.value); setSmsStatus('idle'); }}
-                placeholder={`Type an SMS to ${name}…`}
+                placeholder={`Type a message to ${name}…`}
                 rows={3}
                 maxLength={480}
                 className="w-full bg-sv-bg-input border border-sv-border rounded-lg px-3 py-2
                            text-xs text-white placeholder-sv-text-muted resize-none
                            focus:outline-none focus:border-sv-green transition-colors"
               />
-              <p className={`text-right text-[10px] mt-0.5 ${charCount > 400 ? 'text-sv-amber' : 'text-sv-text-muted'}`}>
-                {charCount}/480
+              <p className={`text-right text-[10px] mt-0.5 ${message.length > 400 ? 'text-sv-amber' : 'text-sv-text-muted'}`}>
+                {message.length}/480
               </p>
             </div>
 
             {smsStatus === 'sent' && (
-              <div className="flex items-center gap-1.5 text-xs text-sv-green">
-                <CheckCircle size={13} /> SMS sent to {phone}
+              <div className="flex items-center gap-1.5 text-xs text-sv-green bg-sv-green/10 border border-sv-green/30 rounded-lg px-3 py-2">
+                <CheckCircle size={13} /> SMS sent to {name} at {phone}
               </div>
             )}
             {smsStatus === 'error' && (
-              <div className="flex items-center gap-1.5 text-xs text-sv-red">
+              <div className="flex items-center gap-1.5 text-xs text-sv-red bg-sv-red/10 border border-sv-red/30 rounded-lg px-3 py-2">
                 <XCircle size={13} /> {errorMsg}
               </div>
             )}
@@ -169,7 +205,7 @@ export function OutreachPanel({ farmer, activeCall }) {
             <button
               onClick={handleSms}
               disabled={!message.trim() || smsStatus === 'sending' || smsStatus === 'sent'}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg
                          bg-sv-teal text-white text-xs font-bold
                          hover:bg-sv-teal-d disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               {smsStatus === 'sending'
