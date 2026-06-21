@@ -2,9 +2,10 @@ import twilio from 'twilio';
 import { query } from '../config/db.js';
 import { generateSuggestions } from '../services/aiSuggestions.js';
 import { logger } from '../config/logger.js';
+import { env } from '../config/env.js';
 
 function twilioClient() {
-  return twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  return twilio(env.twilio.accountSid, env.twilio.authToken);
 }
 
 export async function getActiveCall(req, res) {
@@ -151,8 +152,8 @@ export async function startDemoCall(req, res) {
   let farmerPhone = '+256700000000';
 
   if (farmerId) {
-    const fr = await query('SELECT full_name, phone FROM farmers WHERE id = $1', [farmerId]);
-    if (fr.rows[0]) { farmerName = fr.rows[0].full_name; farmerPhone = fr.rows[0].phone; }
+    const fr = await query('SELECT name, phone FROM farmers WHERE id = $1', [farmerId]);
+    if (fr.rows[0]) { farmerName = fr.rows[0].name; farmerPhone = fr.rows[0].phone; }
   }
 
   const { rows } = await query(
@@ -231,7 +232,7 @@ export async function toggleHold(req, res) {
         await farmer.update({
           hold: !!hold,
           holdUrl: hold
-            ? `${process.env.APP_URL}/api/twilio/wait-music`
+            ? `${env.appUrl}/api/twilio/wait-music`
             : undefined,
         });
       }

@@ -11,7 +11,7 @@ export async function requireAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     const { rows } = await query(
-      'SELECT id, name, email, status, is_admin FROM agents WHERE id = $1',
+      'SELECT id, name, email, status, is_admin, role FROM agents WHERE id = $1',
       [payload.agentId]
     );
     if (!rows.length) return res.status(401).json({ error: 'Agent not found' });
