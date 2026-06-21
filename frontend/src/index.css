@@ -9,99 +9,33 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Light mode (default) ────────────────────────────────────────────────── */
-  :root {
-    --page-bg:    #f9fafb;
-    --card-bg:    #ffffff;
-    --input-bg:   #f3f4f6;
-    --border:     #e5e7eb;
-    --border-l:   #d1d5db;
-    --text:       #111827;
-    --text-muted: #4b5563;   /* gray-600 — 7:1 on white, WCAG AAA */
-    --text-light: #6b7280;   /* gray-500 — 4.6:1 on white, WCAG AA */
+  body {
+    background-color: #f9fafb;
+    color: #111827;
   }
 
   /* ── Dark mode ───────────────────────────────────────────────────────────── */
-  html.dark {
-    --page-bg:    #0f172a;
-    --card-bg:    #1e293b;
-    --input-bg:   #334155;
-    --border:     #475569;
-    --border-l:   #64748b;
-    --text:       #f1f5f9;
-    --text-muted: #94a3b8;
-    --text-light: #64748b;
+  html.dark body {
+    background-color: #0f172a;
+    color: #f1f5f9;
   }
-
-  body {
-    background-color: var(--page-bg);
-    color: var(--text);
-    transition: background-color 0.15s, color 0.15s;
-  }
-
-  /* ── CSS-variable utility classes ────────────────────────────────────────── */
-  .bg-sv-bg        { background-color: var(--page-bg)  !important; }
-  .bg-sv-bg-card   { background-color: var(--card-bg)  !important; }
-  .bg-sv-bg-input  { background-color: var(--input-bg) !important; }
-  .border-sv-border   { border-color: var(--border)    !important; }
-  .border-sv-border-l { border-color: var(--border-l)  !important; }
-  .text-sv-text-muted { color: var(--text-muted)       !important; }
-
-  /* ── Light mode: fix dark text classes so they stay readable ─────────────── */
-  /* text-white → primary text colour in light mode */
-  :root .text-white   { color: var(--text)        !important; }
-  :root .text-gray-300 { color: #374151           !important; }
-  :root .text-gray-400 { color: var(--text-muted) !important; }
-  :root .text-gray-500 { color: var(--text-muted) !important; }
-  :root .text-gray-600 { color: var(--text-light) !important; }
-
-  /* dark backgrounds → light equivalents in light mode */
-  :root .bg-gray-800  { background-color: var(--card-bg)  !important; }
-  :root .bg-gray-900  { background-color: var(--page-bg)  !important; }
-  :root .bg-gray-950  { background-color: var(--page-bg)  !important; }
-  :root .border-gray-700 { border-color: var(--border)    !important; }
-  :root .border-gray-800 { border-color: var(--border)    !important; }
-
-  /* Exception: elements that explicitly use green/teal/red bg keep white text */
-  :root .text-white.on-color,
-  :root [class*="bg-sv-green"] .text-white,
-  :root [class*="bg-green-"]   .text-white,
-  :root [class*="bg-sv-red"]   .text-white,
-  :root [class*="bg-sv-teal"]  .text-white { color: #ffffff !important; }
-
-  /* Inputs in light mode */
-  :root input, :root select, :root textarea {
-    color: var(--text);
-    background-color: var(--input-bg);
-    border-color: var(--border);
-  }
-  :root input::placeholder,
-  :root textarea::placeholder { color: var(--text-light); }
-
-  /* ── Dark mode: restore original colours ─────────────────────────────────── */
-  html.dark .text-white    { color: #f1f5f9  !important; }
-  html.dark .text-gray-300 { color: #cbd5e1  !important; }
-  html.dark .text-gray-400 { color: #94a3b8  !important; }
-  html.dark .text-gray-500 { color: #64748b  !important; }
-  html.dark .text-gray-600 { color: #475569  !important; }
-  html.dark .bg-gray-800   { background-color: #1e293b !important; }
-  html.dark .bg-gray-900   { background-color: #0f172a !important; }
-  html.dark .bg-gray-950   { background-color: #020617 !important; }
-  html.dark .border-gray-700 { border-color: #334155  !important; }
-  html.dark .border-gray-800 { border-color: #1e293b  !important; }
 
   html.dark input, html.dark select, html.dark textarea {
     color: #f1f5f9;
-    background-color: var(--input-bg);
-    border-color: var(--border);
+    background-color: #1e293b;
+    border-color: #334155;
   }
+
   html.dark input::placeholder,
-  html.dark textarea::placeholder { color: #64748b; }
+  html.dark textarea::placeholder { color: #475569; }
 }
 
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: #e5e7eb transparent;
+  }
+  html.dark .scrollbar-thin {
+    scrollbar-color: #334155 transparent;
   }
 }

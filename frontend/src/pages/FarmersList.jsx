@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle } from 'lucide-react';
+import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut } from 'lucide-react';
 import api from '../services/api.js';
 import { Badge } from '../components/shared/Badge.jsx';
 import { Button } from '../components/shared/Button.jsx';
@@ -11,9 +11,7 @@ import { OutreachPanel } from '../components/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 
-const BIRD_TYPE_COLOR = { broiler: 'blue', layer: 'green', sasso: 'yellow', kuroiler: 'yellow', rainbow_rooster: 'yellow' };
 const STAGE_COLOR = { brooding: 'blue', growing: 'green', finishing: 'yellow', laying: 'green' };
-const TASK_TYPE_ICON = { vaccination: '💉', 'routine activity': '📋', treatment: '💊', inspection: '🔍', 'data collection': '📊' };
 
 function BatchCard({ batch }) {
   const pendingTasks = (batch.tasks || []).filter(t => t.status === 'pending');
@@ -28,13 +26,12 @@ function BatchCard({ batch }) {
     : 100;
 
   return (
-    <div className="rounded-xl border border-sv-border bg-sv-bg-card p-4 space-y-3">
-      {/* Batch header */}
+    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-lg">🐔</span>
-            <span className="text-sm font-semibold text-white capitalize">{batch.bird_type}</span>
+            <span className="text-sm font-semibold text-gray-900 capitalize">{batch.bird_type}</span>
             <Badge variant={STAGE_COLOR[batch.current_stage] || 'gray'} className="capitalize text-xs">
               {batch.current_stage}
             </Badge>
@@ -44,76 +41,72 @@ function BatchCard({ batch }) {
               </Badge>
             )}
           </div>
-          <p className="text-xs text-gray-500">
-            Arrived: {batch.arrival_date ? new Date(batch.arrival_date).toLocaleDateString('en-UG', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+          <p className="text-xs text-gray-400">
+            Arrived: {batch.arrival_date
+              ? new Date(batch.arrival_date).toLocaleDateString('en-UG', { day: 'numeric', month: 'short', year: 'numeric' })
+              : '—'}
           </p>
         </div>
         <div className="text-right">
           <p className="text-lg font-bold text-gray-900">{(batch.total_birds || 0).toLocaleString()}</p>
-          <p className="text-xs text-gray-500">birds</p>
+          <p className="text-xs text-gray-400">birds</p>
         </div>
       </div>
 
-      {/* Health bar */}
       <div>
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-500">Flock health</span>
-          <span className={`text-xs font-medium ${healthPct >= 90 ? 'text-green-400' : healthPct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
+          <span className={`text-xs font-semibold ${healthPct >= 90 ? 'text-green-600' : healthPct >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
             {healthPct}%
           </span>
         </div>
-        <div className="h-1.5 bg-sv-bg-input rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all ${healthPct >= 90 ? 'bg-green-500' : healthPct >= 70 ? 'bg-yellow-500' : 'bg-red-500'}`}
+            className={`h-full rounded-full transition-all ${healthPct >= 90 ? 'bg-green-500' : healthPct >= 70 ? 'bg-amber-400' : 'bg-red-500'}`}
             style={{ width: `${healthPct}%` }}
           />
         </div>
-        <div className="flex gap-3 mt-1.5 text-xs text-gray-500">
-          <span className="text-green-400">{batch.healthy_birds || 0} healthy</span>
-          {(batch.sick_birds || 0) > 0 && <span className="text-orange-400">{batch.sick_birds} sick</span>}
-          {(batch.dead_birds || 0) > 0 && <span className="text-red-400">{batch.dead_birds} dead</span>}
+        <div className="flex gap-3 mt-1.5 text-xs">
+          <span className="text-green-600">{batch.healthy_birds || 0} healthy</span>
+          {(batch.sick_birds || 0) > 0 && <span className="text-orange-500">{batch.sick_birds} sick</span>}
+          {(batch.dead_birds || 0) > 0 && <span className="text-red-500">{batch.dead_birds} dead</span>}
         </div>
       </div>
 
-      {/* Assigned vet */}
       {(batch.vet_name || batch.assigned_vet_name) && (
-        <div className="flex items-center gap-2 bg-sv-bg-input rounded-lg px-3 py-2">
-          <Stethoscope size={13} className="text-sv-green flex-shrink-0" />
+        <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
+          <Stethoscope size={13} className="text-green-600 flex-shrink-0" />
           <div className="min-w-0">
-            <span className="text-xs text-gray-400">Assigned vet: </span>
-            <span className="text-xs font-medium text-white">{batch.vet_name || batch.assigned_vet_name}</span>
+            <span className="text-xs text-gray-500">Assigned vet: </span>
+            <span className="text-xs font-medium text-gray-900">{batch.vet_name || batch.assigned_vet_name}</span>
           </div>
           {(batch.vet_phone || batch.assigned_vet_phone) && (
             <a href={`tel:${batch.vet_phone || batch.assigned_vet_phone}`}
-              className="ml-auto text-xs text-sv-green hover:text-sv-teal flex-shrink-0">
+              className="ml-auto text-xs text-green-700 hover:text-green-800 flex-shrink-0">
               <Phone size={12} />
             </a>
           )}
         </div>
       )}
 
-      {/* Next vet visit */}
       {batch.next_vet_visit && (
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <Calendar size={12} className="text-sv-teal flex-shrink-0" />
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <Calendar size={12} className="text-teal-600 flex-shrink-0" />
           <span>Next visit: </span>
-          <span className={`font-medium ${new Date(batch.next_vet_visit) < new Date() ? 'text-red-400' : 'text-white'}`}>
+          <span className={`font-medium ${new Date(batch.next_vet_visit) < new Date() ? 'text-red-500' : 'text-gray-800'}`}>
             {new Date(batch.next_vet_visit).toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short' })}
           </span>
         </div>
       )}
 
-      {/* Upcoming vaccinations */}
       {upcomingVaccinations.length > 0 && (
         <div>
-          <p className="text-xs text-gray-500 mb-1.5">Upcoming vaccinations</p>
+          <p className="text-xs text-gray-400 mb-1.5">Upcoming vaccinations</p>
           <div className="space-y-1">
             {upcomingVaccinations.map(t => (
-              <div key={t.id} className="flex items-center justify-between text-xs rounded bg-sv-bg-input px-2.5 py-1.5">
-                <span className="text-white flex items-center gap-1.5">
-                  💉 {t.name || t.description}
-                </span>
-                <span className={`text-gray-400 flex-shrink-0 ml-2 ${new Date(t.scheduled_at) < new Date() ? 'text-red-400' : ''}`}>
+              <div key={t.id} className="flex items-center justify-between text-xs rounded bg-gray-50 px-2.5 py-1.5 border border-gray-100">
+                <span className="text-gray-800 flex items-center gap-1.5">💉 {t.name || t.description}</span>
+                <span className={`flex-shrink-0 ml-2 ${new Date(t.scheduled_at) < new Date() ? 'text-red-500' : 'text-gray-400'}`}>
                   {new Date(t.scheduled_at).toLocaleDateString('en-UG', { day: 'numeric', month: 'short' })}
                 </span>
               </div>
@@ -141,17 +134,16 @@ function FarmerDetail({ farmer, onDispatch }) {
 
   return (
     <div className="max-w-2xl space-y-5">
-      {/* Header card */}
-      <div className="bg-sv-bg-card border border-sv-border rounded-xl p-5">
+      <div className="bg-white border border-gray-200 rounded-xl p-5">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">{farmer.name}</h2>
-            <p className="text-gray-400 flex items-center gap-1.5 text-sm">
+            <p className="text-gray-500 flex items-center gap-1.5 text-sm">
               <Phone size={14} /> {farmer.phone}
-              {farmer.alt_phone && <span className="text-gray-600 ml-1">· {farmer.alt_phone}</span>}
+              {farmer.alt_phone && <span className="text-gray-400 ml-1">· {farmer.alt_phone}</span>}
             </p>
             {farmer.district && (
-              <p className="text-gray-400 flex items-center gap-1.5 text-sm mt-1">
+              <p className="text-gray-500 flex items-center gap-1.5 text-sm mt-1">
                 <MapPin size={14} />
                 {[farmer.village, farmer.sub_county, farmer.district].filter(Boolean).join(', ')}
               </p>
@@ -164,12 +156,11 @@ function FarmerDetail({ farmer, onDispatch }) {
 
         <OutreachPanel farmer={farmer} activeCall={null} />
 
-        {/* Assigned vet */}
         {matchedVet && (
-          <div className="flex items-center gap-2 bg-sv-bg-input rounded-lg px-3 py-2 mb-3">
-            <Stethoscope size={14} className="text-sv-green" />
-            <span className="text-xs text-gray-400">Assigned vet:</span>
-            <span className="text-sm font-medium text-white">{matchedVet}</span>
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-3">
+            <Stethoscope size={14} className="text-green-600" />
+            <span className="text-xs text-gray-500">Assigned vet:</span>
+            <span className="text-sm font-medium text-gray-900">{matchedVet}</span>
             <Badge variant={farmer.matched_vet_role === 'vet' ? 'blue' : 'green'} className="text-xs capitalize">
               {farmer.matched_vet_role || 'paravet'}
             </Badge>
@@ -177,22 +168,21 @@ function FarmerDetail({ farmer, onDispatch }) {
         )}
 
         {farmer.notes && (
-          <p className="text-sm text-gray-400 bg-sv-bg-input rounded-lg p-3">{farmer.notes}</p>
+          <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-lg p-3 mt-3">{farmer.notes}</p>
         )}
       </div>
 
-      {/* Batches */}
-      {!detail && (
-        <div className="text-sv-text-muted text-sm text-center py-8">Loading…</div>
-      )}
+      {!detail && <div className="text-gray-400 text-sm text-center py-8">Loading…</div>}
+
       {detail && activeBatches.length === 0 && (
-        <div className="bg-sv-bg-card border border-sv-border rounded-xl p-5 text-center text-gray-500 text-sm">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 text-center text-gray-400 text-sm">
           No active batches. Farmer may be calling for the first time.
         </div>
       )}
+
       {activeBatches.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">
+          <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide">
             Active Batches ({activeBatches.length})
           </h3>
           <div className="space-y-3">
@@ -201,23 +191,16 @@ function FarmerDetail({ farmer, onDispatch }) {
         </div>
       )}
 
-      {/* Call history */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">
-            Call History
-          </h3>
-          <span className="text-xs text-sv-text-muted">{callHistory.length} call{callHistory.length !== 1 ? 's' : ''}</span>
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide">Call History</h3>
+          <span className="text-xs text-gray-400">{callHistory.length} call{callHistory.length !== 1 ? 's' : ''}</span>
         </div>
 
-        {!detail && (
-          <div className="text-sv-text-muted text-sm text-center py-6">Loading…</div>
-        )}
-
         {detail && callHistory.length === 0 && (
-          <div className="bg-sv-bg-card border border-sv-border rounded-xl p-6 text-center">
-            <Phone size={28} className="mx-auto mb-2 text-sv-text-muted opacity-30" />
-            <p className="text-sm text-sv-text-muted">No calls recorded yet</p>
+          <div className="bg-white border border-gray-200 rounded-xl p-6 text-center">
+            <Phone size={28} className="mx-auto mb-2 text-gray-200" />
+            <p className="text-sm text-gray-400">No calls recorded yet</p>
           </div>
         )}
 
@@ -226,46 +209,41 @@ function FarmerDetail({ farmer, onDispatch }) {
             const date = call.started_at ? new Date(call.started_at) : null;
             const dur  = call.duration_seconds ? `${Math.round(call.duration_seconds / 60)}m` : null;
             const symptoms = Array.isArray(call.symptoms) ? call.symptoms : [];
-            const nextSteps = (call.next_steps || '')
-              .split('\n')
-              .map(l => l.trim())
-              .filter(Boolean);
-            const outcomeColor = {
-              resolved:     'text-sv-green border-sv-green/40 bg-sv-green/10',
-              vet_requested:'text-sv-amber border-sv-amber/40 bg-sv-amber/10',
-              follow_up:    'text-sv-teal  border-sv-teal/40  bg-sv-teal/10',
-              no_action:    'text-gray-400 border-gray-600    bg-gray-800/40',
-              transferred:  'text-blue-400 border-blue-600    bg-blue-950/30',
-            }[call.outcome] || 'text-sv-text-muted border-sv-border bg-sv-bg-input';
+            const nextSteps = (call.next_steps || '').split('\n').map(l => l.trim()).filter(Boolean);
+
+            const outcomeStyle = {
+              resolved:      'text-green-700 border-green-200 bg-green-50',
+              vet_requested: 'text-amber-700 border-amber-200 bg-amber-50',
+              follow_up:     'text-teal-700  border-teal-200  bg-teal-50',
+              no_action:     'text-gray-500  border-gray-200  bg-gray-50',
+              transferred:   'text-blue-700  border-blue-200  bg-blue-50',
+            }[call.outcome] || 'text-gray-500 border-gray-200 bg-gray-50';
 
             return (
-              <div key={call.id} className={`rounded-xl border bg-sv-bg-card overflow-hidden ${
-                call.is_emergency ? 'border-sv-red/50' : 'border-sv-border'
+              <div key={call.id} className={`rounded-xl border bg-white overflow-hidden ${
+                call.is_emergency ? 'border-red-200' : 'border-gray-200'
               }`}>
-                {call.is_emergency && <div className="h-0.5 bg-sv-red w-full" />}
+                {call.is_emergency && <div className="h-0.5 bg-red-500 w-full" />}
 
-                {/* Call header */}
-                <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-sv-border/60">
+                <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-gray-100">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-[10px] font-bold text-sv-text-muted w-5 flex-shrink-0">#{callHistory.length - idx}</span>
+                    <span className="text-[10px] font-bold text-gray-300 w-5 flex-shrink-0">#{callHistory.length - idx}</span>
                     <div>
-                      <p className="text-xs font-semibold text-white">
+                      <p className="text-xs font-semibold text-gray-900">
                         {date ? date.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                        {dur && <span className="ml-2 text-sv-text-muted font-normal">· {dur}</span>}
+                        {dur && <span className="ml-2 text-gray-400 font-normal">· {dur}</span>}
                       </p>
-                      {call.agent_name && (
-                        <p className="text-[11px] text-sv-text-muted mt-0.5">Agent: {call.agent_name}</p>
-                      )}
+                      {call.agent_name && <p className="text-[11px] text-gray-400 mt-0.5">Agent: {call.agent_name}</p>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {call.is_emergency && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sv-red/50 bg-sv-red/10 text-sv-red animate-pulse">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 animate-pulse">
                         EMERGENCY
                       </span>
                     )}
                     {call.outcome && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize ${outcomeColor}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize ${outcomeStyle}`}>
                         {call.outcome.replace(/_/g, ' ')}
                       </span>
                     )}
@@ -273,16 +251,15 @@ function FarmerDetail({ farmer, onDispatch }) {
                 </div>
 
                 <div className="px-4 py-3 space-y-3">
-                  {/* Symptoms */}
                   {symptoms.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1.5">Symptoms Reported</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Symptoms Reported</p>
                       <div className="flex flex-wrap gap-1.5">
                         {symptoms.map((s, i) => {
                           const chip =
-                            s.severity === 'severe'   ? 'border-sv-red/40   bg-sv-red/10   text-sv-red' :
-                            s.severity === 'mild'     ? 'border-sv-green/40 bg-sv-green/10 text-sv-green' :
-                                                        'border-sv-amber/40 bg-sv-amber/10 text-sv-amber';
+                            s.severity === 'severe' ? 'border-red-200 bg-red-50 text-red-600' :
+                            s.severity === 'mild'   ? 'border-green-200 bg-green-50 text-green-700' :
+                                                      'border-amber-200 bg-amber-50 text-amber-700';
                           return (
                             <span key={i} className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium ${chip}`}>
                               {s.symptom}
@@ -293,32 +270,28 @@ function FarmerDetail({ farmer, onDispatch }) {
                     </div>
                   )}
 
-                  {/* Agent notes */}
                   {call.agent_notes && (
                     <div>
-                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1">Agent Notes</p>
-                      <p className="text-xs text-white/80 leading-relaxed bg-sv-bg-input rounded-lg px-3 py-2">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Agent Notes</p>
+                      <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
                         {call.agent_notes}
                       </p>
                     </div>
                   )}
 
-                  {/* Next steps / action points */}
                   {nextSteps.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-sv-text-muted uppercase tracking-widest mb-1.5">Action Points</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Action Points</p>
                       <div className="space-y-1">
                         {nextSteps.map((step, i) => {
                           const done = step.startsWith('[x]');
                           const text = step.replace(/^\[[ x]\]\s*/, '');
                           return (
                             <div key={i} className={`flex items-start gap-2 text-xs rounded-lg px-3 py-2 border ${
-                              done
-                                ? 'border-sv-green/25 bg-sv-green/5 text-sv-text-muted'
-                                : 'border-sv-border bg-sv-bg-input text-white/80'
+                              done ? 'border-green-100 bg-green-50 text-gray-400' : 'border-gray-100 bg-gray-50 text-gray-700'
                             }`}>
                               <span className={`flex-shrink-0 w-4 h-4 mt-0.5 rounded border flex items-center justify-center ${
-                                done ? 'bg-sv-green border-sv-green' : 'border-sv-text-muted/40'
+                                done ? 'bg-green-600 border-green-600' : 'border-gray-300'
                               }`}>
                                 {done && <span className="text-white text-[9px] font-black">✓</span>}
                               </span>
@@ -330,10 +303,9 @@ function FarmerDetail({ farmer, onDispatch }) {
                     </div>
                   )}
 
-                  {/* Intent tag */}
                   {call.call_intent && call.call_intent !== 'other' && (
-                    <p className="text-[11px] text-sv-text-muted capitalize">
-                      Intent: <span className="text-white/70">{call.call_intent.replace(/_/g, ' ')}</span>
+                    <p className="text-[11px] text-gray-400 capitalize">
+                      Intent: <span className="text-gray-600">{call.call_intent.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                 </div>
@@ -385,21 +357,20 @@ export default function FarmersList() {
   }
 
   const NAV = [
-    { to: '/agent', label: 'Dashboard' },
-    { to: '/agent/farmers', label: 'Farmers', active: true },
-    { to: '/agent/vets', label: 'Vets' },
+    { to: '/agent',         label: 'Dashboard' },
+    { to: '/agent/farmers', label: 'Farmers',  active: true },
+    { to: '/agent/vets',    label: 'Vets' },
   ];
 
   return (
-    <div className="min-h-screen bg-sv-bg flex flex-col">
-      {/* Header */}
-      <header className="flex items-center gap-4 px-5 py-2.5 border-b border-sv-border bg-sv-bg-card">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <header className="flex items-center gap-4 px-5 py-2.5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <Logo size="sm" />
         <nav className="flex items-center gap-1">
           {NAV.map(n => (
             <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                n.active ? 'text-sv-green bg-sv-bg-input' : 'text-gray-500 hover:text-gray-300 hover:bg-sv-bg-input'
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}>
               {n.label}
             </button>
@@ -407,64 +378,63 @@ export default function FarmersList() {
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <ThemeToggle />
-          <span className="text-sm text-gray-400">{agent?.name}</span>
-          <button onClick={logout} className="text-gray-500 hover:text-white text-sm">Logout</button>
+          <span className="text-sm text-gray-600">{agent?.name}</span>
+          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
+            <LogOut size={15} />
+          </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left — farmer list */}
-        <div className="w-80 flex-shrink-0 border-r border-sv-border flex flex-col bg-sv-bg-card">
-          {/* Search */}
-          <div className="p-3 space-y-2 border-b border-sv-border">
+        <div className="w-80 flex-shrink-0 border-r border-gray-200 flex flex-col bg-white">
+          <div className="p-3 space-y-2 border-b border-gray-200">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-white">Farmers</span>
-              <span className="text-xs text-gray-500">{total} total</span>
+              <span className="text-sm font-semibold text-gray-900">Farmers</span>
+              <span className="text-xs text-gray-400">{total} total</span>
             </div>
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Name or phone…"
-                className="w-full bg-sv-bg-input border border-sv-border rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-sv-green" />
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600" />
             </div>
             <select value={district} onChange={e => setDistrict(e.target.value)}
-              className="w-full bg-sv-bg-input border border-sv-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sv-green">
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600">
               <option value="">All districts</option>
               {districts.map(d => <option key={d}>{d}</option>)}
             </select>
           </div>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin">
-            {loading && <p className="text-gray-600 text-sm p-4 text-center">Loading…</p>}
+            {loading && <p className="text-gray-400 text-sm p-4 text-center">Loading…</p>}
             {!loading && farmers.length === 0 && (
-              <p className="text-gray-600 text-sm p-4 text-center">No farmers found</p>
+              <p className="text-gray-400 text-sm p-4 text-center">No farmers found</p>
             )}
             {farmers.map(farmer => {
               const totalBirds = (farmer.batches || []).reduce((s, b) => s + (b.total_birds || 0), 0);
-              const hasActiveDispatch = false;
               return (
                 <button key={farmer.id} onClick={() => setSelected(farmer)}
-                  className={`w-full text-left px-4 py-3 border-b border-sv-border/50 hover:bg-sv-bg-input transition-colors ${
-                    selected?.id === farmer.id ? 'bg-sv-bg-input border-l-2 border-l-sv-green' : ''
+                  className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                    selected?.id === farmer.id ? 'bg-green-50 border-l-2 border-l-green-600' : ''
                   }`}>
                   <div className="flex items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{farmer.name}</p>
-                      <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                      <p className="text-sm font-medium text-gray-900 truncate">{farmer.name}</p>
+                      <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                         <Phone size={10} /> {farmer.phone}
                       </p>
                       {farmer.district && (
-                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                           <MapPin size={10} /> {farmer.district}
                         </p>
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       {totalBirds > 0 && (
-                        <span className="text-xs text-sv-green font-medium">{totalBirds.toLocaleString()} birds</span>
+                        <span className="text-xs text-green-700 font-medium">{totalBirds.toLocaleString()} birds</span>
                       )}
                       {farmer.matched_vet_name && (
-                        <span className="text-xs text-gray-500 truncate max-w-[80px]">{farmer.matched_vet_name}</span>
+                        <span className="text-xs text-gray-400 truncate max-w-[80px]">{farmer.matched_vet_name}</span>
                       )}
                     </div>
                   </div>
@@ -474,12 +444,11 @@ export default function FarmersList() {
           </div>
         </div>
 
-        {/* Right — detail */}
-        <div className="flex-1 overflow-y-auto p-6 bg-sv-bg">
+        <div className="flex-1 overflow-y-auto p-6">
           {!selected ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-600">
-              <Users size={48} className="opacity-20 mb-3" />
-              <p>Select a farmer to view their profile, batches and history</p>
+            <div className="flex flex-col items-center justify-center h-full text-gray-300">
+              <Users size={48} className="mb-3" />
+              <p className="text-gray-500">Select a farmer to view their profile, batches and history</p>
             </div>
           ) : (
             <FarmerDetail key={selected.id} farmer={selected} onDispatch={() => handleDispatch(selected)} />
