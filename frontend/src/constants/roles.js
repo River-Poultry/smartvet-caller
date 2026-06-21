@@ -6,11 +6,3 @@ export const ROLES = {
 };
 
 export const ROLE_ORDER = ['admin', 'supervisor', 'agent', 'trainee'];
-
-export function canManageUsers(role) {
-  return role === 'admin';
-}
-
-export function canViewAdminDashboard(role) {
-  return role === 'admin' || role === 'supervisor';
-}
