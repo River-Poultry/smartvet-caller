@@ -202,16 +202,16 @@ function CallDrilldown({ callId, onClose }) {
                 <SectionHeader icon={MessageSquare} title={`Transcript (${data.transcript.length} segments)`} color="text-gray-500" />
                 <div className="space-y-1.5 max-h-64 overflow-y-auto bg-gray-50 rounded-xl p-3">
                   {data.transcript.map(t => (
-                    <div key={t.id} className={`flex gap-2 text-xs ${t.speaker_type === 'farmer' ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <div key={t.id} className={`flex gap-2 text-xs ${t.speaker === 'farmer' ? 'flex-row' : 'flex-row-reverse'}`}>
                       <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-widest mt-0.5 ${
-                        t.speaker_type === 'farmer' ? 'text-blue-600' :
-                        t.speaker_type === 'agent'  ? 'text-green-700' : 'text-gray-400'
-                      }`}>{t.speaker_type}</span>
+                        t.speaker === 'farmer' ? 'text-blue-600' :
+                        t.speaker === 'agent'  ? 'text-green-700' : 'text-gray-400'
+                      }`}>{t.speaker}</span>
                       <p className={`rounded-lg px-2.5 py-1.5 text-xs leading-relaxed max-w-[75%] ${
-                        t.speaker_type === 'farmer' ? 'bg-blue-50 text-blue-900' :
-                        t.speaker_type === 'agent'  ? 'bg-green-50 text-green-900' :
+                        t.speaker === 'farmer' ? 'bg-blue-50 text-blue-900' :
+                        t.speaker === 'agent'  ? 'bg-green-50 text-green-900' :
                         'bg-gray-100 text-gray-500 italic'
-                      }`}>{t.content || t.transcript_text}</p>
+                      }`}>{t.text}</p>
                     </div>
                   ))}
                 </div>

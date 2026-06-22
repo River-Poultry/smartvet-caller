@@ -212,9 +212,10 @@ router.get('/call/:id', async (req, res) => {
       `, [req.params.id]),
 
       query(`
-        SELECT * FROM call_transcripts
+        SELECT id, call_id, speaker, text, confidence_score, timestamp_offset_seconds, created_at
+        FROM call_transcripts
         WHERE call_id = $1
-        ORDER BY sequence_number ASC, created_at ASC
+        ORDER BY timestamp_offset_seconds ASC NULLS LAST, created_at ASC
       `, [req.params.id]),
     ]);
 

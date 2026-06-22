@@ -213,8 +213,11 @@ function ReviewCard({ s, onReview }) {
               {s.farmer_name || s.phone_number || '—'} · {fmt(s.call_date)} · Agent: {s.agent_name || '—'}
             </span>
           </div>
-          <p className="text-xs text-gray-700 leading-relaxed line-clamp-3">{s.suggestion_text}</p>
-          {s.confidence_score && (
+          {/* Only show text preview when collapsed */}
+          {!expanded && (
+            <p className="text-xs text-gray-700 leading-relaxed line-clamp-2">{s.suggestion_text}</p>
+          )}
+          {!expanded && s.confidence_score && (
             <p className="text-[10px] text-gray-400 mt-1">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
           )}
         </div>
@@ -233,6 +236,17 @@ function ReviewCard({ s, onReview }) {
       {/* Expanded review panel */}
       {expanded && (
         <div className="px-4 pb-4 pt-1 border-t border-gray-100 space-y-4">
+
+          {/* AI output — read-only box at top of expanded panel */}
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">AI Suggestion to Review</p>
+            <div className="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
+              <p className="text-xs text-gray-800 whitespace-pre-wrap leading-relaxed">{s.suggestion_text}</p>
+              {s.confidence_score && (
+                <p className="text-[10px] text-teal-600 mt-1.5 font-medium">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
+              )}
+            </div>
+          </div>
 
           {/* Verdict selector */}
           <div>
