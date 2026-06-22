@@ -18,6 +18,7 @@ const MIGRATION_FILES = [
   '010_fix_phone_column.sql',
   '011_calls_next_steps.sql',
   '012_agent_active_flag.sql',
+  '013_vet_board.sql',
 ];
 
 export async function runMigrations() {

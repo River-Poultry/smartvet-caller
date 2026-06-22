@@ -25,8 +25,16 @@ export async function requireAuth(req, res, next) {
 }
 
 export function requireAdmin(req, res, next) {
-  if (!req.agent?.is_admin) {
+  if (!req.agent?.is_admin && req.agent?.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+}
+
+export function requireVetBoard(req, res, next) {
+  const role = req.agent?.role;
+  if (role !== 'vet_board' && role !== 'admin' && !req.agent?.is_admin) {
+    return res.status(403).json({ error: 'Vet board access required' });
   }
   next();
 }

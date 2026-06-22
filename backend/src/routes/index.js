@@ -12,6 +12,7 @@ import aiRoutes from './ai.js';
 import inventoryRoutes from './inventory.js';
 import outreachRoutes from './outreach.js';
 import insightsRoutes from './insights.js';
+import vetBoardRoutes from './vetBoard.js';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/ai', aiRoutes);
 router.use('/inventory', inventoryRoutes);
 router.use('/outreach', outreachRoutes);
 router.use('/insights', insightsRoutes);
+router.use('/vet-board', vetBoardRoutes);
 
 export default router;

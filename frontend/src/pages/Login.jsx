@@ -144,7 +144,7 @@ export default function Login() {
     e.preventDefault();
     try { await login(identifier, password); } catch { return; }
     const agent = JSON.parse(localStorage.getItem('sv_agent') || 'null');
-    if (agent) navigate(agent.isAdmin ? '/admin' : '/agent');
+    if (agent) navigate(agent.isAdmin ? '/admin' : agent.isVetBoard ? '/vet-board' : '/agent');
   }
 
   return (

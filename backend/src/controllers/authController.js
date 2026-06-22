@@ -114,7 +114,9 @@ export async function login(req, res) {
       name:    agent.name,
       email:   agent.email,
       phone:   agent.phone,
-      isAdmin: agent.is_admin,
+      role:    agent.role,
+      isAdmin: agent.is_admin || agent.role === 'admin',
+      isVetBoard: agent.role === 'vet_board',
       status:  'online',
     },
   });
@@ -126,7 +128,7 @@ export async function refresh(req, res) {
 
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   const { rows } = await query(
-    `SELECT rt.*, a.is_admin, a.email, a.name, a.phone
+    `SELECT rt.*, a.is_admin, a.role, a.email, a.name, a.phone
      FROM refresh_tokens rt
      JOIN agents a ON a.id = rt.agent_id
      WHERE rt.token_hash = $1 AND rt.revoked = false AND rt.expires_at > NOW()`,
@@ -141,7 +143,15 @@ export async function refresh(req, res) {
   const accessToken = signAccess({ id: rec.agent_id, email: rec.email, is_admin: rec.is_admin });
   const newRefresh  = await issueRefreshToken(rec.agent_id);
 
-  res.json({ token: accessToken, refreshToken: newRefresh });
+  res.json({
+    token: accessToken,
+    refreshToken: newRefresh,
+    agent: {
+      id: rec.agent_id, name: rec.name, email: rec.email, phone: rec.phone,
+      role: rec.role, isAdmin: rec.is_admin || rec.role === 'admin',
+      isVetBoard: rec.role === 'vet_board', status: 'online',
+    },
+  });
 }
 
 export async function logout(req, res) {

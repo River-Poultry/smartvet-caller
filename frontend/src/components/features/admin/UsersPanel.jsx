@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   X, UserPlus, Shield, User, Pencil, Check, Loader2,
   Phone, Mail, Lock, Eye, EyeOff, RefreshCw, Copy, AlertCircle,
-  Users, GraduationCap, ClipboardList, Trash2, PowerOff, Power,
+  Users, GraduationCap, ClipboardList, Trash2, PowerOff, Power, Stethoscope,
 } from 'lucide-react';
 import api from '../../../services/api.js';
 import { ROLES, ROLE_ORDER } from '../../../constants/roles.js';
@@ -12,6 +12,7 @@ const ROLE_ICONS = {
   supervisor: ClipboardList,
   agent:      Users,
   trainee:    GraduationCap,
+  vet_board:  Stethoscope,
 };
 
 const ROLE_BADGE_CLASS = {
@@ -19,6 +20,7 @@ const ROLE_BADGE_CLASS = {
   supervisor: 'text-blue-600 border-blue-300 bg-blue-50',
   agent:      'text-gray-600 border-gray-300 bg-gray-100',
   trainee:    'text-amber-600 border-amber-300 bg-amber-50',
+  vet_board:  'text-teal-700 border-teal-300 bg-teal-50',
 };
 
 const EMPTY_FORM = { name: '', email: '', phone: '', password: '', role: 'agent' };
