@@ -12,6 +12,7 @@ import { validateEnv } from './config/env.js';
 validateEnv();
 
 const app = express();
+app.set('trust proxy', 1); // Render sits behind a proxy; needed for rate-limiter IP detection
 const server = http.createServer(app);
 
 initWebSocket(server);
