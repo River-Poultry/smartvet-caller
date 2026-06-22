@@ -7,14 +7,20 @@ import { logger } from '../config/logger.js';
 
 const EMERGENCY_KEYWORDS = [
   'dying', 'dead', 'mortality', 'many dead', 'all dying', 'emergency',
-  'suddenly', 'collapsed', 'not moving', 'bleeding', 'haemorrhage'
+  'suddenly', 'collapsed', 'not moving', 'bleeding', 'haemorrhage',
+  'gangrenous', 'dark skin', 'over 30%', 'critical', 'convulsions', 'paddling',
+  '15-30%', '15–30%', 'flip over', 'flip-over', 'on their back', 'found on back',
 ];
 
 const DISEASE_KEYWORDS = [
   'diarrhea', 'not eating', 'sneezing', 'coughing', 'swollen', 'limping',
   'ruffled feathers', 'drooping', 'watery eyes', 'paralysis', 'twisted neck',
   'gasping', 'lesions', 'scabs', 'nasal discharge', 'rattling', 'gurgling',
-  'pale comb', 'blue comb', 'blood', 'whitish', 'huddling', 'depression'
+  'pale comb', 'blue comb', 'blood', 'whitish', 'huddling', 'depression',
+  'water belly', 'ascites', 'flip over', 'on back', 'on belly', 'star gazing',
+  'tremors', 'incoordination', 'gangrenous', 'anaemic', 'anemic', 'pale birds',
+  'wet litter', 'footpad', 'breast blister', 'poor weight', 'uneven flock',
+  'cloacal pasting', 'mortality', 'gradual deaths', 'sudden death',
 ];
 
 const VET_REQUEST_KEYWORDS = [

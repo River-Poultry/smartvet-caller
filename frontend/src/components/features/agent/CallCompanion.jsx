@@ -8,12 +8,91 @@ import { useCallStore } from '../../../store/callStore.js';
 import api from '../../../services/api.js';
 
 const SYMPTOM_GROUPS = [
-  { label: 'Feeding & Digestion', symptoms: ['Not eating', 'Diarrhea', 'Bloody droppings', 'Watery droppings', 'Green droppings'] },
-  { label: 'Respiratory',         symptoms: ['Coughing', 'Sneezing', 'Gasping', 'Nasal discharge', 'Rattling / wheezing'] },
-  { label: 'Behaviour',           symptoms: ['Lethargy', 'Drooping wings', 'Paralysis', 'Twisted neck', 'Limping'] },
-  { label: 'Appearance',          symptoms: ['Ruffled feathers', 'Swollen head', 'Swollen face', 'Watery eyes', 'Scabs / lesions'] },
-  { label: 'Mortality',           symptoms: ['High mortality', 'Sudden death', 'Many dead'] },
-  { label: 'Production',          symptoms: ['Reduced egg production', 'Soft shell eggs', 'No shell eggs'] },
+  {
+    label: 'Mortality — Rate',
+    symptoms: [
+      'Under 2% mortality (normal)',
+      '2–5% mortality (mild)',
+      '5–15% mortality (moderate)',
+      '15–30% mortality (severe)',
+      'Over 30% mortality (critical)',
+    ],
+  },
+  {
+    label: 'Mortality — How Birds Died',
+    symptoms: [
+      'Found dead on back (flip-over)',
+      'Found dead on belly / prone',
+      'Found dead on side',
+      'Star-gazing before death',
+      'Paddling / convulsions before death',
+      'Sudden death — no prior signs',
+      'Gradual deaths over several days',
+      'Death after brief illness (< 24 h)',
+    ],
+  },
+  {
+    label: 'Feeding & Digestion',
+    symptoms: [
+      'Not eating', 'Reduced feed intake', 'Diarrhea', 'Bloody droppings',
+      'Watery droppings', 'Green droppings', 'Yellow / sulphur droppings',
+      'White / chalky droppings', 'Wet litter', 'Cloacal pasting',
+      'Proventricular swelling', 'Gizzard erosion',
+    ],
+  },
+  {
+    label: 'Respiratory',
+    symptoms: [
+      'Coughing', 'Sneezing', 'Gasping / open-mouth breathing',
+      'Nasal discharge', 'Rattling / wheezing', 'Gurgling',
+      'Laboured breathing', 'Head shaking', 'Tracheal rales',
+      'Conjunctivitis / eye discharge',
+    ],
+  },
+  {
+    label: 'Behaviour & Nervous System',
+    symptoms: [
+      'Lethargy / depression', 'Huddling together', 'Drooping wings',
+      'Paralysis', 'Twisted neck (torticollis)', 'Limping',
+      'Tremors / shaking', 'Incoordination / falling over',
+      'Not moving', 'Excitability / restlessness',
+    ],
+  },
+  {
+    label: 'Appearance & Skin',
+    symptoms: [
+      'Ruffled feathers', 'Pale comb', 'Blue / dark comb',
+      'Swollen head', 'Swollen face / sinuses', 'Swollen eye',
+      'Watery / sunken eyes', 'Scabs / warts / pustules',
+      'Mouth / throat lesions', 'Gangrenous / dark skin patches',
+      'Feather loss', 'Subcutaneous bleeding / haemorrhage',
+    ],
+  },
+  {
+    label: 'Broiler Specific',
+    symptoms: [
+      'Water belly (ascites)', 'Breast blister',
+      'Footpad sores / contact dermatitis', 'Leg bowing / angular deformity',
+      'Swollen hock joints', 'Poor weight gain / runting',
+      'Uneven flock size', 'Pale / anaemic appearance',
+      'Flip-over (sudden death on back)', 'Rapid growth birds affected most',
+    ],
+  },
+  {
+    label: 'Musculoskeletal',
+    symptoms: [
+      'Lameness', 'Leg weakness', 'Swollen joints', 'Bone deformity',
+      'Soft / rubbery bones', 'Wing drooping', 'Cannot stand',
+    ],
+  },
+  {
+    label: 'Production (Layers)',
+    symptoms: [
+      'Reduced egg production', 'Sudden drop in production',
+      'Soft shell eggs', 'No shell eggs', 'Thin shell eggs',
+      'Misshapen eggs', 'Pale yolk', 'Watery albumen',
+    ],
+  },
 ];
 
 const SEVERITY_CONFIG = [
