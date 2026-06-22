@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { query } from '../config/db.js';
+import { env } from '../config/env.js';
 import { sendOtpEmail } from '../utils/email.js';
 
 export function normalisePhone(raw) {
@@ -28,7 +29,7 @@ function generateOtp() {
 function signAccess(agent) {
   return jwt.sign(
     { agentId: agent.id, email: agent.email, isAdmin: agent.is_admin },
-    process.env.JWT_SECRET,
+    env.jwtSecret,
     { expiresIn: '15m' }
   );
 }
@@ -214,27 +215,4 @@ export async function changePassword(req, res) {
   await query(`UPDATE agents SET password_hash = $1, updated_at = NOW() WHERE id = $2`, [hash, req.agent.id]);
   await query(`UPDATE refresh_tokens SET revoked = true WHERE agent_id = $1`, [req.agent.id]);
   res.json({ message: 'Password updated. Please log in again.' });
-}
-
-export async function createAgent(req, res) {
-  const { name, email, phone, password, isAdmin = false } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'name, email, password required' });
-
-  const err = validatePassword(password);
-  if (err) return res.status(400).json({ error: err });
-
-  const hash   = await bcrypt.hash(password, 12);
-  const normPh = normalisePhone(phone);
-
-  try {
-    const { rows } = await query(
-      `INSERT INTO agents (name, email, phone, password_hash, is_admin, is_verified)
-       VALUES ($1, $2, $3, $4, $5, true) RETURNING id, name, email, phone, is_admin`,
-      [name, email.toLowerCase().trim(), normPh, hash, isAdmin]
-    );
-    res.status(201).json(rows[0]);
-  } catch (e) {
-    if (e.code === '23505') return res.status(409).json({ error: 'Email or phone already registered' });
-    throw e;
-  }
 }

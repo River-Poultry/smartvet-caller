@@ -1,5 +1,5 @@
 import twilio from 'twilio';
-import { query, transaction } from '../config/db.js';
+import { query } from '../config/db.js';
 import { getFarmerByPhone } from '../services/smartvetCore.js';
 import { requestTranscription, processTranscriptionCallback } from '../services/transcription.js';
 import { notifyAgent, broadcast } from '../services/websocket.js';

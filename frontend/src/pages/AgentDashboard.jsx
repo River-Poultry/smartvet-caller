@@ -122,7 +122,7 @@ export default function AgentDashboard() {
           </div>
           {transcriptOpen && (
             <div className="flex-1 overflow-hidden">
-              <RealTimeTranscript compact />
+              <RealTimeTranscript />
             </div>
           )}
         </div>

@@ -30,7 +30,8 @@ export async function createDispatch(req, res) {
     }
 
     if (farm_id) {
-      const coreJob = await createVetRequest(farm_id, {
+      const coreJob = await createVetRequest({
+        farm_id,
         urgency: urgency_level,
         symptoms: symptoms_description,
         visit_type,
