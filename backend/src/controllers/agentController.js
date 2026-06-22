@@ -67,7 +67,9 @@ export async function updateAgent(req, res) {
     return res.status(400).json({ error: `role must be one of: ${VALID_ROLES.join(', ')}` });
   }
 
-  const isAdmin = role ? role === 'admin' : undefined;
+  // Only set is_admin=true when promoting to admin; never clear it via a role change
+  // (prevents accidental lockout when reassigning the last admin's role)
+  const isAdmin = role === 'admin' ? true : undefined;
 
   const { rows } = await query(
     `UPDATE agents SET
