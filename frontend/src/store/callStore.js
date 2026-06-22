@@ -46,7 +46,7 @@ return ({
       const hasCall = !!data.call_id;
       set({
         activeCall: hasCall ? data : null,
-        transcriptSegments: data.transcript_segments || [],
+        transcriptSegments: hasCall ? (data.transcript_segments || []) : [],
       });
       if (hasCall) {
         try {

@@ -90,7 +90,9 @@ export async function login(req, res) {
       `INSERT INTO otp_codes (agent_id, code, purpose, expires_at) VALUES ($1, $2, 'verify', $3)`,
       [agent.id, code, exp]
     );
-    try { await sendOtpEmail(agent.email, code, 'verify'); } catch {}
+    try { await sendOtpEmail(agent.email, code, 'verify'); } catch (emailErr) {
+      console.error('[login] Failed to send verification email:', emailErr.message);
+    }
     return res.status(403).json({
       error: 'Email not verified. A verification code has been sent.',
       requiresVerification: true,
@@ -187,7 +189,9 @@ export async function requestOtp(req, res) {
     [agentId, code, purpose, exp]
   );
 
-  try { await sendOtpEmail(agent.email, code, purpose); } catch {}
+  try { await sendOtpEmail(agent.email, code, purpose); } catch (emailErr) {
+    console.error('[requestOtp] Failed to send OTP email:', emailErr.message);
+  }
   res.json({ message: 'OTP sent to registered email' });
 }
 
@@ -276,6 +280,7 @@ export async function changePassword(req, res) {
   if (err) return res.status(400).json({ error: err });
 
   const { rows } = await query(`SELECT password_hash FROM agents WHERE id = $1`, [req.agent.id]);
+  if (!rows.length) return res.status(404).json({ error: 'Agent not found' });
   const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
   if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
 

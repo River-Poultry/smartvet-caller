@@ -403,8 +403,8 @@ export default function VetBoardDashboard() {
 
   async function handleReview(payload) {
     await api.post('/vet-board/review', payload);
-    // Refresh stats silently
     loadStats();
+    loadSuggestions();
   }
 
   async function handleExport() {

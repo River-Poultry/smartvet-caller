@@ -7,7 +7,7 @@
  */
 import { logger } from '../config/logger.js';
 
-const API_URL = 'https://messagecarrier.africa/v1/api-keys/send-sms';
+const API_URL = 'https://api.bravo.mystyler.xyz/v1/api-keys/send-sms';
 const API_KEY = process.env.CARRIER_SMS_API_KEY || '';
 
 /**

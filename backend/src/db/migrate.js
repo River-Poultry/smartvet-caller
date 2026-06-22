@@ -20,6 +20,7 @@ const MIGRATION_FILES = [
   '012_agent_active_flag.sql',
   '013_vet_board.sql',
   '014_restore_admin.sql',
+  '015_feedback_columns.sql',
 ];
 
 export async function runMigrations() {

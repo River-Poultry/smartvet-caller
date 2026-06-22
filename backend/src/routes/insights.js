@@ -235,15 +235,6 @@ router.get('/call/:id', async (req, res) => {
 router.patch('/suggestion/:id/feedback', async (req, res) => {
   const { correct, note } = req.body;
   try {
-    // Add feedback columns if they don't exist (graceful migration)
-    await query(`
-      ALTER TABLE ai_suggestions
-        ADD COLUMN IF NOT EXISTS feedback_correct BOOLEAN,
-        ADD COLUMN IF NOT EXISTS feedback_note TEXT,
-        ADD COLUMN IF NOT EXISTS feedback_by UUID REFERENCES agents(id),
-        ADD COLUMN IF NOT EXISTS feedback_at TIMESTAMPTZ
-    `).catch(() => {});
-
     await query(`
       UPDATE ai_suggestions
       SET feedback_correct = $1, feedback_note = $2, feedback_by = $3, feedback_at = NOW()

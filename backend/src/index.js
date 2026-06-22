@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import http from 'http';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -8,6 +11,8 @@ import { initWebSocket } from './services/websocket.js';
 import routes from './routes/index.js';
 import { logger } from './config/logger.js';
 import { validateEnv } from './config/env.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 validateEnv();
 
@@ -18,6 +23,12 @@ const server = http.createServer(app);
 initWebSocket(server);
 
 app.use(helmet());
+
+// Serve hold audio and any future static assets
+const publicDir = join(__dirname, '..', 'public');
+if (existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+}
 const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5173',

@@ -1,10 +1,15 @@
 import twilio from 'twilio';
+import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { query } from '../db/index.js';
 import { getFarmerByPhone } from '../services/smartvetCore.js';
 import { requestTranscription, processTranscriptionCallback } from '../services/transcription.js';
 import { notifyAgent, broadcast } from '../services/websocket.js';
 import { logger } from '../config/logger.js';
 import { env } from '../config/env.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const { twiml: { VoiceResponse } } = twilio;
 
@@ -179,7 +184,24 @@ export async function handleCallbackAnswer(req, res) {
 
 export function handleWaitMusic(req, res) {
   const response = new VoiceResponse();
-  response.play({ loop: 10 }, 'https://com.twilio.music.classical.s3.amazonaws.com/ClockworkWaltz.mp3');
+
+  const holdMp3 = join(__dirname, '..', '..', 'public', 'audio', 'hold-music.mp3');
+  const hasCustomAudio = existsSync(holdMp3);
+
+  if (hasCustomAudio) {
+    response.play({ loop: 10 }, `${env.appUrl}/audio/hold-music.mp3`);
+  } else {
+    // Placeholder: spoken message + Twilio royalty-free hold music
+    response.say(
+      { voice: 'Polly.Joanna', language: 'en-US' },
+      'Thank you for holding. A SmartVet agent will be with you shortly.'
+    );
+    response.play(
+      { loop: 10 },
+      'https://com.twilio.music.classical.s3.amazonaws.com/ClockworkWaltz.mp3'
+    );
+  }
+
   res.type('text/xml').send(response.toString());
 }
 

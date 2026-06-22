@@ -205,10 +205,17 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
     }
 
     const anyEmergency = isEmergency || suggestions.some(s => s.category === 'escalation_alert');
-    if (intent !== 'other' || allSymptoms.length > 0) {
+    // Only update call_intent when we have a real intent signal — don't overwrite 'other' with 'disease_diagnosis'
+    // just because UI-tracked symptoms exist
+    if (intent !== 'other') {
       await query(
         `UPDATE calls SET call_intent = $1, is_emergency = $2 WHERE id = $3`,
-        [intent === 'other' ? 'disease_diagnosis' : intent, anyEmergency, callId]
+        [intent, anyEmergency, callId]
+      );
+    } else if (anyEmergency) {
+      await query(
+        `UPDATE calls SET is_emergency = true WHERE id = $1`,
+        [callId]
       );
     }
 
