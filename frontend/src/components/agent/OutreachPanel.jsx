@@ -165,7 +165,7 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
             )}
 
             <button onClick={handleSms} disabled={!message.trim() || smsStatus === 'sending' || smsStatus === 'sent'}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 disabled:opacity-50 transition-colors">
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-green-700 text-white text-xs font-bold hover:bg-green-800 disabled:opacity-50 transition-colors">
               {smsStatus === 'sending'
                 ? <><Loader2 size={12} className="animate-spin" /> Sending…</>
                 : smsStatus === 'sent'

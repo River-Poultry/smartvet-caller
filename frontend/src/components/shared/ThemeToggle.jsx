@@ -33,8 +33,8 @@ export function ThemeToggle() {
     <button
       onClick={toggle}
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className="p-1.5 rounded-lg border border-sv-border text-sv-text-muted
-                 hover:text-sv-green hover:border-sv-green/40 transition-colors"
+      className="p-1.5 rounded-lg border border-gray-200 text-gray-500
+                 hover:text-green-700 hover:border-green-300 transition-colors"
     >
       {dark ? <Sun size={15} /> : <Moon size={15} />}
     </button>

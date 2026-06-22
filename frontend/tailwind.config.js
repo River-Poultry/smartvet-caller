@@ -6,41 +6,29 @@ export default {
     extend: {
       colors: {
         sv: {
-          // SmartVet emergency red
-          red:          '#dc2626',
-          'red-d':      '#b91c1c',
-          'red-l':      '#fee2e2',
+          // ── Primary brand green (matches smartvet.africa logo) ──────────
+          // green-700 (#15803d) = primary CTAs, active nav, selected states
+          // green-800 (#166534) = hover on primary buttons
+          // green-50 / green-200 = tints and borders in components
+          green:        '#16a34a',   // green-600  — secondary active badges
+          'green-d':    '#15803d',   // green-700  — PRIMARY buttons & nav
+          'green-dd':   '#166534',   // green-800  — hover / headings
+          'green-l':    '#dcfce7',   // green-100  — light chips / tints
 
-          // SmartVet primary green — matches smartvet.africa exactly
-          green:        '#16a34a',   // green-600  (buttons, active states)
-          'green-d':    '#15803d',   // green-700  (hover)
-          'green-dd':   '#166534',   // green-800  (headings, sidebar)
-          'green-l':    '#dcfce7',   // green-100  (light chips, tints)
-
-          // Medical teal (AI / diagnosis)
+          // ── Teal — AI / medical accent only ─────────────────────────────
+          // Use exclusively for AI diagnosis, transcript, medical icons.
+          // NOT for general CTAs — those must use the primary green.
           teal:         '#0d9488',   // teal-600
           'teal-d':     '#0f766e',   // teal-700
           'teal-l':     '#ccfbf1',   // teal-100
 
-          // Amber (warnings)
-          amber:        '#d97706',   // amber-600
+          // ── Status / semantic ────────────────────────────────────────────
+          red:          '#dc2626',   // red-600   — emergency, errors
+          'red-d':      '#b91c1c',   // red-700
+          'red-l':      '#fee2e2',   // red-100
+          amber:        '#d97706',   // amber-600 — warnings, moderate
           'amber-d':    '#b45309',   // amber-700
           'amber-l':    '#fef3c7',   // amber-100
-
-          // Backgrounds — driven by CSS vars at runtime, these are dark-mode fallbacks
-          bg:           '#0f172a',   // slate-900
-          'bg-card':    '#1e293b',   // slate-800
-          'bg-input':   '#334155',   // slate-700
-          border:       '#475569',   // slate-600
-          'border-l':   '#64748b',   // slate-500
-
-          // Text
-          'text-muted': '#94a3b8',   // slate-400 — WCAG AA on slate-900
-
-          // Semantic aliases
-          page:         '#0f172a',
-          card:         '#1e293b',
-          input:        '#334155',
         },
       },
       fontFamily: {
