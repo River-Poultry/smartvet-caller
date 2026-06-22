@@ -4,8 +4,8 @@ import {
   Phone, Mail, Lock, Eye, EyeOff, RefreshCw, Copy, AlertCircle,
   Users, GraduationCap, ClipboardList,
 } from 'lucide-react';
-import api from '../../services/api.js';
-import { ROLES, ROLE_ORDER } from '../../constants/roles.js';
+import api from '../../../services/api.js';
+import { ROLES, ROLE_ORDER } from '../../../constants/roles.js';
 
 const ROLE_ICONS = {
   admin:      Shield,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, CheckCircle, Star, AlertTriangle } from 'lucide-react';
-import { useCallStore } from '../../store/callStore.js';
-import api from '../../services/api.js';
+import { useCallStore } from '../../../store/callStore.js';
+import api from '../../../services/api.js';
 
 const VISIT_TYPES = [
   'Emergency diagnosis',

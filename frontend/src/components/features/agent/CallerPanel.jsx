@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Phone, MapPin, ChevronDown, ChevronUp, AlertCircle, ExternalLink, RefreshCw, Stethoscope } from 'lucide-react';
-import { useCallStore } from '../../store/callStore.js';
+import { useCallStore } from '../../../store/callStore.js';
 import { OutreachPanel } from './OutreachPanel.jsx';
-import api from '../../services/api.js';
+import api from '../../../services/api.js';
 
 function FarmerProfile({ farmer }) {
   const [batches, setBatches] = useState([]);

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useCallStore } from '../../store/callStore.js';
+import { useCallStore } from '../../../store/callStore.js';
 
 export function RealTimeTranscript() {
   const { transcriptSegments, activeCall } = useCallStore();

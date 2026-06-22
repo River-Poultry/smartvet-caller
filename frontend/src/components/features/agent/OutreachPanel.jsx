@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Phone, MessageSquare, Loader2, CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import api from '../../services/api.js';
+import api from '../../../services/api.js';
 
 const FARMER_TEMPLATES = [
   { label: 'Vaccination reminder',  text: 'Hello {name}, this is SmartVet. Your flock is due for vaccination soon. Please call us or visit your nearest vet to schedule. Thank you.' },

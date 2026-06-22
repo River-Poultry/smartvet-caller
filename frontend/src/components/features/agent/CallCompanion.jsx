@@ -4,8 +4,8 @@ import {
   ChevronDown, ChevronUp, AlertTriangle, Truck, Clipboard,
   Package, ExternalLink, Check,
 } from 'lucide-react';
-import { useCallStore } from '../../store/callStore.js';
-import api from '../../services/api.js';
+import { useCallStore } from '../../../store/callStore.js';
+import api from '../../../services/api.js';
 
 const SYMPTOM_GROUPS = [
   { label: 'Feeding & Digestion', symptoms: ['Not eating', 'Diarrhea', 'Bloody droppings', 'Watery droppings', 'Green droppings'] },

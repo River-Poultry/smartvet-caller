@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle, Loader2, Plus, X, Check, ClipboardList } from 'lucide-react';
-import { useCallStore } from '../../store/callStore.js';
-import api from '../../services/api.js';
+import { useCallStore } from '../../../store/callStore.js';
+import api from '../../../services/api.js';
 
 const OUTCOMES = [
   { value: 'resolved',      label: 'Resolved on call',   icon: '✅' },
