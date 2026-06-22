@@ -111,9 +111,6 @@ export default function AgentDashboard() {
           transcriptOpen ? 'w-64 flex-shrink-0' : 'w-10 flex-shrink-0'
         }`}>
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 flex-shrink-0">
-            {transcriptOpen && (
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">Live Transcript</span>
-            )}
             <button onClick={() => setTranscriptOpen(o => !o)}
               className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 ml-auto"
               title={transcriptOpen ? 'Collapse' : 'Expand'}>

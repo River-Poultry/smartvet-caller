@@ -4,7 +4,7 @@ import { query } from '../db/index.js';
 import { broadcast } from '../services/websocket.js';
 import { listVets } from '../services/smartvetCore.js';
 
-const VALID_ROLES = ['admin', 'supervisor', 'agent', 'trainee'];
+const VALID_ROLES = ['admin', 'supervisor', 'agent', 'trainee', 'vet_board'];
 
 export async function listAgents(req, res) {
   const { rows } = await query(

@@ -7,7 +7,7 @@ import api from '../../../services/api.js';
 
 export function CallDisplay({ onEnd }) {
   const { activeCall, isMuted, isOnHold, toggleMute, toggleHold, openDispatchModal, setActiveCall } = useCallStore();
-  const timer = useCallTimer(!!activeCall);
+  const timer = useCallTimer(!!activeCall, isOnHold);
   const [demoLoading, setDemoLoading] = useState(false);
 
   async function startDemo() {
