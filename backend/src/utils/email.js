@@ -3,13 +3,13 @@ import nodemailer from 'nodemailer';
 function createTransporter() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.zoho.com',
-    port: parseInt(process.env.SMTP_PORT || '465'),
-    secure: process.env.SMTP_SECURE !== 'false',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,       // port 587 uses STARTTLS, not SSL
+    requireTLS: true,    // enforce TLS upgrade after connect
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    tls: { rejectUnauthorized: true },
   });
 }
 
