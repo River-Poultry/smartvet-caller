@@ -44,7 +44,7 @@ export default function AgentDashboard() {
             <img src="/logo.png" alt="SmartVet" className="h-8 w-auto"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div className="leading-tight hidden sm:block">
-              <p className="text-sm font-extrabold text-gray-900 leading-none">SmartVet</p>
+              <p className="text-base font-extrabold text-gray-900 leading-none">SmartVet</p>
               <p className="text-xs text-green-700 leading-none mt-0.5">Call Centre</p>
             </div>
           </Link>
@@ -54,12 +54,12 @@ export default function AgentDashboard() {
               const active = location.pathname === to;
               return (
                 <Link key={to} to={to}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
                     active
                       ? 'bg-green-700 text-white'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}>
-                  <Icon size={12} />
+                  <Icon size={13} />
                   {label}
                 </Link>
               );

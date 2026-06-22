@@ -69,12 +69,12 @@ function DispatchCard({ dispatch: d, vets, onEscalate, onAssign, onResolve, onCa
   const isEmergency = d.urgency_level === 'emergency';
 
   return (
-    <div className={`rounded-lg border text-xs mb-2 overflow-hidden bg-white ${isEmergency ? 'border-red-300' : 'border-gray-200'}`}>
-      <div className="px-2.5 pt-2 pb-1.5">
-        <div className="flex items-start justify-between gap-1 mb-1">
+    <div className={`rounded-lg border mb-2 overflow-hidden bg-white ${isEmergency ? 'border-red-300' : 'border-gray-200'}`}>
+      <div className="px-3 pt-2.5 pb-2">
+        <div className="flex items-start justify-between gap-1 mb-1.5">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 truncate">{d.farmer_name || 'Unknown Farmer'}</p>
-            {d.farmer_phone && <p className="text-gray-400 flex items-center gap-1 mt-0.5"><Phone size={9}/>{d.farmer_phone}</p>}
+            <p className="text-sm font-semibold text-gray-900 truncate">{d.farmer_name || 'Unknown Farmer'}</p>
+            {d.farmer_phone && <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5"><Phone size={10}/>{d.farmer_phone}</p>}
           </div>
           <div className="flex flex-col items-end gap-1 flex-shrink-0">
             <span className={`text-xs font-semibold px-1.5 py-0.5 rounded capitalize ${isEmergency ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`}>
@@ -154,11 +154,11 @@ function DispatchCard({ dispatch: d, vets, onEscalate, onAssign, onResolve, onCa
 function VetCard({ vet, inventory }) {
   const items = inventory.filter(i => String(i.vet_django_id) === String(vet.django_id));
   return (
-    <div className={`rounded-lg border p-2.5 mb-2 text-xs bg-white ${vet.is_available ? 'border-gray-200' : 'border-gray-100 opacity-60'}`}>
+    <div className={`rounded-lg border p-3 mb-2 bg-white ${vet.is_available ? 'border-gray-200' : 'border-gray-100 opacity-60'}`}>
       <div className="flex items-center justify-between mb-1.5">
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-gray-900 truncate">{vet.name}</p>
-          <p className="text-gray-400 capitalize truncate">{vet.role}{vet.district ? ` · ${vet.district}` : ''}</p>
+          <p className="text-sm font-semibold text-gray-900 truncate">{vet.name}</p>
+          <p className="text-xs text-gray-400 capitalize truncate">{vet.role}{vet.district ? ` · ${vet.district}` : ''}</p>
         </div>
         <span className={`ml-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${vet.is_available ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${vet.is_available ? 'bg-green-500' : 'bg-gray-400'}`}/>
@@ -201,8 +201,8 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
         {/* LEFT */}
         <div className="w-56 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col">
           <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
-            <ArrowUpCircle size={12} className="text-amber-500"/>
-            <span className="text-xs font-semibold text-gray-700">Escalation Queue</span>
+            <ArrowUpCircle size={13} className="text-amber-500"/>
+            <span className="text-sm font-semibold text-gray-700">Escalation Queue</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             {[4,3,2].map(lvl => {
@@ -242,8 +242,8 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
         {/* CENTER */}
         <div className="flex-1 overflow-hidden flex flex-col min-w-0">
           <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0 bg-white">
-            <LayoutGrid size={12} className="text-teal-600"/>
-            <span className="text-xs font-semibold text-gray-700">Dispatch Board</span>
+            <LayoutGrid size={13} className="text-teal-600"/>
+            <span className="text-sm font-semibold text-gray-700">Dispatch Board</span>
             <span className="text-xs text-gray-400 ml-1">{filtered.length} total</span>
             <div className="ml-auto flex items-center gap-2">
               {emergencyPending.length > 0 && (
@@ -268,9 +268,9 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
                 return (
                   <div key={col.id} className="flex-1 border-r border-gray-200 last:border-0 flex flex-col min-w-0">
                     <div className="px-3 py-2.5 border-b border-gray-200 flex items-center gap-1.5 bg-white flex-shrink-0">
-                      <Icon size={11} className={col.color}/>
-                      <span className={`text-xs font-semibold ${col.color}`}>{col.label}</span>
-                      <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{cards.length}</span>
+                      <Icon size={13} className={col.color}/>
+                      <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
+                      <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full font-medium">{cards.length}</span>
                     </div>
                     <div className="flex-1 overflow-y-auto p-3">
                       {cards.map(d => <DispatchCard key={d.id} dispatch={d} vets={vets} onEscalate={escalate} onAssign={assign} onResolve={resolve} onCancel={cancel}/>)}
@@ -286,9 +286,9 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
         {/* RIGHT */}
         <div className="w-52 flex-shrink-0 border-l border-gray-200 bg-white flex flex-col">
           <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
-            <Stethoscope size={12} className="text-green-700"/>
-            <span className="text-xs font-semibold text-gray-700">Vet Resources</span>
-            <span className="ml-auto text-xs text-green-700 font-semibold">{availableVets}/{vets.length}</span>
+            <Stethoscope size={13} className="text-green-700"/>
+            <span className="text-sm font-semibold text-gray-700">Vet Resources</span>
+            <span className="ml-auto text-sm text-green-700 font-semibold">{availableVets}/{vets.length}</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             {vets.map(vet => <VetCard key={vet.id} vet={vet} inventory={inventory}/>)}
@@ -342,9 +342,9 @@ function CallsTab() {
   return (
     <div className="flex-1 overflow-hidden flex flex-col">
       <div className="px-4 py-2.5 border-b border-gray-200 bg-white flex items-center gap-3 flex-shrink-0">
-        <PhoneCall size={13} className="text-teal-600"/>
-        <span className="text-xs font-semibold text-gray-700">Call History</span>
-        <span className="text-xs text-gray-400">{total} total</span>
+        <PhoneCall size={14} className="text-teal-600"/>
+        <span className="text-sm font-semibold text-gray-700">Call History</span>
+        <span className="text-sm text-gray-400">{total} total</span>
         <div className="ml-auto flex items-center gap-2">
           <select value={outcome} onChange={e => { setOutcome(e.target.value); setPage(1); }}
             className="bg-white border border-gray-200 rounded px-2 py-1 text-xs text-gray-700 focus:outline-none">
@@ -370,29 +370,29 @@ function CallsTab() {
         {loading && <p className="text-gray-400 text-xs text-center p-8">Loading…</p>}
         {!loading && calls.length === 0 && <p className="text-gray-400 text-xs text-center p-8">No calls found</p>}
         {!loading && calls.length > 0 && (
-          <table className="w-full text-xs border-collapse">
+          <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-white border-b border-gray-200 sticky top-0">
                 {['Farmer', 'Agent', 'Started', 'Duration', 'Outcome', 'Dispatches', ''].map(h => (
-                  <th key={h} className="px-3 py-2 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-2.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {calls.map((c, i) => (
                 <tr key={c.id} className={`border-b border-gray-100 hover:bg-white transition-colors ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1.5">
-                      {c.is_emergency && <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0"/>}
+                      {c.is_emergency && <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"/>}
                       <div>
-                        <p className="font-medium text-gray-900">{c.farmer_name || '—'}</p>
-                        <p className="text-gray-400">{c.phone_number}</p>
+                        <p className="font-semibold text-gray-900">{c.farmer_name || '—'}</p>
+                        <p className="text-xs text-gray-400">{c.phone_number}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-gray-600">{c.agent_name || '—'}</td>
-                  <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{fmt(c.started_at)}</td>
-                  <td className="px-3 py-2 text-gray-500 font-mono whitespace-nowrap">{duration(c.started_at, c.ended_at)}</td>
+                  <td className="px-3 py-2.5 text-gray-600">{c.agent_name || '—'}</td>
+                  <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap">{fmt(c.started_at)}</td>
+                  <td className="px-3 py-2.5 text-gray-500 font-mono whitespace-nowrap">{duration(c.started_at, c.ended_at)}</td>
                   <td className="px-3 py-2">
                     {c.outcome
                       ? <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${OUTCOME_COLORS[c.outcome] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>{c.outcome.replace('_', ' ')}</span>
@@ -743,7 +743,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-4">
           <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
           <div>
-            <p className="text-sm font-extrabold text-gray-900 leading-none tracking-tight">Operations Centre</p>
+            <p className="text-base font-extrabold text-gray-900 leading-none tracking-tight">Operations Centre</p>
             <p className="text-xs text-teal-600 leading-none mt-0.5">{lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Loading…'}</p>
           </div>
 
@@ -753,8 +753,8 @@ export default function AdminDashboard() {
               const Icon = t.icon;
               return (
                 <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors ${tab === t.id ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
-                  <Icon size={11}/> {t.label}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
+                  <Icon size={13}/> {t.label}
                   {t.count > 0 && <span className={`text-[10px] font-bold px-1.5 rounded-full ${tab === t.id ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>{t.count}</span>}
                 </button>
               );
@@ -763,10 +763,10 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-3 text-xs text-gray-500">
-            <span className="flex items-center gap-1"><Clock size={11} className="text-amber-500"/> <span className="text-amber-600 font-bold">{dispatches.filter(d => d.status === 'pending').length}</span> pending</span>
-            <span className="flex items-center gap-1"><Stethoscope size={11} className="text-green-600"/> <span className="text-green-700 font-bold">{vets.filter(v => v.is_available).length}</span>/{vets.length} vets</span>
-            {metrics?.calls?.calls_today != null && <span className="flex items-center gap-1"><Activity size={11}/> {metrics.calls.calls_today} calls today</span>}
+          <div className="hidden md:flex items-center gap-4 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5"><Clock size={13} className="text-amber-500"/> <span className="text-amber-600 font-bold">{dispatches.filter(d => d.status === 'pending').length}</span> pending</span>
+            <span className="flex items-center gap-1.5"><Stethoscope size={13} className="text-green-600"/> <span className="text-green-700 font-bold">{vets.filter(v => v.is_available).length}</span>/{vets.length} vets</span>
+            {metrics?.calls?.calls_today != null && <span className="flex items-center gap-1.5"><Activity size={13}/> {metrics.calls.calls_today} calls today</span>}
           </div>
 
           <button onClick={load}

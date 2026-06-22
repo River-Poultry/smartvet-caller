@@ -12,6 +12,11 @@
   html {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
   }
 
   body {
