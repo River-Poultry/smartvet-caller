@@ -246,7 +246,7 @@ export function CallCompanion() {
     <div className="flex flex-col h-full bg-white text-sm">
 
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-200 bg-white flex-shrink-0">
+      <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 bg-white flex-shrink-0">
         <Activity size={13} className="text-teal-600 flex-shrink-0" />
         <span className="font-bold text-gray-900 text-xs uppercase tracking-widest">Call Companion</span>
 
@@ -292,7 +292,7 @@ export function CallCompanion() {
 
         {/* SYMPTOMS */}
         {section === 'symptoms' && (
-          <div className="p-4 space-y-5">
+          <div className="p-5 space-y-5">
 
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Severity for new selections</p>
@@ -380,7 +380,7 @@ export function CallCompanion() {
 
         {/* AI DIAGNOSIS */}
         {section === 'diagnosis' && (
-          <div className="p-4 space-y-4">
+          <div className="p-5 space-y-4">
             {diagLoading && (
               <div className="flex items-center gap-2 text-xs text-gray-400 animate-pulse">
                 <Zap size={12} className="text-green-600" /> Running diagnosis…
@@ -398,7 +398,7 @@ export function CallCompanion() {
 
         {/* DRUGS */}
         {section === 'drugs' && (
-          <div className="p-4 space-y-3">
+          <div className="p-5 space-y-3">
             {!diagnoses.length ? (
               <div className="text-center py-10 text-gray-400">
                 <Package size={28} className="mx-auto mb-3 opacity-20" />
@@ -420,7 +420,7 @@ export function CallCompanion() {
 
         {/* NOTES */}
         {section === 'notes' && (
-          <div className="p-4 space-y-4">
+          <div className="p-5 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Call Notes</p>
               {transcriptSegments.length > 0 && (

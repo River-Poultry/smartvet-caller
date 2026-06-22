@@ -38,7 +38,7 @@ export default function AgentDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* Top bar */}
-      <header className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-5">
           <Link to="/agent" className="flex items-center gap-2.5 flex-shrink-0">
             <img src="/logo.png" alt="SmartVet" className="h-8 w-auto"

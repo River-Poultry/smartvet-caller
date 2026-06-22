@@ -200,11 +200,11 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT */}
         <div className="w-56 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col">
-          <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
+          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
             <ArrowUpCircle size={12} className="text-amber-500"/>
             <span className="text-xs font-semibold text-gray-700">Escalation Queue</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-3">
             {[4,3,2].map(lvl => {
               const items = escalated.filter(d => (d.escalation_level || 1) === lvl);
               if (!items.length) return null;
@@ -241,7 +241,7 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
 
         {/* CENTER */}
         <div className="flex-1 overflow-hidden flex flex-col min-w-0">
-          <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2 flex-shrink-0 bg-white">
+          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0 bg-white">
             <LayoutGrid size={12} className="text-teal-600"/>
             <span className="text-xs font-semibold text-gray-700">Dispatch Board</span>
             <span className="text-xs text-gray-400 ml-1">{filtered.length} total</span>
@@ -267,12 +267,12 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
                 const cards = byStatus[col.id] || [];
                 return (
                   <div key={col.id} className="flex-1 border-r border-gray-200 last:border-0 flex flex-col min-w-0">
-                    <div className="px-2.5 py-2 border-b border-gray-200 flex items-center gap-1.5 bg-white flex-shrink-0">
+                    <div className="px-3 py-2.5 border-b border-gray-200 flex items-center gap-1.5 bg-white flex-shrink-0">
                       <Icon size={11} className={col.color}/>
                       <span className={`text-xs font-semibold ${col.color}`}>{col.label}</span>
                       <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">{cards.length}</span>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-2">
+                    <div className="flex-1 overflow-y-auto p-3">
                       {cards.map(d => <DispatchCard key={d.id} dispatch={d} vets={vets} onEscalate={escalate} onAssign={assign} onResolve={resolve} onCancel={cancel}/>)}
                       {cards.length === 0 && <p className="text-xs text-gray-300 text-center pt-8">Empty</p>}
                     </div>
@@ -285,12 +285,12 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
 
         {/* RIGHT */}
         <div className="w-52 flex-shrink-0 border-l border-gray-200 bg-white flex flex-col">
-          <div className="px-3 py-2 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
+          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
             <Stethoscope size={12} className="text-green-700"/>
             <span className="text-xs font-semibold text-gray-700">Vet Resources</span>
             <span className="ml-auto text-xs text-green-700 font-semibold">{availableVets}/{vets.length}</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-3">
             {vets.map(vet => <VetCard key={vet.id} vet={vet} inventory={inventory}/>)}
             {vets.length === 0 && <p className="text-xs text-gray-400 text-center pt-6">No vets loaded</p>}
           </div>
@@ -739,7 +739,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
 
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
           <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
           <div>

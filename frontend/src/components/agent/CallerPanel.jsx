@@ -118,11 +118,11 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
   }
 
   if (!activeCall) return (
-    <div className="p-3 text-xs text-gray-400 text-center">No active call</div>
+    <div className="p-4 text-xs text-gray-400 text-center">No active call</div>
   );
 
   return (
-    <div className="p-3 space-y-2">
+    <div className="p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Phone size={12} className="text-green-600 flex-shrink-0" />
         <span className="text-xs text-gray-800 font-mono truncate">{activeCall.phone_number || activeCall.farmer?.phone || 'Unknown'}</span>
@@ -139,7 +139,7 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input ref={searchRef} value={query} onChange={e => setQuery(e.target.value)}
               placeholder="Search by name or phone…"
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600" />
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-8 pr-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600" />
           </div>
 
           {searching && <p className="text-xs text-gray-400 text-center animate-pulse">Searching…</p>}
@@ -160,7 +160,7 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
             <p className="text-xs text-gray-400 text-center">No farmer found for "{query}"</p>
           )}
 
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-2.5">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">New farmer?</p>
             <p className="text-[11px] text-gray-500 leading-relaxed">
               Register on SmartVet — data saves directly to the system. Come back and click <span className="text-gray-900 font-semibold">Find after registering</span>.

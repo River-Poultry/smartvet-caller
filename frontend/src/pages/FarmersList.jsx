@@ -364,7 +364,7 @@ export default function FarmersList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="flex items-center gap-4 px-5 py-2.5 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="flex items-center gap-4 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <Logo size="sm" />
         <nav className="flex items-center gap-1">
           {NAV.map(n => (
