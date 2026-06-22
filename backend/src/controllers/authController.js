@@ -201,6 +201,59 @@ export async function verifyOtp(req, res) {
   res.json({ message: 'Verified', purpose });
 }
 
+export async function forgotPassword(req, res) {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  const { rows } = await query(`SELECT id, email FROM agents WHERE email = $1`, [email.toLowerCase().trim()]);
+
+  // Always respond the same way to avoid email enumeration
+  if (!rows.length) return res.json({ message: 'If that email exists, a reset code has been sent.' });
+
+  const agent = rows[0];
+  const code  = generateOtp();
+  const exp   = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+  await query(
+    `UPDATE otp_codes SET used = true WHERE agent_id = $1 AND purpose = 'reset' AND used = false`,
+    [agent.id]
+  );
+  await query(
+    `INSERT INTO otp_codes (agent_id, code, purpose, expires_at) VALUES ($1, $2, 'reset', $3)`,
+    [agent.id, code, exp]
+  );
+
+  try { await sendOtpEmail(agent.email, code, 'reset'); } catch {}
+
+  res.json({ message: 'If that email exists, a reset code has been sent.', agentId: agent.id });
+}
+
+export async function resetPassword(req, res) {
+  const { agentId, code, newPassword } = req.body;
+  if (!agentId || !code || !newPassword) {
+    return res.status(400).json({ error: 'agentId, code, and newPassword are required' });
+  }
+
+  const err = validatePassword(newPassword);
+  if (err) return res.status(400).json({ error: err });
+
+  const { rows } = await query(
+    `SELECT * FROM otp_codes
+     WHERE agent_id = $1 AND code = $2 AND purpose = 'reset' AND used = false AND expires_at > NOW()
+     ORDER BY created_at DESC LIMIT 1`,
+    [agentId, code]
+  );
+  if (!rows.length) return res.status(400).json({ error: 'Invalid or expired reset code' });
+
+  await query(`UPDATE otp_codes SET used = true WHERE id = $1`, [rows[0].id]);
+
+  const hash = await bcrypt.hash(newPassword, 12);
+  await query(`UPDATE agents SET password_hash = $1, failed_logins = 0, locked_until = NULL, updated_at = NOW() WHERE id = $2`, [hash, agentId]);
+  await query(`UPDATE refresh_tokens SET revoked = true WHERE agent_id = $1`, [agentId]);
+
+  res.json({ message: 'Password reset successfully. You can now log in.' });
+}
+
 export async function changePassword(req, res) {
   const { currentPassword, newPassword } = req.body;
 
