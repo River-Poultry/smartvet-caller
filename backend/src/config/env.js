@@ -38,9 +38,6 @@ export const env = {
     senderId: process.env.CARRIER_SMS_SENDER_ID || 'SmartVet',
   },
 
-  resendApiKey: process.env.RESEND_API_KEY || '',
-  emailFrom: process.env.EMAIL_FROM || 'SmartVet Call Centre <onboarding@resend.dev>',
-
   smtp: {
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '587', 10),
