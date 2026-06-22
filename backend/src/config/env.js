@@ -19,7 +19,7 @@ export const env = {
 
   aiModelUrl: process.env.AI_MODEL_URL || '',
   aiModelKey: process.env.AI_MODEL_KEY || '',
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
 
   requireEmailVerification: process.env.REQUIRE_EMAIL_VERIFICATION === 'true',
 

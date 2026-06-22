@@ -82,7 +82,7 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
       let localDiagnoses = null;
       let usedClaude = false;
 
-      if (env.anthropicApiKey && allSymptoms.length > 0) {
+      if (env.geminiApiKey && allSymptoms.length > 0) {
         try {
           const claudeResult = await claudeDiagnose(allSymptoms, transcriptText, animalType);
           if (claudeResult?.diagnoses?.length) {

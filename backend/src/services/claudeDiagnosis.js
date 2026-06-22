@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 
@@ -26,22 +26,22 @@ Rules:
 - Return 1–3 differential diagnoses, most likely first
 - confidence is 0.0–1.0; be conservative — do not exceed 0.95
 - is_emergency: true for Newcastle, Gumboro peak mortality, Coccidiosis with heavy bleeding
-- is_notifiable: false (Avian Influenza is excluded from your scope — if symptoms strongly suggest AI, note it in treatment and recommend immediate DVS contact)
+- is_notifiable: true only for diseases legally notifiable in Uganda/Ghana/Kenya (not Avian Influenza — flag in treatment text instead and recommend DVS contact)
 - is_zoonotic: true for Salmonella/Fowl Typhoid
 - treatment and prevention must be practical for African smallholder farmers
 - follow_up_questions: 2–3 questions that would help confirm the top diagnosis`;
 
-let client = null;
+let genAI = null;
 
 function getClient() {
-  if (!env.anthropicApiKey) return null;
-  if (!client) client = new Anthropic({ apiKey: env.anthropicApiKey });
-  return client;
+  if (!env.geminiApiKey) return null;
+  if (!genAI) genAI = new GoogleGenerativeAI(env.geminiApiKey);
+  return genAI;
 }
 
 export async function claudeDiagnose(symptoms, freeText = '', birdType = 'poultry') {
-  const anthropic = getClient();
-  if (!anthropic) return null;
+  const client = getClient();
+  if (!client) return null;
 
   const symptomList = Array.isArray(symptoms) ? symptoms.join(', ') : symptoms;
   const userMessage = [
@@ -51,22 +51,17 @@ export async function claudeDiagnose(symptoms, freeText = '', birdType = 'poultr
   ].filter(Boolean).join('\n');
 
   try {
-    const stream = await anthropic.messages.stream({
-      model: 'claude-opus-4-8',
-      max_tokens: 1024,
-      thinking: { type: 'adaptive' },
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
+    const model = client.getGenerativeModel({
+      model: 'gemini-2.0-flash',
+      systemInstruction: SYSTEM_PROMPT,
+      generationConfig: { responseMimeType: 'application/json' },
     });
 
-    const msg = await stream.finalMessage();
-    const textBlock = msg.content.find(b => b.type === 'text');
-    if (!textBlock) return null;
-
-    const parsed = JSON.parse(textBlock.text);
-    return parsed;
+    const result = await model.generateContent(userMessage);
+    const text = result.response.text();
+    return JSON.parse(text);
   } catch (err) {
-    logger.error('Claude diagnosis failed', { error: err.message });
+    logger.error('Gemini diagnosis failed', { error: err.message });
     return null;
   }
 }
