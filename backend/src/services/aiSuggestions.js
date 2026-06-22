@@ -73,11 +73,11 @@ function extractAnimalType(text) {
   return 'poultry';
 }
 
-export async function generateSuggestions(callId, transcriptText, trackedSymptoms = []) {
+export async function generateSuggestions(callId, transcriptText, trackedSymptoms = [], flockDetails = {}) {
   try {
     const { intent, isEmergency } = detectIntent(transcriptText);
     const keywordSymptoms = extractKeywordSymptoms(transcriptText);
-    const animalType = extractAnimalType(transcriptText);
+    const animalType = flockDetails.birdType || extractAnimalType(transcriptText);
 
     const allSymptoms = [...new Set([...trackedSymptoms, ...keywordSymptoms])];
 
@@ -90,7 +90,7 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
 
       if (env.geminiApiKey && allSymptoms.length > 0) {
         try {
-          const claudeResult = await claudeDiagnose(allSymptoms, transcriptText, animalType);
+          const claudeResult = await claudeDiagnose(allSymptoms, transcriptText, animalType, flockDetails);
           if (claudeResult?.diagnoses?.length) {
             localDiagnoses = claudeResult.diagnoses;
             usedClaude = true;
@@ -101,7 +101,7 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
       }
 
       if (!localDiagnoses) {
-        localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType);
+        localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType, flockDetails);
       }
 
       if (localDiagnoses.length > 0) {

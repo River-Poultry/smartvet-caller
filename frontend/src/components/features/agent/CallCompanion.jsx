@@ -2,10 +2,170 @@ import { useState, useEffect, useRef } from 'react';
 import {
   X, Plus, Activity, Stethoscope, Zap, FileText,
   ChevronDown, ChevronUp, AlertTriangle, Truck, Clipboard,
-  Package, ExternalLink, Check,
+  Package, ExternalLink, Check, Bird,
 } from 'lucide-react';
 import { useCallStore } from '../../../store/callStore.js';
 import api from '../../../services/api.js';
+
+const BIRD_TYPES = [
+  { value: 'broiler',     label: 'Broiler',      note: 'Commercial meat' },
+  { value: 'layer',       label: 'Layer',         note: 'Egg production' },
+  { value: 'sasso',       label: 'Sasso',         note: 'Colored broiler' },
+  { value: 'kienyeji',    label: 'Kienyeji',      note: 'Indigenous / local' },
+  { value: 'turkey',      label: 'Turkey',         note: '' },
+  { value: 'duck',        label: 'Duck',           note: '' },
+  { value: 'guinea_fowl', label: 'Guinea Fowl',   note: '' },
+  { value: 'quail',       label: 'Quail',          note: '' },
+];
+
+const VACCINES = [
+  { value: 'newcastle',    label: 'Newcastle (ND)' },
+  { value: 'gumboro',      label: 'Gumboro (IBD)' },
+  { value: 'mareks',       label: "Marek's" },
+  { value: 'ib',           label: 'Inf. Bronchitis' },
+  { value: 'fowl_typhoid', label: 'Fowl Typhoid' },
+  { value: 'fowl_pox',     label: 'Fowl Pox' },
+];
+
+function calcAgeDays(value, unit) {
+  const n = parseInt(value);
+  if (!n || n <= 0) return null;
+  if (unit === 'days')   return n;
+  if (unit === 'weeks')  return n * 7;
+  if (unit === 'months') return Math.round(n * 30.4);
+  return null;
+}
+
+function ageGroup(ageDays) {
+  if (!ageDays) return '';
+  if (ageDays <= 14)  return 'Chick (0–2 wks)';
+  if (ageDays <= 42)  return 'Young (2–6 wks)';
+  if (ageDays <= 126) return 'Growing (6–18 wks)';
+  return 'Adult (>18 wks)';
+}
+
+function FlockTab({ fd, setFlock }) {
+  const flockSize = parseInt(fd.flockSize) || 0;
+  const deadCount = parseInt(fd.deadCount) || 0;
+  const mortalityPct = flockSize > 0 ? ((deadCount / flockSize) * 100).toFixed(1) : null;
+  const ageDays = calcAgeDays(fd.ageValue, fd.ageUnit);
+
+  const mortalityColor =
+    mortalityPct === null   ? 'text-gray-400' :
+    mortalityPct >= 30      ? 'text-red-600 font-bold' :
+    mortalityPct >= 15      ? 'text-red-500 font-semibold' :
+    mortalityPct >= 5       ? 'text-amber-600 font-semibold' :
+    mortalityPct >= 2       ? 'text-amber-500' : 'text-green-700';
+
+  function toggleVax(v) {
+    const cur = fd.vaccinations || [];
+    setFlock({ vaccinations: cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v] });
+  }
+
+  return (
+    <div className="p-5 space-y-6">
+
+      {/* Bird Type */}
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Type</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {BIRD_TYPES.map(bt => (
+            <button key={bt.value} type="button"
+              onClick={() => setFlock({ birdType: fd.birdType === bt.value ? '' : bt.value })}
+              className={`flex flex-col items-start px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${
+                fd.birdType === bt.value
+                  ? 'border-green-600 bg-green-50 text-green-800'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              }`}>
+              <span className="font-semibold">{bt.label}</span>
+              {bt.note && <span className="text-[10px] text-gray-400 mt-0.5">{bt.note}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Age */}
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Age</p>
+        <div className="flex gap-2 items-center">
+          <input type="number" min="1" value={fd.ageValue}
+            onChange={e => setFlock({ ageValue: e.target.value })}
+            placeholder="e.g. 3"
+            className="w-24 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600 transition-colors" />
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+            {['days','weeks','months'].map(u => (
+              <button key={u} type="button"
+                onClick={() => setFlock({ ageUnit: u })}
+                className={`px-3 py-2 text-xs font-medium transition-colors ${
+                  fd.ageUnit === u ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
+                }`}>
+                {u}
+              </button>
+            ))}
+          </div>
+        </div>
+        {ageDays && (
+          <p className="text-xs text-gray-500 mt-1.5">
+            = {ageDays} days old · <span className="text-green-700 font-medium">{ageGroup(ageDays)}</span>
+          </p>
+        )}
+      </div>
+
+      {/* Flock Size & Deaths */}
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Flock Size & Mortality</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-[10px] text-gray-400 mb-1 block">Total birds</label>
+            <input type="number" min="1" value={fd.flockSize}
+              onChange={e => setFlock({ flockSize: e.target.value })}
+              placeholder="e.g. 500"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600 transition-colors" />
+          </div>
+          <div>
+            <label className="text-[10px] text-gray-400 mb-1 block">Current deaths</label>
+            <input type="number" min="0" value={fd.deadCount}
+              onChange={e => setFlock({ deadCount: e.target.value })}
+              placeholder="e.g. 12"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600 transition-colors" />
+          </div>
+        </div>
+        {mortalityPct !== null && (
+          <div className={`mt-2 text-sm ${mortalityColor}`}>
+            Mortality rate: <strong>{mortalityPct}%</strong>
+            <span className="text-gray-400 text-xs ml-2">
+              ({deadCount} of {flockSize} birds)
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Vaccinations */}
+      <div>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Vaccinations Given</p>
+        <div className="flex flex-wrap gap-1.5">
+          {VACCINES.map(v => {
+            const active = (fd.vaccinations || []).includes(v.value);
+            return (
+              <button key={v.value} type="button" onClick={() => toggleVax(v.value)}
+                className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${
+                  active
+                    ? 'border-teal-500 bg-teal-50 text-teal-700'
+                    : 'border-gray-200 bg-white text-gray-500 hover:border-teal-300'
+                }`}>
+                {active && <Check size={9} />}
+                {v.label}
+              </button>
+            );
+          })}
+        </div>
+        {(fd.vaccinations || []).length === 0 && (
+          <p className="text-[11px] text-gray-400 mt-1.5">Tap vaccines the farmer has used</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const SYMPTOM_GROUPS = [
   {
@@ -233,7 +393,7 @@ function DrugCard({ drug }) {
 
 export function CallCompanion() {
   const {
-    activeCall, symptoms, callNotes,
+    activeCall, symptoms, callNotes, flockDetails, setFlockDetails,
     addSymptomLocal, removeSymptomLocal, setCallNotes, appendCallNotes,
     transcriptSegments, openDispatchModal,
   } = useCallStore();
@@ -257,6 +417,7 @@ export function CallCompanion() {
         const { data } = await api.post('/diagnose', {
           symptoms: symptoms.map(s => s.symptom),
           free_text: symptoms.map(s => s.symptom).join(', '),
+          flock_details: flockDetails,
         });
         setDiagnoses(data.diagnoses || []);
         setIsEmergency(data.is_emergency || false);
@@ -265,7 +426,7 @@ export function CallCompanion() {
       setDiagLoading(false);
     }, 400);
     return () => clearTimeout(diagDebounce.current);
-  }, [symptoms]);
+  }, [symptoms, flockDetails]);
 
   useEffect(() => {
     if (!diagnoses.length) { setDrugSuggestions([]); return; }
@@ -312,8 +473,11 @@ export function CallCompanion() {
 
   const activeLower = symptoms.map(s => s.symptom?.toLowerCase());
 
+  const flockFilled = !!(flockDetails.birdType || flockDetails.flockSize || flockDetails.ageValue);
+
   const TABS = [
     { id: 'symptoms',  label: 'Symptoms',    icon: Stethoscope },
+    { id: 'flock',     label: 'Flock',        icon: Bird,      dot: flockFilled },
     { id: 'diagnosis', label: 'AI Diagnosis', icon: Zap,       dot: diagnoses.length > 0 },
     { id: 'drugs',     label: 'Drugs',        icon: Package,   dot: drugSuggestions.length > 0 },
     { id: 'notes',     label: 'Notes',        icon: FileText,  dot: !!callNotes },
@@ -458,6 +622,10 @@ export function CallCompanion() {
         )}
 
         {/* AI DIAGNOSIS */}
+        {section === 'flock' && (
+          <FlockTab fd={flockDetails} setFlock={setFlockDetails} />
+        )}
+
         {section === 'diagnosis' && (
           <div className="p-5 space-y-4">
             {diagLoading && (

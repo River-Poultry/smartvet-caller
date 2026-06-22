@@ -39,13 +39,31 @@ function getClient() {
   return genAI;
 }
 
-export async function claudeDiagnose(symptoms, freeText = '', birdType = 'poultry') {
+export async function claudeDiagnose(symptoms, freeText = '', birdType = 'poultry', flockDetails = {}) {
   const client = getClient();
   if (!client) return null;
 
   const symptomList = Array.isArray(symptoms) ? symptoms.join(', ') : symptoms;
+  const resolvedBirdType = flockDetails.birdType || birdType || 'poultry';
+
+  const flockLines = [];
+  if (flockDetails.ageValue && flockDetails.ageUnit) {
+    flockLines.push(`Age: ${flockDetails.ageValue} ${flockDetails.ageUnit}`);
+  }
+  if (flockDetails.flockSize) flockLines.push(`Flock size: ${flockDetails.flockSize} birds`);
+  if (flockDetails.deadCount) {
+    const pct = flockDetails.flockSize
+      ? ` (${((parseInt(flockDetails.deadCount) / parseInt(flockDetails.flockSize)) * 100).toFixed(1)}% mortality)`
+      : '';
+    flockLines.push(`Deaths: ${flockDetails.deadCount}${pct}`);
+  }
+  if (flockDetails.vaccinations?.length) {
+    flockLines.push(`Vaccinated against: ${flockDetails.vaccinations.join(', ')}`);
+  }
+
   const userMessage = [
-    `Bird type: ${birdType}`,
+    `Bird type: ${resolvedBirdType}`,
+    flockLines.length ? `Flock details:\n${flockLines.map(l => `  - ${l}`).join('\n')}` : '',
     symptomList ? `Reported symptoms: ${symptomList}` : '',
     freeText ? `Farmer's description: ${freeText}` : '',
   ].filter(Boolean).join('\n');

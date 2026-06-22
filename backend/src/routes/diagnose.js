@@ -5,13 +5,15 @@ import { diagnoseFromSymptoms, buildDiagnosisSummary } from '../services/disease
 const router = Router();
 
 router.post('/', requireAuth, (req, res) => {
-  const { symptoms = [], free_text = '', bird_type = 'chicken' } = req.body;
+  const { symptoms = [], free_text = '', bird_type, flock_details = {} } = req.body;
+
+  const birdType = flock_details.birdType || bird_type || 'chicken';
 
   if (!symptoms.length && !free_text) {
     return res.json({ diagnoses: [], summary: '' });
   }
 
-  const diagnoses = diagnoseFromSymptoms(symptoms, free_text, bird_type);
+  const diagnoses = diagnoseFromSymptoms(symptoms, free_text, birdType, flock_details);
   const summary = buildDiagnosisSummary(diagnoses, symptoms);
 
   res.json({

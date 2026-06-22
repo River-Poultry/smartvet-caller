@@ -79,12 +79,22 @@ return ({
 
   symptoms: [],
   callNotes: '',
+  flockDetails: {
+    birdType: '',
+    ageValue: '',
+    ageUnit: 'weeks',
+    flockSize: '',
+    deadCount: '',
+    vaccinations: [],
+  },
+
   addSymptomLocal: (symptom) => set((s) => ({ symptoms: [...s.symptoms, symptom] })),
   removeSymptomLocal: (id) => set((s) => ({ symptoms: s.symptoms.filter(x => x.id !== id) })),
   setCallNotes: (callNotes) => set({ callNotes }),
   appendCallNotes: (text) => set((s) => ({
     callNotes: s.callNotes ? `${s.callNotes}\n${text}` : text,
   })),
+  setFlockDetails: (patch) => set((s) => ({ flockDetails: { ...s.flockDetails, ...patch } })),
 
   clearCall: () => set({
     activeCall: null,
@@ -94,6 +104,7 @@ return ({
     transcriptSegments: [],
     symptoms: [],
     callNotes: '',
+    flockDetails: { birdType: '', ageValue: '', ageUnit: 'weeks', flockSize: '', deadCount: '', vaccinations: [] },
     dispatchModalOpen: false,
     postCallOpen: true,
   }),

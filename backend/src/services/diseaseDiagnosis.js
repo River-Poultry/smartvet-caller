@@ -92,6 +92,8 @@ const DISEASE_DB = [
     keywords: ['found on back', 'flip over', 'flip-over', 'on their back', 'sudden death', 'no prior signs',
                'healthy bird', 'broiler', 'fast growing', 'heart failure', 'dead on back'],
     weight: { flip_over: 3.5, sudden_death: 2.5, fast_growing: 2, mortality_low: 1, mortality_mild: 1.5 },
+    birdTypes: ['broiler', 'sasso'],
+    maxAgeWeeks: 8,
     emergency: false,
     treatment: 'No treatment for affected birds — death is instantaneous. Reduce stress and stocking density. Reduce feed energy level or restrict feed. Ensure adequate ventilation. Losses typically 0.5–3% in broiler flocks.',
     prevention: 'Avoid very high energy diets in fast-growing broilers. Dim lighting to reduce activity. Ensure adequate vitamin E and selenium supplementation. Select slower-growing strains.',
@@ -102,6 +104,7 @@ const DISEASE_DB = [
     keywords: ['water belly', 'ascites', 'pot belly', 'swollen abdomen', 'fluid abdomen', 'blue comb',
                'laboured breathing', 'broiler', 'fast growing', 'found on belly', 'prone'],
     weight: { ascites: 3.5, blue_comb: 2.5, gasping: 2, fast_growing: 2, prone_death: 2, poor_weight_gain: 1.5 },
+    birdTypes: ['broiler', 'sasso'],
     emergency: false,
     treatment: 'No cure once clinical signs develop. Drain abdominal fluid to relieve distress (needle at lowest point of abdomen). Cull severely affected birds. Reduce dietary energy and growth rate.',
     prevention: 'Reduce stocking density and improve ventilation — low oxygen drives pulmonary hypertension. Restrict feed in first 2 weeks. Use vitamin C supplementation. Avoid dusty, ammonia-rich litter.',
@@ -132,6 +135,8 @@ const DISEASE_DB = [
     keywords: ['reduced egg production', 'thin shell eggs', 'soft shell', 'no shell', 'pale eggs',
                'egg quality poor', 'drop in production'],
     weight: { thin_shell: 3, soft_shell: 3, pale_eggs: 2.5, egg_drop: 3 },
+    birdTypes: ['layer'],
+    minAgeWeeks: 18,
     emergency: false,
     treatment: 'No specific treatment. Vaccination is the only control. Supportive vitamins and minerals. Cull poor performers.',
     prevention: 'EDS vaccine before point of lay.',
@@ -282,16 +287,44 @@ function scoreDisease(disease, symptomTags, textLower) {
  * Diagnose from symptoms array + optional free text.
  * Returns top 3 differential diagnoses sorted by confidence.
  */
-export function diagnoseFromSymptoms(symptoms, freeText = '', birdType = 'poultry') {
+export function diagnoseFromSymptoms(symptoms, freeText = '', birdType = 'poultry', flockDetails = {}) {
   if (!symptoms?.length && !freeText) return [];
 
   const symptomTags = normaliseSymptoms(symptoms);
   const textLower = (freeText + ' ' + symptoms.join(' ')).toLowerCase();
 
+  const resolvedBirdType = flockDetails.birdType || birdType || 'poultry';
+  const vaccinations = flockDetails.vaccinations || [];
+
+  // Convert age to weeks for gating
+  let ageWeeks = null;
+  if (flockDetails.ageValue && parseInt(flockDetails.ageValue) > 0) {
+    const v = parseInt(flockDetails.ageValue);
+    if (flockDetails.ageUnit === 'days')   ageWeeks = v / 7;
+    else if (flockDetails.ageUnit === 'weeks')  ageWeeks = v;
+    else if (flockDetails.ageUnit === 'months') ageWeeks = v * 4.33;
+  }
+
   const scored = DISEASE_DB.map(disease => {
-    const { score, matched } = scoreDisease(disease, symptomTags, textLower);
+    // Bird-type gating: suppress if disease is restricted to specific types and this bird doesn't qualify
+    if (disease.birdTypes && resolvedBirdType !== 'poultry') {
+      if (!disease.birdTypes.includes(resolvedBirdType)) return null;
+    }
+    // Age gating
+    if (ageWeeks !== null) {
+      if (disease.minAgeWeeks && ageWeeks < disease.minAgeWeeks) return null;
+      if (disease.maxAgeWeeks && ageWeeks > disease.maxAgeWeeks) return null;
+    }
+    // Vaccination suppression: Newcastle is less likely if vaccinated for ND
+    let { score, matched } = scoreDisease(disease, symptomTags, textLower);
+    if (disease.name.includes('Newcastle') && vaccinations.includes('newcastle')) score *= 0.4;
+    if (disease.name.includes('Gumboro') && vaccinations.includes('gumboro'))       score *= 0.4;
+    if (disease.name.includes("Marek's") && vaccinations.includes('mareks'))        score *= 0.4;
+    if (disease.name.includes('Bronchitis') && vaccinations.includes('ib'))         score *= 0.5;
+    if (disease.name.includes('Fowl Typhoid') && vaccinations.includes('fowl_typhoid')) score *= 0.5;
+    if (disease.name.includes('Fowl Pox') && vaccinations.includes('fowl_pox'))    score *= 0.4;
     return { disease, score, matched };
-  }).filter(r => r.score > 0)
+  }).filter(r => r && r.score > 0)
     .sort((a, b) => b.score - a.score);
 
   if (!scored.length) return [];
