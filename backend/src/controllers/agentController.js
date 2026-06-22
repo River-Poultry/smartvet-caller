@@ -8,7 +8,7 @@ const VALID_ROLES = ['admin', 'supervisor', 'agent', 'trainee'];
 
 export async function listAgents(req, res) {
   const { rows } = await query(
-    `SELECT id, name, email, phone, status, role, is_admin, total_calls, avg_call_duration_seconds, created_at
+    `SELECT id, name, email, phone, status, role, is_admin, is_active, total_calls, avg_call_duration_seconds, created_at
      FROM agents ORDER BY
        CASE role WHEN 'admin' THEN 1 WHEN 'supervisor' THEN 2 WHEN 'agent' THEN 3 ELSE 4 END,
        name`
@@ -80,6 +80,30 @@ export async function updateAgent(req, res) {
     [name ?? null, normalizedPhone ?? null, role ?? null, isAdmin ?? null, agentId]
   );
 
+  if (!rows.length) return res.status(404).json({ error: 'Agent not found' });
+  res.json(rows[0]);
+}
+
+export async function deleteAgent(req, res) {
+  const { agentId } = req.params;
+  if (agentId === req.agent.id) {
+    return res.status(400).json({ error: 'You cannot delete your own account' });
+  }
+  const { rowCount } = await query('DELETE FROM agents WHERE id = $1', [agentId]);
+  if (!rowCount) return res.status(404).json({ error: 'Agent not found' });
+  res.json({ deleted: true });
+}
+
+export async function toggleAgentActive(req, res) {
+  const { agentId } = req.params;
+  if (agentId === req.agent.id) {
+    return res.status(400).json({ error: 'You cannot disable your own account' });
+  }
+  const { rows } = await query(
+    `UPDATE agents SET is_active = NOT is_active, updated_at = NOW()
+     WHERE id = $1 RETURNING id, name, is_active`,
+    [agentId]
+  );
   if (!rows.length) return res.status(404).json({ error: 'Agent not found' });
   res.json(rows[0]);
 }

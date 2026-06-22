@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   X, UserPlus, Shield, User, Pencil, Check, Loader2,
   Phone, Mail, Lock, Eye, EyeOff, RefreshCw, Copy, AlertCircle,
-  Users, GraduationCap, ClipboardList,
+  Users, GraduationCap, ClipboardList, Trash2, PowerOff, Power,
 } from 'lucide-react';
 import api from '../../../services/api.js';
 import { ROLES, ROLE_ORDER } from '../../../constants/roles.js';
@@ -55,14 +55,16 @@ function StatusDot({ status }) {
   return <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cls}`} />;
 }
 
-function AgentRow({ agent, onEdit }) {
+function AgentRow({ agent, onEdit, onToggleActive, onDelete }) {
+  const disabled = agent.is_active === false;
   return (
-    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+    <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors group ${disabled ? 'opacity-50' : ''}`}>
       <StatusDot status={agent.status} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-medium text-gray-900 truncate">{agent.name}</p>
           <RoleBadge role={agent.role || (agent.is_admin ? 'admin' : 'agent')} />
+          {disabled && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border text-red-600 border-red-200 bg-red-50">DISABLED</span>}
         </div>
         <p className="text-xs text-gray-500 truncate">{agent.email}</p>
         {(agent.phone || agent.phone_number) && <p className="text-xs text-gray-400 truncate">{agent.phone || agent.phone_number}</p>}
@@ -73,10 +75,20 @@ function AgentRow({ agent, onEdit }) {
         agent.status === 'on_break' ? 'text-amber-700 border-amber-200 bg-amber-50' :
                                       'text-gray-500 border-gray-200 bg-gray-50'
       }`}>{agent.status?.replace('_', ' ') || 'offline'}</span>
-      <button onClick={() => onEdit(agent)}
-        className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-gray-400 hover:text-green-700 transition-all">
-        <Pencil size={12} />
-      </button>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+        <button onClick={() => onEdit(agent)} title="Edit"
+          className="p-1.5 rounded text-gray-400 hover:text-green-700 transition-colors">
+          <Pencil size={12} />
+        </button>
+        <button onClick={() => onToggleActive(agent)} title={disabled ? 'Enable account' : 'Disable account'}
+          className={`p-1.5 rounded transition-colors ${disabled ? 'text-gray-400 hover:text-green-600' : 'text-gray-400 hover:text-amber-600'}`}>
+          {disabled ? <Power size={12} /> : <PowerOff size={12} />}
+        </button>
+        <button onClick={() => onDelete(agent)} title="Delete user"
+          className="p-1.5 rounded text-gray-400 hover:text-red-600 transition-colors">
+          <Trash2 size={12} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -261,6 +273,7 @@ export default function UsersPanel({ onClose }) {
   const [successMsg, setSuccessMsg] = useState('');
   const [syncing, setSyncing] = useState(false);
   const [importResults, setImportResults] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     api.get('/agents').then(r => setAgents(r.data || [])).finally(() => setLoading(false));
@@ -323,6 +336,33 @@ export default function UsersPanel({ onClose }) {
     }
   }
 
+  async function handleToggleActive(agent) {
+    try {
+      const { data } = await api.patch(`/agents/${agent.id}/toggle-active`);
+      setAgents(prev => prev.map(a => a.id === data.id ? { ...a, is_active: data.is_active } : a));
+      flash(`${agent.name} ${data.is_active ? 'enabled' : 'disabled'}`);
+    } catch (err) {
+      setSaveError(err.response?.data?.error || 'Failed to update status');
+    }
+  }
+
+  async function handleDelete(agent) {
+    if (deleteConfirm?.id === agent.id) {
+      try {
+        await api.delete(`/agents/${agent.id}`);
+        setAgents(prev => prev.filter(a => a.id !== agent.id));
+        setDeleteConfirm(null);
+        flash(`${agent.name} deleted`);
+      } catch (err) {
+        setSaveError(err.response?.data?.error || 'Delete failed');
+        setDeleteConfirm(null);
+      }
+    } else {
+      setDeleteConfirm(agent);
+      setTimeout(() => setDeleteConfirm(null), 4000);
+    }
+  }
+
   const online = agents.filter(a => a.status === 'online' || a.status === 'on_call').length;
 
   const grouped = ROLE_ORDER.reduce((acc, role) => {
@@ -368,6 +408,13 @@ export default function UsersPanel({ onClose }) {
         {successMsg && (
           <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border-b border-green-200 text-green-700 text-xs font-medium">
             <Check size={11} /> {successMsg}
+          </div>
+        )}
+
+        {deleteConfirm && (
+          <div className="flex items-center justify-between px-4 py-2 bg-red-50 border-b border-red-200 text-red-700 text-xs font-medium">
+            <span>Delete <strong>{deleteConfirm.name}</strong>? Click the trash icon again to confirm.</span>
+            <button onClick={() => setDeleteConfirm(null)} className="text-red-400 hover:text-red-600 ml-2"><X size={11} /></button>
           </div>
         )}
 
@@ -419,7 +466,11 @@ export default function UsersPanel({ onClose }) {
                     <span className="text-[10px] text-gray-300 ml-1">({group.length})</span>
                   </div>
                   {group.map(a => (
-                    <AgentRow key={a.id} agent={a} onEdit={ag => { setFormAgent(ag); setShowAddForm(false); setSaveError(''); }} />
+                    <AgentRow key={a.id} agent={a}
+                      onEdit={ag => { setFormAgent(ag); setShowAddForm(false); setSaveError(''); }}
+                      onToggleActive={handleToggleActive}
+                      onDelete={handleDelete}
+                    />
                   ))}
                 </div>
               );

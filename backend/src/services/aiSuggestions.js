@@ -1,6 +1,8 @@
 import { query } from '../db/index.js';
 import { queryKnowledgeBase } from './smartvetCore.js';
 import { diagnoseFromSymptoms, buildDiagnosisSummary } from './diseaseDiagnosis.js';
+import { claudeDiagnose } from './claudeDiagnosis.js';
+import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 
 const EMERGENCY_KEYWORDS = [
@@ -18,6 +20,30 @@ const DISEASE_KEYWORDS = [
 const VET_REQUEST_KEYWORDS = [
   'vet', 'doctor', 'visit', 'come', 'check', 'diagnose', 'vaccination'
 ];
+
+function buildClaudeSummary(diagnoses, symptoms) {
+  if (!diagnoses.length) return null;
+  const top = diagnoses[0];
+  const isEmergency = diagnoses.some(d => d.is_emergency);
+  const isZoonotic = diagnoses.some(d => d.is_zoonotic);
+  const prefix = isEmergency ? '⚠️ EMERGENCY: ' : '';
+
+  const lines = [
+    `${prefix}AI Diagnosis (Claude) for [${symptoms.join(', ')}]:`,
+    '',
+    ...diagnoses.map((d, i) =>
+      `${i + 1}. **${d.name}** — ${Math.round((d.confidence || 0) * 100)}% confidence` +
+      (d.is_zoonotic ? ' ⚠️ ZOONOTIC' : '') +
+      (d.is_notifiable ? ' 🚨 NOTIFIABLE' : '')
+    ),
+    '',
+    `Treatment: ${top.treatment}`,
+    `Prevention: ${top.prevention}`,
+  ];
+
+  if (isZoonotic) lines.push('', '⚠️ This disease can spread to humans. Advise farmer to wear gloves and wash hands.');
+  return lines.join('\n');
+}
 
 function detectIntent(text) {
   const lower = text.toLowerCase();
@@ -52,10 +78,30 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
     const suggestions = [];
 
     if ((intent === 'disease_diagnosis' || allSymptoms.length > 0)) {
-      const localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType);
+      // Try Claude first; fall back to keyword engine if API key absent or Claude fails
+      let localDiagnoses = null;
+      let usedClaude = false;
+
+      if (env.anthropicApiKey && allSymptoms.length > 0) {
+        try {
+          const claudeResult = await claudeDiagnose(allSymptoms, transcriptText, animalType);
+          if (claudeResult?.diagnoses?.length) {
+            localDiagnoses = claudeResult.diagnoses;
+            usedClaude = true;
+          }
+        } catch (e) {
+          logger.warn('Claude diagnosis skipped, using keyword engine', { error: e.message });
+        }
+      }
+
+      if (!localDiagnoses) {
+        localDiagnoses = diagnoseFromSymptoms(allSymptoms, transcriptText, animalType);
+      }
 
       if (localDiagnoses.length > 0) {
-        const diagnosisText = buildDiagnosisSummary(localDiagnoses, allSymptoms);
+        const diagnosisText = usedClaude
+          ? buildClaudeSummary(localDiagnoses, allSymptoms)
+          : buildDiagnosisSummary(localDiagnoses, allSymptoms);
         const topDiagnosis = localDiagnoses[0];
         const anyEmergency = localDiagnoses.some(d => d.is_emergency) || isEmergency;
         const anyNotifiable = localDiagnoses.some(d => d.is_notifiable);
@@ -78,7 +124,7 @@ export async function generateSuggestions(callId, transcriptText, trackedSymptom
           suggestions.push({
             callId,
             category: 'escalation_alert',
-            text: '🚨 NOTIFIABLE DISEASE SUSPECTED\n\nAvian Influenza or similar notifiable disease indicators detected.\n\n• Quarantine the farm immediately\n• Do NOT move birds or equipment\n• Contact District Veterinary Officer now\n• Log this call for authorities',
+            text: '🚨 NOTIFIABLE DISEASE SUSPECTED\n\nSerious notifiable disease indicators detected.\n\n• Quarantine the farm immediately\n• Do NOT move birds or equipment\n• Contact District Veterinary Officer now\n• Log this call for authorities',
             confidence: 0.95,
             actions: [
               { label: '🚨 Emergency Dispatch', action: 'open_dispatch_modal', urgency: 'emergency' },

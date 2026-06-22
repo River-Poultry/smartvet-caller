@@ -12,10 +12,11 @@ export async function requireAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, env.jwtSecret);
     const { rows } = await query(
-      'SELECT id, name, email, status, is_admin, role FROM agents WHERE id = $1',
+      'SELECT id, name, email, status, is_admin, role, is_active FROM agents WHERE id = $1',
       [payload.agentId]
     );
     if (!rows.length) return res.status(401).json({ error: 'Agent not found' });
+    if (rows[0].is_active === false) return res.status(403).json({ error: 'Your account has been disabled. Contact an administrator.' });
     req.agent = rows[0];
     next();
   } catch {

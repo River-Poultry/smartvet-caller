@@ -97,18 +97,6 @@ const DISEASE_DB = [
     prevention: 'EDS vaccine before point of lay.',
     zoonotic: false,
   },
-  {
-    name: 'Avian Influenza (AI)',
-    keywords: ['sudden death', 'dying', 'many dead', 'mortality', 'swollen head',
-               'blue comb', 'coughing', 'sneezing', 'bleeding', 'haemorrhage',
-               'nasal discharge', 'respiratory distress', 'emergency'],
-    weight: { sudden_death: 3, swollen_head: 3, blue_comb: 3.5, haemorrhage: 3.5, mortality: 2 },
-    emergency: true,
-    treatment: 'NOTIFIABLE DISEASE — contact veterinary authorities immediately. Quarantine farm. Do NOT move birds or equipment.',
-    prevention: 'Strict biosecurity. Avoid contact with wild birds. AI vaccination where legally permitted.',
-    zoonotic: true,
-    notifiable: true,
-  },
 ];
 
 // Symptom normalisation map — maps user phrases → canonical tags
