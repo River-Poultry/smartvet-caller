@@ -4,13 +4,14 @@ import {
   AlertTriangle, CheckCircle, Clock, Truck, Users, Stethoscope,
   ChevronUp, ChevronDown, RefreshCw, Package, LayoutGrid,
   ArrowUpCircle, Phone, LogOut, Shield, Activity, X,
-  PhoneCall, FileText, Warehouse, ChevronRight, Plus, Minus,
+  PhoneCall, FileText, Warehouse, ChevronRight, Plus, Minus, BarChart2,
 } from 'lucide-react';
 import api from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
 import { useWebSocket } from '../hooks/useWebSocket.js';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
 import UsersPanel from '../components/features/admin/UsersPanel.jsx';
+import InsightsTab from '../components/features/admin/InsightsTab.jsx';
 
 // ─── shared helpers ───────────────────────────────────────────────────────────
 
@@ -733,6 +734,7 @@ export default function AdminDashboard() {
     { id: 'dispatch',  label: 'Dispatch',  icon: Truck,      count: dispatches.filter(d => d.status === 'pending').length },
     { id: 'calls',     label: 'Calls',     icon: PhoneCall },
     { id: 'inventory', label: 'Inventory', icon: Warehouse },
+    { id: 'insights',  label: 'Insights',  icon: BarChart2 },
   ];
 
   return (
@@ -804,6 +806,7 @@ export default function AdminDashboard() {
         )}
         {tab === 'calls' && <CallsTab />}
         {tab === 'inventory' && <InventoryTab vets={vets} />}
+        {tab === 'insights' && <InsightsTab />}
       </div>
 
       {usersOpen && <UsersPanel onClose={() => setUsersOpen(false)} />}
