@@ -201,7 +201,7 @@ export default function VetsList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="flex items-center gap-4 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <Logo size="sm" />
         <nav className="flex items-center gap-1">
           {NAV.map(n => (
@@ -227,9 +227,9 @@ export default function VetsList() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-80 flex-shrink-0 border-r border-gray-200 flex flex-col bg-white">
-          <div className="p-3 space-y-2 border-b border-gray-200">
+      <div className="flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
+        <div className="w-80 flex-shrink-0 border border-gray-200 flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="p-4 space-y-3 border-b border-gray-200">
             <div className="flex items-center justify-between mb-1">
               <span className="text-sm font-semibold text-gray-900">Vets &amp; Paravets</span>
               <span className="text-xs">
@@ -266,7 +266,7 @@ export default function VetsList() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
           {!selected ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-300">
               <Stethoscope size={48} className="mb-3" />

@@ -38,7 +38,7 @@ export default function AgentDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* Top bar */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
         <div className="flex items-center gap-5">
           <Link to="/agent" className="flex items-center gap-2.5 flex-shrink-0">
             <img src="/logo.png" alt="SmartVet" className="h-8 w-auto"
@@ -87,10 +87,10 @@ export default function AgentDashboard() {
       </header>
 
       {/* Main layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden mx-5 mb-5 gap-3">
 
         {/* Left — call info + caller panel */}
-        <div className="w-64 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col overflow-y-auto">
+        <div className="w-64 flex-shrink-0 border border-gray-200 bg-white flex flex-col overflow-y-auto rounded-xl shadow-sm">
           <CallDisplay onEnd={clearCall} />
           <div className="border-t border-gray-200 flex-1 overflow-y-auto">
             <CallerPanel
@@ -107,10 +107,10 @@ export default function AgentDashboard() {
         </div>
 
         {/* Center — collapsible transcript */}
-        <div className={`flex flex-col border-r border-gray-200 bg-gray-50 transition-all duration-200 ${
-          transcriptOpen ? 'w-64 flex-shrink-0' : 'w-8 flex-shrink-0'
+        <div className={`flex flex-col border border-gray-200 bg-gray-50 rounded-xl shadow-sm transition-all duration-200 ${
+          transcriptOpen ? 'w-64 flex-shrink-0' : 'w-10 flex-shrink-0'
         }`}>
-          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 flex-shrink-0">
             {transcriptOpen && (
               <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">Live Transcript</span>
             )}
@@ -128,7 +128,7 @@ export default function AgentDashboard() {
         </div>
 
         {/* Right — Call Companion */}
-        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden rounded-xl border border-gray-200 shadow-sm">
           <CallCompanion />
         </div>
       </div>
