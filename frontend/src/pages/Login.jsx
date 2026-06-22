@@ -41,7 +41,7 @@ export default function Login() {
           </p>
         </div>
 
-        <p className="text-green-200/50 text-xs">River Poultry · SmartVet Africa</p>
+        <p className="text-green-200/50 text-xs">SmartVet Africa</p>
       </div>
 
       {/* Right — white form */}
@@ -119,7 +119,7 @@ export default function Login() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-6">
-            River Poultry · SmartVet Africa · Powered by AI
+            SmartVet Africa · Powered by AI
           </p>
         </div>
       </div>
