@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { broadcast } from '../services/websocket.js';
 import { listVets } from '../services/smartvetCore.js';
 

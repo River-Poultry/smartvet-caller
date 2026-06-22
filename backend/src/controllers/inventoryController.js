@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 
 // ─── Vet field inventory ───────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { listFarmers as djangoList, getFarmerByPhone as djangoGetByPhone,
          getFarmerBatches, createFarmerInDjango } from '../services/smartvetCore.js';
 import { logger } from '../config/logger.js';

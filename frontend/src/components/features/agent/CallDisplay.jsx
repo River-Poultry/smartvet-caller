@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Phone, PhoneOff, Mic, Pause, AlertTriangle, FlaskConical } from 'lucide-react';
-import { Badge } from '../shared/Badge.jsx';
+import { Badge } from '../../ui/Badge.jsx';
 import { useCallTimer } from '../../hooks/useCallTimer.js';
 import { useCallStore } from '../../store/callStore.js';
 import api from '../../services/api.js';

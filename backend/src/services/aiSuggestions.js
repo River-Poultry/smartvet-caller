@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { queryKnowledgeBase } from './smartvetCore.js';
 import { diagnoseFromSymptoms, buildDiagnosisSummary } from './diseaseDiagnosis.js';
 import { logger } from '../config/logger.js';

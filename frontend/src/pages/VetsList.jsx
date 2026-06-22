@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, MapPin, Phone, Star, CheckCircle, XCircle, Stethoscope, LogOut } from 'lucide-react';
 import api from '../services/api.js';
-import { Badge } from '../components/shared/Badge.jsx';
-import { Button } from '../components/shared/Button.jsx';
-import { Logo } from '../components/shared/Logo.jsx';
-import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
-import { OutreachPanel } from '../components/agent/OutreachPanel.jsx';
+import { Badge } from '../components/ui/Badge.jsx';
+import { Button } from '../components/ui/Button.jsx';
+import { Logo } from '../components/ui/Logo.jsx';
+import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
+import { OutreachPanel } from '../components/features/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 
 function VetCard({ vet, selected, onClick }) {

@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { env } from '../config/env.js';
 import { sendOtpEmail } from '../utils/email.js';
 

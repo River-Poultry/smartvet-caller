@@ -1,5 +1,5 @@
 import twilio from 'twilio';
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { generateSuggestions } from './aiSuggestions.js';
 import { logger } from '../config/logger.js';
 

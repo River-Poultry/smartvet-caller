@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { env } from '../config/env.js';
 
 export async function requireAuth(req, res, next) {

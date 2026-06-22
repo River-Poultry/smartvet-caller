@@ -2,10 +2,22 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pg from 'pg';
-import { MIGRATION_FILES } from '../config/migrations.js';
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { Pool } = pg;
+
+const MIGRATION_FILES = [
+  '001_initial_schema.sql',
+  '002_farmers_vets.sql',
+  '003_batches_tasks.sql',
+  '004_enrich_schema.sql',
+  '005_escalation_inventory.sql',
+  '006_warehouse_inventory.sql',
+  '007_auth_security.sql',
+  '008_django_link.sql',
+  '009_agent_roles.sql',
+  '010_fix_phone_column.sql',
+  '011_calls_next_steps.sql',
+];
 
 export async function runMigrations() {
   if (!process.env.DATABASE_URL) {
@@ -39,7 +51,7 @@ export async function runMigrations() {
         continue;
       }
 
-      const sql = readFileSync(join(__dirname, file), 'utf8');
+      const sql = readFileSync(join(__dirname, 'migrations', file), 'utf8');
       await client.query('BEGIN');
       await client.query(sql);
       await client.query('INSERT INTO migrations (filename) VALUES ($1)', [file]);

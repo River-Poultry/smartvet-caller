@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { getAvailableParavets, createVetRequest } from '../services/smartvetCore.js';
 import { notifyAgent, broadcast } from '../services/websocket.js';
 import { logger } from '../config/logger.js';

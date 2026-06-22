@@ -4,14 +4,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 import { useWebSocket } from '../hooks/useWebSocket.js';
-import { CallDisplay } from '../components/agent/CallDisplay.jsx';
-import { CallerPanel } from '../components/agent/CallerPanel.jsx';
-import { RealTimeTranscript } from '../components/agent/RealTimeTranscript.jsx';
-import { CallCompanion } from '../components/agent/CallCompanion.jsx';
-import { VetDispatchModal } from '../components/agent/VetDispatchModal.jsx';
-import { PostCallForm } from '../components/agent/PostCallForm.jsx';
-import { Badge } from '../components/shared/Badge.jsx';
-import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
+import { CallDisplay } from '../components/features/agent/CallDisplay.jsx';
+import { CallerPanel } from '../components/features/agent/CallerPanel.jsx';
+import { RealTimeTranscript } from '../components/features/agent/RealTimeTranscript.jsx';
+import { CallCompanion } from '../components/features/agent/CallCompanion.jsx';
+import { VetDispatchModal } from '../components/features/agent/VetDispatchModal.jsx';
+import { PostCallForm } from '../components/features/agent/PostCallForm.jsx';
+import { Badge } from '../components/ui/Badge.jsx';
+import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
 
 const NAV_ITEMS = [
   { to: '/agent',          icon: LayoutDashboard, label: 'Dashboard' },

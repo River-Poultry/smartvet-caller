@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut } from 'lucide-react';
 import api from '../services/api.js';
-import { Badge } from '../components/shared/Badge.jsx';
-import { Button } from '../components/shared/Button.jsx';
-import { Logo } from '../components/shared/Logo.jsx';
-import { ThemeToggle } from '../components/shared/ThemeToggle.jsx';
-import { VetDispatchModal } from '../components/agent/VetDispatchModal.jsx';
-import { OutreachPanel } from '../components/agent/OutreachPanel.jsx';
+import { Badge } from '../components/ui/Badge.jsx';
+import { Button } from '../components/ui/Button.jsx';
+import { Logo } from '../components/ui/Logo.jsx';
+import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
+import { VetDispatchModal } from '../components/features/agent/VetDispatchModal.jsx';
+import { OutreachPanel } from '../components/features/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 

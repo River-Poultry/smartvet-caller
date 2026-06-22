@@ -10,7 +10,7 @@
  *      Twilio Device can join the same room
  */
 import twilio from 'twilio';
-import { query } from '../config/db.js';
+import { query } from '../db/index.js';
 import { sendSms } from '../services/sms.js';
 import { notifyAgent } from '../services/websocket.js';
 import { logger } from '../config/logger.js';

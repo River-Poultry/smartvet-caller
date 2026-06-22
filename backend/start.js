@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import bcrypt from 'bcryptjs';
-import { runMigrations } from './src/migrations/run.js';
-import { query } from './src/config/db.js';
+import { runMigrations } from './src/db/migrate.js';
+import { query } from './src/db/index.js';
 
 async function seedAdmin() {
   const email = process.env.SEED_ADMIN_EMAIL;
