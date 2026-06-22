@@ -43,7 +43,7 @@ function FarmerProfile({ farmer }) {
           {open && batches.slice(0, 4).map((b, i) => (
             <div key={i} className="px-2.5 py-1.5 border-t border-gray-100 text-xs">
               <p className="text-gray-900 font-medium">{b.bird_type || b.batch_name || `Batch ${i + 1}`}</p>
-              <p className="text-gray-400">{b.number_of_birds || b.quantity} birds · {b.age_weeks || b.age || '?'} wks</p>
+              <p className="text-gray-400">{b.total_birds || b.number_of_birds || b.quantity || '?'} birds · {b.age_weeks || b.age || '?'} wks</p>
             </div>
           ))}
         </div>

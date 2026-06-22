@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { query } from '../config/db.js';
+import { env } from '../config/env.js';
 
 export async function requireAuth(req, res, next) {
   const header = req.headers.authorization;
@@ -9,7 +10,7 @@ export async function requireAuth(req, res, next) {
 
   const token = header.slice(7);
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, env.jwtSecret);
     const { rows } = await query(
       'SELECT id, name, email, status, is_admin, role FROM agents WHERE id = $1',
       [payload.agentId]

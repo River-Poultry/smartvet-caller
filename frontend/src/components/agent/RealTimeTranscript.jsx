@@ -19,27 +19,27 @@ export function RealTimeTranscript() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
-        <span className="text-sm font-medium text-gray-400">Live Transcript</span>
+      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Live Transcript</span>
         {activeCall && (
-          <span className="flex items-center gap-1.5 text-xs text-red-400">
+          <span className="flex items-center gap-1.5 text-xs text-red-500">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
             Recording
           </span>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto p-3 space-y-2.5 scrollbar-thin">
         {transcriptSegments.length === 0 && (
-          <p className="text-gray-600 text-sm italic">Transcription in progress…</p>
+          <p className="text-gray-400 text-xs italic text-center pt-4">Transcription in progress…</p>
         )}
         {transcriptSegments.map((seg, i) => (
           <div key={i} className={`flex gap-2 ${seg.speaker === 'agent' ? 'justify-end' : ''}`}>
-            <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+            <div className={`max-w-[85%] rounded-xl px-3 py-2 text-xs ${
               seg.speaker === 'farmer'
-                ? 'bg-gray-800 text-gray-200'
-                : 'bg-green-900/60 text-green-100'
+                ? 'bg-gray-100 text-gray-800 border border-gray-200'
+                : 'bg-green-700 text-white'
             }`}>
-              <span className={`block text-xs mb-1 font-medium ${seg.speaker === 'farmer' ? 'text-gray-400' : 'text-green-400'}`}>
+              <span className={`block text-[10px] mb-1 font-semibold ${seg.speaker === 'farmer' ? 'text-gray-400' : 'text-green-100'}`}>
                 {seg.speaker === 'farmer' ? '👨‍🌾 Farmer' : '🎧 Agent'}
               </span>
               {seg.text}

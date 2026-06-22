@@ -128,7 +128,7 @@ export async function updateFarmer(req, res) {
   const { notes, district } = req.body;
   const { rows } = await query(
     `UPDATE farmers SET notes = COALESCE($1, notes), district = COALESCE($2, district), updated_at = NOW()
-     WHERE id = $3 OR phone = $3 RETURNING *`,
+     WHERE id::text = $3 OR phone = $3 RETURNING *`,
     [notes, district, farmerId]
   );
   res.json(rows[0] || { updated: false });

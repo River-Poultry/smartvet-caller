@@ -65,7 +65,7 @@ function AgentRow({ agent, onEdit }) {
           <RoleBadge role={agent.role || (agent.is_admin ? 'admin' : 'agent')} />
         </div>
         <p className="text-xs text-gray-500 truncate">{agent.email}</p>
-        {agent.phone_number && <p className="text-xs text-gray-400 truncate">{agent.phone_number}</p>}
+        {(agent.phone || agent.phone_number) && <p className="text-xs text-gray-400 truncate">{agent.phone || agent.phone_number}</p>}
       </div>
       <span className={`text-xs capitalize px-2 py-0.5 rounded-full border ${
         agent.status === 'online'   ? 'text-green-700 border-green-200 bg-green-50' :
@@ -86,7 +86,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
   const [form, setForm] = useState(initial ? {
     name:     initial.name || '',
     email:    initial.email || '',
-    phone:    initial.phone_number || '',
+    phone:    initial.phone || initial.phone_number || '',
     password: '',
     role:     initial.role || (initial.is_admin ? 'admin' : 'agent'),
   } : EMPTY_FORM);
@@ -297,20 +297,20 @@ export default function UsersPanel({ onClose }) {
     try {
       if (isEdit) {
         const { data } = await api.patch(`/agents/${formAgent.id}`, {
-          name:         form.name,
-          phone_number: form.phone || null,
-          role:         form.role,
+          name:  form.name,
+          phone: form.phone || null,
+          role:  form.role,
         });
         setAgents(prev => prev.map(a => a.id === data.id ? { ...a, ...data } : a));
         setFormAgent(null);
         flash('User updated');
       } else {
         const { data } = await api.post('/agents', {
-          name:         form.name,
-          email:        form.email,
-          phone_number: form.phone || undefined,
-          password:     form.password,
-          role:         form.role,
+          name:     form.name,
+          email:    form.email,
+          phone:    form.phone || undefined,
+          password: form.password,
+          role:     form.role,
         });
         setAgents(prev => [...prev, { ...data, status: 'offline' }]);
         setShowAddForm(false);

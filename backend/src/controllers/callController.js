@@ -1,6 +1,7 @@
 import twilio from 'twilio';
 import { query } from '../config/db.js';
 import { generateSuggestions } from '../services/aiSuggestions.js';
+import { broadcast } from '../services/websocket.js';
 import { logger } from '../config/logger.js';
 import { env } from '../config/env.js';
 
@@ -246,10 +247,17 @@ export async function toggleHold(req, res) {
 }
 
 export async function endDemoCall(req, res) {
-  await query(
-    `UPDATE calls SET ended_at = NOW()
-     WHERE agent_id = $1 AND ended_at IS NULL AND twilio_call_sid LIKE 'DEMO-%'`,
-    [req.agent.id]
-  );
+  await Promise.all([
+    query(
+      `UPDATE calls SET ended_at = NOW()
+       WHERE agent_id = $1 AND ended_at IS NULL AND twilio_call_sid LIKE 'DEMO-%'`,
+      [req.agent.id]
+    ),
+    query(
+      `UPDATE agents SET status = 'online', updated_at = NOW() WHERE id = $1`,
+      [req.agent.id]
+    ),
+  ]);
+  broadcast('AGENT_STATUS_CHANGED', { agentId: req.agent.id, status: 'online' });
   res.json({ ended: true });
 }
