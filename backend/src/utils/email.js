@@ -21,7 +21,7 @@ export async function sendOtpEmail(to, code, purpose = 'verify') {
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px">
         <h2 style="color:#141c0a;margin-bottom:8px">SmartVet Call Centre</h2>
-        <p>Use the code below to ${action}. It expires in <strong>10 minutes</strong>.</p>
+        <p>Use the code below to ${action}. It expires in <strong>15 minutes</strong>.</p>
         <div style="background:#f4f6ee;border-radius:8px;padding:24px;text-align:center;margin:24px 0">
           <span style="font-size:36px;letter-spacing:12px;font-weight:800;color:#141c0a">${code}</span>
         </div>

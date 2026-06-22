@@ -223,7 +223,12 @@ export async function forgotPassword(req, res) {
     [agent.id, code, exp]
   );
 
-  try { await sendOtpEmail(agent.email, code, 'reset'); } catch {}
+  try {
+    await sendOtpEmail(agent.email, code, 'reset');
+  } catch (emailErr) {
+    console.error('[forgotPassword] Failed to send reset email:', emailErr.message);
+    return res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
+  }
 
   res.json({ message: 'If that email exists, a reset code has been sent.', agentId: agent.id });
 }
