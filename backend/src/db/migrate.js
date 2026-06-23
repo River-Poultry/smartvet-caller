@@ -21,6 +21,7 @@ const MIGRATION_FILES = [
   '013_vet_board.sql',
   '014_restore_admin.sql',
   '015_feedback_columns.sql',
+  '016_model_alerts.sql',
 ];
 
 export async function runMigrations() {

@@ -4,7 +4,7 @@ import {
   AlertTriangle, CheckCircle, Clock, Truck, Users, Stethoscope,
   ChevronUp, ChevronDown, RefreshCw, Package, LayoutGrid,
   ArrowUpCircle, Phone, LogOut, Shield, Activity, X,
-  PhoneCall, FileText, Warehouse, ChevronRight, Plus, Minus, BarChart2,
+  PhoneCall, FileText, Warehouse, ChevronRight, Plus, Minus, BarChart2, Brain,
 } from 'lucide-react';
 import api from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
@@ -12,6 +12,7 @@ import { useWebSocket } from '../hooks/useWebSocket.js';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
 import UsersPanel from '../components/features/admin/UsersPanel.jsx';
 import InsightsTab from '../components/features/admin/InsightsTab.jsx';
+import AIAlertsTab from '../components/features/admin/AIAlertsTab.jsx';
 
 // ─── shared helpers ───────────────────────────────────────────────────────────
 
@@ -683,24 +684,27 @@ export default function AdminDashboard() {
   const [loading, setLoading]       = useState(true);
   const [lastRefresh, setLastRefresh] = useState(null);
   const [usersOpen, setUsersOpen]   = useState(false);
+  const [openAlerts, setOpenAlerts] = useState(0);
 
   useWebSocket();
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [dRes, vRes, iRes, aRes, mRes] = await Promise.all([
+      const [dRes, vRes, iRes, aRes, mRes, alertRes] = await Promise.all([
         api.get('/vet-dispatch?limit=200'),
         api.get('/vets?limit=100'),
         api.get('/inventory'),
         api.get('/agents'),
         api.get('/agents/metrics').catch(() => ({ data: null })),
+        api.get('/insights/alerts?status=open').catch(() => ({ data: { counts: { open: 0 } } })),
       ]);
       setDispatches(dRes.data.dispatches || []);
       setVets(vRes.data.vets || []);
       setInventory(iRes.data || []);
       setAgents(aRes.data || []);
       setMetrics(mRes.data);
+      setOpenAlerts(alertRes.data?.counts?.open ?? 0);
       setLastRefresh(new Date());
     } catch {}
     setLoading(false);
@@ -735,6 +739,7 @@ export default function AdminDashboard() {
     { id: 'calls',     label: 'Calls',     icon: PhoneCall },
     { id: 'inventory', label: 'Inventory', icon: Warehouse },
     { id: 'insights',  label: 'Insights',  icon: BarChart2 },
+    { id: 'ai-alerts', label: 'AI Alerts', icon: Brain,      count: openAlerts },
   ];
 
   return (
@@ -807,6 +812,7 @@ export default function AdminDashboard() {
         {tab === 'calls' && <CallsTab />}
         {tab === 'inventory' && <InventoryTab vets={vets} />}
         {tab === 'insights' && <InsightsTab />}
+        {tab === 'ai-alerts' && <AIAlertsTab />}
       </div>
 
       {usersOpen && <UsersPanel onClose={() => setUsersOpen(false)} />}

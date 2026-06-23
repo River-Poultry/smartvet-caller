@@ -247,4 +247,201 @@ router.patch('/suggestion/:id/feedback', async (req, res) => {
   }
 });
 
+// ── Model Alerts ─────────────────────────────────────────────────────────────
+
+// GET /insights/alerts?status=open
+router.get('/alerts', async (req, res) => {
+  const status = req.query.status || 'open'; // open | acknowledged | resolved | all
+  try {
+    const conditions = status !== 'all' ? [`ma.status = $1`] : [];
+    const params = status !== 'all' ? [status] : [];
+
+    const { rows } = await query(`
+      SELECT
+        ma.*,
+        a.name AS acknowledged_by_name
+      FROM model_alerts ma
+      LEFT JOIN agents a ON a.id = ma.acknowledged_by
+      ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}
+      ORDER BY ma.created_at DESC
+      LIMIT 100
+    `, params);
+
+    const { rows: counts } = await query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'open')::int         AS open,
+        COUNT(*) FILTER (WHERE status = 'acknowledged')::int AS acknowledged,
+        COUNT(*) FILTER (WHERE status = 'resolved')::int     AS resolved
+      FROM model_alerts
+    `);
+
+    res.json({ alerts: rows, counts: counts[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PATCH /insights/alerts/:id  — acknowledge or resolve with optional notes
+router.patch('/alerts/:id', async (req, res) => {
+  const { status, developer_notes } = req.body;
+  if (!['acknowledged', 'resolved'].includes(status)) {
+    return res.status(400).json({ error: 'status must be acknowledged or resolved' });
+  }
+  try {
+    const { rows } = await query(`
+      UPDATE model_alerts SET
+        status           = $1,
+        developer_notes  = COALESCE($2, developer_notes),
+        acknowledged_by  = CASE WHEN $1 = 'acknowledged' THEN $3 ELSE acknowledged_by END,
+        acknowledged_at  = CASE WHEN $1 = 'acknowledged' THEN NOW() ELSE acknowledged_at END,
+        resolved_at      = CASE WHEN $1 = 'resolved' THEN NOW() ELSE resolved_at END,
+        updated_at       = NOW()
+      WHERE id = $4
+      RETURNING *
+    `, [status, developer_notes || null, req.agent.id, req.params.id]);
+
+    if (!rows.length) return res.status(404).json({ error: 'Alert not found' });
+    res.json({ alert: rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /insights/training-export?format=jsonl|json
+// Full structured export of every VetBoard-reviewed suggestion, ML-ready.
+router.get('/training-export', async (req, res) => {
+  const format = req.query.format === 'json' ? 'json' : 'jsonl';
+
+  try {
+    // Pull every reviewed suggestion with full context
+    const { rows } = await query(`
+      SELECT
+        s.id                  AS suggestion_id,
+        s.call_id,
+        s.suggestion_text,
+        s.confidence_score,
+        s.category,
+        s.was_acted_on,
+        s.generated_at,
+        -- Call context
+        c.farmer_name,
+        c.phone_number        AS farmer_phone,
+        c.started_at          AS call_date,
+        c.call_intent,
+        c.outcome,
+        c.is_emergency        AS call_was_emergency,
+        c.agent_notes,
+        -- Farmer region (best-effort from farmer table)
+        f.district            AS farmer_district,
+        f.sub_county          AS farmer_sub_county,
+        -- Symptoms logged during the call
+        (
+          SELECT JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+              'symptom', cs.symptom,
+              'severity', cs.severity,
+              'logged_at', cs.created_at
+            ) ORDER BY cs.created_at
+          )
+          FROM call_symptoms cs WHERE cs.call_id = s.call_id
+        )                     AS symptoms,
+        -- All vet reviews for this suggestion
+        (
+          SELECT JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+              'verdict',              vr.verdict,
+              'diagnosis_accurate',   vr.diagnosis_accurate,
+              'treatment_accurate',   vr.treatment_accurate,
+              'severity_accurate',    vr.severity_accurate,
+              'confidence_accurate',  vr.confidence_accurate,
+              'correct_disease',      vr.suggested_diagnosis,
+              'true_severity',        vr.true_severity,
+              'notes',                vr.field_note,
+              'reviewer_role',        a2.role,
+              'reviewed_at',          vr.reviewed_at
+            ) ORDER BY vr.reviewed_at
+          )
+          FROM vet_reviews vr
+          JOIN agents a2 ON a2.id = vr.reviewer_id
+          WHERE vr.suggestion_id = s.id
+        )                     AS vet_reviews,
+        -- Consensus summary
+        (SELECT COUNT(*)::int  FROM vet_reviews vr WHERE vr.suggestion_id = s.id)              AS review_count,
+        (SELECT COUNT(*)::int  FROM vet_reviews vr WHERE vr.suggestion_id = s.id AND vr.verdict = 'correct') AS correct_votes,
+        (SELECT COUNT(*)::int  FROM vet_reviews vr WHERE vr.suggestion_id = s.id AND vr.verdict = 'incorrect') AS incorrect_votes,
+        -- Most common correction (when wrong)
+        (
+          SELECT vr.suggested_diagnosis
+          FROM vet_reviews vr
+          WHERE vr.suggestion_id = s.id
+            AND vr.suggested_diagnosis IS NOT NULL
+            AND vr.verdict = 'incorrect'
+          GROUP BY vr.suggested_diagnosis
+          ORDER BY COUNT(*) DESC
+          LIMIT 1
+        )                     AS consensus_correct_disease
+      FROM ai_suggestions s
+      LEFT JOIN calls c ON c.id = s.call_id
+      LEFT JOIN farmers f ON f.id::text = c.farmer_id
+      WHERE s.category = 'disease_diagnosis'
+        AND EXISTS (SELECT 1 FROM vet_reviews vr WHERE vr.suggestion_id = s.id)
+      ORDER BY s.generated_at DESC
+    `);
+
+    // Shape into ML-ready records
+    const records = rows.map(r => ({
+      id: r.suggestion_id,
+      generated_at: r.generated_at,
+      call: {
+        id: r.call_id,
+        farmer_name: r.farmer_name,
+        farmer_phone: r.farmer_phone,
+        region: [r.farmer_sub_county, r.farmer_district].filter(Boolean).join(', ') || null,
+        date: r.call_date,
+        intent: r.call_intent,
+        outcome: r.outcome,
+        is_emergency: r.call_was_emergency,
+        agent_notes: r.agent_notes || null,
+      },
+      input: {
+        symptoms: (r.symptoms || []).map(s => ({ symptom: s.symptom, severity: s.severity })),
+        symptom_text: (r.symptoms || []).map(s => s.symptom).join(', ') || null,
+      },
+      ai_prediction: {
+        suggestion_text: r.suggestion_text,
+        confidence: r.confidence_score ? Math.round(r.confidence_score * 100) / 100 : null,
+        was_acted_on: r.was_acted_on,
+      },
+      vet_reviews: r.vet_reviews || [],
+      consensus: {
+        review_count: r.review_count,
+        correct_votes: r.correct_votes,
+        incorrect_votes: r.incorrect_votes,
+        accurate: r.correct_votes > r.incorrect_votes,
+        accuracy_pct: r.review_count > 0
+          ? Math.round((r.correct_votes / r.review_count) * 100)
+          : null,
+        consensus_correct_disease: r.consensus_correct_disease || null,
+      },
+    }));
+
+    if (format === 'jsonl') {
+      const filename = `smartvet-training-${new Date().toISOString().slice(0,10)}.jsonl`;
+      res.setHeader('Content-Type', 'application/x-ndjson');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      for (const record of records) {
+        res.write(JSON.stringify(record) + '\n');
+      }
+      return res.end();
+    }
+
+    const filename = `smartvet-training-${new Date().toISOString().slice(0,10)}.json`;
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.json({ generated_at: new Date().toISOString(), total: records.length, records });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

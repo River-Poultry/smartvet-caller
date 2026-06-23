@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, requireVetBoard } from '../middleware/auth.js';
 import { query } from '../db/index.js';
+import { checkModelAlerts } from '../services/modelAlerts.js';
 
 const router = Router();
 router.use(requireAuth, requireVetBoard);
@@ -117,6 +118,9 @@ router.post('/review', async (req, res) => {
        WHERE id = $3`,
       [verdict === 'correct', req.agent.id, suggestion_id]
     );
+
+    // Fire async alert check — never blocks the response
+    checkModelAlerts(suggestion_id, suggested_diagnosis || null);
 
     res.json({ review: rows[0] });
   } catch (err) {
