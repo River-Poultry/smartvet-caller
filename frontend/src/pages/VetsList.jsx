@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Phone, Star, CheckCircle, XCircle, Stethoscope, LogOut } from 'lucide-react';
+import { Search, MapPin, Phone, Star, CheckCircle, XCircle, Stethoscope, LogOut, ArrowLeft } from 'lucide-react';
 import api from '../services/api.js';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -201,12 +201,17 @@ export default function VetsList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="sticky top-0 z-20 flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+        {selected && (
+          <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
+            <ArrowLeft size={18} />
+          </button>
+        )}
         <Logo size="sm" />
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-0.5 sm:gap-1">
           {NAV.map(n => (
             <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}>
               {n.label}
@@ -214,20 +219,21 @@ export default function VetsList() {
           ))}
         </nav>
         {dispatchId && (
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
             <span className="text-xs text-amber-700">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
           </div>
         )}
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <span className="text-sm text-gray-600">{agent?.name}</span>
+          <span className="text-sm text-gray-600 hidden sm:inline">{agent?.name}</span>
           <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
             <LogOut size={15} />
           </button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
+      {/* ── Desktop layout (md+): side-by-side ── */}
+      <div className="hidden md:flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
         <div className="w-80 flex-shrink-0 border border-gray-200 flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-4 space-y-3 border-b border-gray-200">
             <div className="flex items-center justify-between mb-1">
@@ -277,6 +283,57 @@ export default function VetsList() {
             <VetDetail key={selected.id} vet={selected} dispatchId={dispatchId} onAssign={handleAssign} />
           )}
         </div>
+      </div>
+
+      {/* ── Mobile layout (<md): list → detail drill-down ── */}
+      <div className="flex md:hidden flex-1 flex-col overflow-hidden mx-3 mb-3 mt-3">
+        {!selected ? (
+          <div className="flex-1 flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="p-3 space-y-2 border-b border-gray-200">
+              {dispatchId && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                  <span className="text-xs text-amber-700">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">Vets &amp; Paravets</span>
+                <span className="text-xs">
+                  <span className="text-green-600 font-medium">{available} available</span>
+                  <span className="text-gray-400"> / {total}</span>
+                </span>
+              </div>
+              <div className="relative">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Name or phone…"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600" />
+              </div>
+              <div className="flex gap-2 items-center">
+                <select value={role} onChange={e => setRole(e.target.value)}
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600">
+                  <option value="">All roles</option>
+                  <option value="vet">Veterinarians</option>
+                  <option value="paravet">Paravets</option>
+                </select>
+                <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
+                  <input type="checkbox" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)} className="accent-green-700" />
+                  Available only
+                </label>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {loading && <p className="text-gray-400 text-sm p-4 text-center">Loading…</p>}
+              {!loading && vets.length === 0 && <p className="text-gray-400 text-sm p-4 text-center">No vets found</p>}
+              {vets.map(vet => (
+                <VetCard key={vet.id} vet={vet} selected={false} onClick={() => setSelected(vet)} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <VetDetail key={selected.id} vet={selected} dispatchId={dispatchId} onAssign={handleAssign} />
+          </div>
+        )}
       </div>
     </div>
   );

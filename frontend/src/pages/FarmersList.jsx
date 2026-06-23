@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut } from 'lucide-react';
+import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut, ArrowLeft } from 'lucide-react';
 import api from '../services/api.js';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -364,28 +364,35 @@ export default function FarmersList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+      <header className="sticky top-0 z-20 flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+        {/* Mobile: back arrow when detail is shown */}
+        {selected && (
+          <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
+            <ArrowLeft size={18} />
+          </button>
+        )}
         <Logo size="sm" />
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-0.5 sm:gap-1">
           {NAV.map(n => (
             <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}>
               {n.label}
             </button>
           ))}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <span className="text-sm text-gray-600">{agent?.name}</span>
+          <span className="text-sm text-gray-600 hidden sm:inline">{agent?.name}</span>
           <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
             <LogOut size={15} />
           </button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
+      {/* ── Desktop layout (md+): side-by-side ── */}
+      <div className="hidden md:flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
         <div className="w-80 flex-shrink-0 border border-gray-200 flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="p-4 space-y-3 border-b border-gray-200">
             <div className="flex items-center justify-between mb-1">
@@ -454,6 +461,65 @@ export default function FarmersList() {
             <FarmerDetail key={selected.id} farmer={selected} onDispatch={() => handleDispatch(selected)} />
           )}
         </div>
+      </div>
+
+      {/* ── Mobile layout (<md): list → detail drill-down ── */}
+      <div className="flex md:hidden flex-1 flex-col overflow-hidden mx-3 mb-3 mt-3 gap-3">
+        {!selected ? (
+          <div className="flex-1 flex flex-col overflow-hidden bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="p-3 space-y-2 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-900">Farmers</span>
+                <span className="text-xs text-gray-400">{total} total</span>
+              </div>
+              <div className="relative">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Name or phone…"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600" />
+              </div>
+              <select value={district} onChange={e => setDistrict(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600">
+                <option value="">All districts</option>
+                {districts.map(d => <option key={d}>{d}</option>)}
+              </select>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {loading && <p className="text-gray-400 text-sm p-4 text-center">Loading…</p>}
+              {!loading && farmers.length === 0 && (
+                <p className="text-gray-400 text-sm p-4 text-center">No farmers found</p>
+              )}
+              {farmers.map(farmer => {
+                const totalBirds = (farmer.batches || []).reduce((s, b) => s + (b.total_birds || 0), 0);
+                return (
+                  <button key={farmer.id} onClick={() => setSelected(farmer)}
+                    className="w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{farmer.name}</p>
+                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                          <Phone size={10} /> {farmer.phone}
+                        </p>
+                        {farmer.district && (
+                          <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                            <MapPin size={10} /> {farmer.district}
+                          </p>
+                        )}
+                      </div>
+                      {totalBirds > 0 && (
+                        <span className="text-xs text-green-700 font-medium flex-shrink-0">{totalBirds.toLocaleString()} birds</span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <FarmerDetail key={selected.id} farmer={selected} onDispatch={() => handleDispatch(selected)} />
+          </div>
+        )}
       </div>
       <VetDispatchModal />
     </div>

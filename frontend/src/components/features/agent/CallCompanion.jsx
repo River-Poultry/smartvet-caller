@@ -476,11 +476,11 @@ export function CallCompanion() {
   const flockFilled = !!(flockDetails.birdType || flockDetails.flockSize || flockDetails.ageValue);
 
   const TABS = [
-    { id: 'symptoms',  label: 'Symptoms',    icon: Stethoscope },
-    { id: 'flock',     label: 'Flock',        icon: Bird,      dot: flockFilled },
-    { id: 'diagnosis', label: 'AI Diagnosis', icon: Zap,       dot: diagnoses.length > 0 },
-    { id: 'drugs',     label: 'Drugs',        icon: Package,   dot: drugSuggestions.length > 0 },
-    { id: 'notes',     label: 'Notes',        icon: FileText,  dot: !!callNotes },
+    { id: 'symptoms',  label: 'Symptoms', shortLabel: 'Sx',  icon: Stethoscope },
+    { id: 'flock',     label: 'Flock',    shortLabel: 'Flock', icon: Bird,      dot: flockFilled },
+    { id: 'diagnosis', label: 'Diagnosis',shortLabel: 'AI',  icon: Zap,         dot: diagnoses.length > 0 },
+    { id: 'drugs',     label: 'Drugs',    shortLabel: 'Rx',  icon: Package,     dot: drugSuggestions.length > 0 },
+    { id: 'notes',     label: 'Notes',    shortLabel: 'Notes',icon: FileText,   dot: !!callNotes },
   ];
 
   const sevCfg = SEVERITY_CONFIG.find(s => s.v === severity);
@@ -489,25 +489,25 @@ export function CallCompanion() {
     <div className="flex flex-col h-full bg-white text-sm">
 
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+      <div className="flex items-center gap-2 px-3 sm:px-5 py-3 border-b border-gray-200 bg-white flex-shrink-0 min-w-0">
         <Activity size={13} className="text-teal-600 flex-shrink-0" />
-        <span className="font-bold text-gray-900 text-xs uppercase tracking-widest">Call Companion</span>
+        <span className="font-bold text-gray-900 text-xs uppercase tracking-widest whitespace-nowrap">Call Companion</span>
 
         {symptoms.length > 0 && (
-          <span className="text-[11px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 font-semibold">
-            {symptoms.length} symptom{symptoms.length !== 1 ? 's' : ''}
+          <span className="text-[11px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 font-semibold flex-shrink-0">
+            {symptoms.length} sx
           </span>
         )}
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
           {isEmergency && (
-            <span className="flex items-center gap-1 text-[11px] bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
-              <AlertTriangle size={10} /> Emergency
+            <span className="flex items-center gap-1 text-[10px] sm:text-[11px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
+              <AlertTriangle size={9} /> <span className="hidden sm:inline">Emergency</span><span className="sm:hidden">🚨</span>
             </span>
           )}
           {isNotifiable && !isEmergency && (
-            <span className="text-[11px] bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">
-              Notify Authorities
+            <span className="text-[10px] sm:text-[11px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
+              <span className="hidden sm:inline">Notify Auth.</span><span className="sm:hidden">⚠️</span>
             </span>
           )}
         </div>
@@ -517,15 +517,16 @@ export function CallCompanion() {
       <div className="flex border-b border-gray-200 bg-white flex-shrink-0">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setSection(t.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-semibold uppercase tracking-wide transition-colors relative ${
+            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 sm:py-2.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide transition-colors relative ${
               section === t.id
                 ? 'text-green-700 border-b-2 border-green-700 bg-green-50'
                 : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
             }`}>
-            <t.icon size={11} />
-            {t.label}
+            <t.icon size={12} />
+            <span className="hidden sm:inline">{t.label}</span>
+            <span className="sm:hidden">{t.shortLabel}</span>
             {t.dot && (
-              <span className="absolute top-2 right-[calc(50%-20px)] w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span className="absolute top-1.5 right-[calc(50%-14px)] w-1.5 h-1.5 rounded-full bg-amber-400" />
             )}
           </button>
         ))}

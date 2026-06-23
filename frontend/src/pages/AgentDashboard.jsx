@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LogOut, Users, Stethoscope, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LogOut, Users, Stethoscope, LayoutDashboard, ChevronLeft, ChevronRight, Phone, Brain, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
@@ -18,6 +18,13 @@ const NAV_ITEMS = [
   { to: '/agent/vets',     icon: Stethoscope,     label: 'Vets'      },
 ];
 
+const MOBILE_TABS = [
+  { id: 'call',       icon: Phone,      label: 'Call'       },
+  { id: 'caller',     icon: Users,      label: 'Caller'     },
+  { id: 'diagnosis',  icon: Brain,      label: 'Diagnosis'  },
+  { id: 'transcript', icon: FileText,   label: 'Transcript' },
+];
+
 const STATUS_COLOR = { online: 'green', on_call: 'red', on_break: 'yellow', offline: 'gray' };
 
 export default function AgentDashboard() {
@@ -25,6 +32,7 @@ export default function AgentDashboard() {
   const { activeCall, fetchActiveCall, clearCall } = useCallStore();
   const lastCallId = useRef(null);
   const [transcriptOpen, setTranscriptOpen] = useState(true);
+  const [mobileTab, setMobileTab] = useState('call');
   const location = useLocation();
 
   useEffect(() => { fetchActiveCall(); }, []);
@@ -36,10 +44,10 @@ export default function AgentDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* Top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        <div className="flex items-center gap-5">
-          <Link to="/agent" className="flex items-center gap-2.5 flex-shrink-0">
-            <img src="/logo.png" alt="SmartVet" className="h-8 w-auto"
+      <header className="sticky top-0 z-20 flex items-center justify-between px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+        <div className="flex items-center gap-2 sm:gap-5">
+          <Link to="/agent" className="flex items-center gap-2 flex-shrink-0">
+            <img src="/logo.png" alt="SmartVet" className="h-7 sm:h-8 w-auto"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div className="leading-tight hidden sm:block">
               <p className="text-base font-extrabold text-gray-900 leading-none">SmartVet</p>
@@ -47,7 +55,8 @@ export default function AgentDashboard() {
             </div>
           </Link>
 
-          <nav className="flex items-center gap-1">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
               const active = location.pathname === to;
               return (
@@ -63,20 +72,35 @@ export default function AgentDashboard() {
               );
             })}
           </nav>
+
+          {/* Mobile nav icons */}
+          <nav className="flex md:hidden items-center gap-1">
+            {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+              const active = location.pathname === to;
+              return (
+                <Link key={to} to={to} title={label}
+                  className={`p-2 rounded-lg transition-colors ${
+                    active ? 'bg-green-700 text-white' : 'text-gray-500 hover:bg-gray-100'
+                  }`}>
+                  <Icon size={16} />
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {activeCall && (
-            <span className="flex items-center gap-1.5 text-xs text-red-600 border border-red-200 bg-red-50 px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
+            <span className="flex items-center gap-1 sm:gap-1.5 text-xs text-red-600 border border-red-200 bg-red-50 px-2 sm:px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Live Call
+              <span className="hidden xs:inline">Live </span>Call
             </span>
           )}
           <ThemeToggle />
-          <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize">
+          <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize hidden sm:inline-flex">
             {agent?.status?.replace('_', ' ')}
           </Badge>
-          <span className="text-sm font-semibold text-gray-700 hidden sm:inline">{agent?.name}</span>
+          <span className="text-sm font-semibold text-gray-700 hidden lg:inline">{agent?.name}</span>
           <button onClick={logout} title="Logout"
             className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
             <LogOut size={15} />
@@ -84,11 +108,11 @@ export default function AgentDashboard() {
         </div>
       </header>
 
-      {/* Main layout */}
-      <div className="flex-1 flex overflow-hidden mx-5 mb-5 gap-3">
+      {/* ── Desktop layout (md+): 3-column ── */}
+      <div className="hidden md:flex flex-1 overflow-hidden mx-3 lg:mx-5 mb-5 gap-3">
 
         {/* Left — call info + caller panel */}
-        <div className="w-64 flex-shrink-0 border border-gray-200 bg-white flex flex-col overflow-y-auto rounded-xl shadow-sm">
+        <div className="w-56 lg:w-64 flex-shrink-0 border border-gray-200 bg-white flex flex-col overflow-y-auto rounded-xl shadow-sm">
           <CallDisplay onEnd={clearCall} />
           <div className="border-t border-gray-200 flex-1 overflow-y-auto">
             <CallerPanel
@@ -105,7 +129,7 @@ export default function AgentDashboard() {
         </div>
 
         {/* Center — collapsible transcript */}
-        <div className={`flex flex-col border border-gray-200 bg-gray-50 rounded-xl shadow-sm transition-all duration-200 ${
+        <div className={`hidden lg:flex flex-col border border-gray-200 bg-gray-50 rounded-xl shadow-sm transition-all duration-200 ${
           transcriptOpen ? 'w-64 flex-shrink-0' : 'w-10 flex-shrink-0'
         }`}>
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 flex-shrink-0">
@@ -126,6 +150,49 @@ export default function AgentDashboard() {
         <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden rounded-xl border border-gray-200 shadow-sm">
           <CallCompanion />
         </div>
+      </div>
+
+      {/* ── Mobile layout (<md): tab-based ── */}
+      <div className="flex md:hidden flex-1 flex-col overflow-hidden">
+        {/* Tab content */}
+        <div className="flex-1 overflow-y-auto bg-white mx-3 mt-3 mb-1 rounded-xl border border-gray-200 shadow-sm">
+          {mobileTab === 'call' && (
+            <CallDisplay onEnd={clearCall} />
+          )}
+          {mobileTab === 'caller' && (
+            <CallerPanel
+              activeCall={activeCall}
+              onFarmerSelect={(farmer) => {
+                if (activeCall) {
+                  useCallStore.setState(s => ({
+                    activeCall: { ...s.activeCall, farmer }
+                  }));
+                }
+              }}
+            />
+          )}
+          {mobileTab === 'diagnosis' && (
+            <CallCompanion />
+          )}
+          {mobileTab === 'transcript' && (
+            <RealTimeTranscript />
+          )}
+        </div>
+
+        {/* Mobile bottom tab bar */}
+        <nav className="flex-shrink-0 flex items-center justify-around bg-white border-t border-gray-200 px-2 py-2 mx-3 mb-3 rounded-xl shadow-sm">
+          {MOBILE_TABS.map(({ id, icon: Icon, label }) => (
+            <button key={id} onClick={() => setMobileTab(id)}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors flex-1 ${
+                mobileTab === id
+                  ? 'bg-green-700 text-white'
+                  : 'text-gray-500 hover:bg-gray-100'
+              }`}>
+              <Icon size={18} />
+              <span className="text-[10px] font-semibold leading-none">{label}</span>
+            </button>
+          ))}
+        </nav>
       </div>
 
       <VetDispatchModal />
