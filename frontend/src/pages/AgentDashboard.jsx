@@ -3,7 +3,6 @@ import { LogOut, Users, Stethoscope, LayoutDashboard, ChevronLeft, ChevronRight 
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
-import { useWebSocket } from '../hooks/useWebSocket.js';
 import { CallDisplay } from '../components/features/agent/CallDisplay.jsx';
 import { CallerPanel } from '../components/features/agent/CallerPanel.jsx';
 import { RealTimeTranscript } from '../components/features/agent/RealTimeTranscript.jsx';
@@ -28,7 +27,6 @@ export default function AgentDashboard() {
   const [transcriptOpen, setTranscriptOpen] = useState(true);
   const location = useLocation();
 
-  useWebSocket();
   useEffect(() => { fetchActiveCall(); }, []);
   useEffect(() => {
     if (activeCall?.call_id) lastCallId.current = activeCall.call_id;

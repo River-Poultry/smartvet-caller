@@ -33,6 +33,18 @@ export function useWebSocket() {
           is_emergency: false,
         });
       }),
+      on('OUTBOUND_CALL_STARTED', (data) => {
+        setActiveCall({
+          call_id: data.callId,
+          twilio_call_sid: data.callSid,
+          phone_number: data.farmerPhone,
+          farmer: data.farmer,
+          call_timer_seconds: 0,
+          recording_active: true,
+          is_emergency: false,
+          is_outbound: true,
+        });
+      }),
       on('CALL_ENDED', () => clearCall()),
       on('TRANSCRIPT_SEGMENT', (seg) => addTranscriptSegment(seg)),
       on('AI_SUGGESTION', (data) => {

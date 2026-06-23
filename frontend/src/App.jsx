@@ -1,7 +1,8 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore.js';
-import { connectWS } from './services/websocket.js';
+import { on } from './services/websocket.js';
+import { useWebSocket } from './hooks/useWebSocket.js';
 import Login from './pages/Login.jsx';
 import AgentDashboard from './pages/AgentDashboard.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
@@ -26,9 +27,16 @@ function ProtectedRoute({ children, adminOnly = false, vetBoardOnly = false }) {
 
 export default function App() {
   const { agent, token } = useAuthStore();
+  const navigate = useNavigate();
+
+  useWebSocket();
 
   useEffect(() => {
-    if (token) connectWS(token);
+    if (!token) return;
+    const unsub = on('OUTBOUND_CALL_STARTED', () => {
+      navigate('/agent');
+    });
+    return unsub;
   }, [token]);
 
   return (
