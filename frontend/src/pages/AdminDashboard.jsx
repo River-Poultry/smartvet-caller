@@ -156,26 +156,23 @@ function DispatchCard({ dispatch: d, vets, onEscalate, onAssign, onResolve, onCa
 function VetCard({ vet, inventory }) {
   const items = inventory.filter(i => String(i.vet_django_id) === String(vet.django_id));
   return (
-    <div className={`rounded-lg border p-3 mb-2 bg-white ${vet.is_available ? 'border-gray-200' : 'border-gray-100 opacity-60'}`}>
-      <div className="flex items-center justify-between mb-1.5">
+    <div className={`rounded-lg p-3 mb-2 border-l-2 ${vet.is_available ? 'bg-green-50/60 border-l-green-500' : 'bg-gray-50 border-l-gray-300 opacity-60'}`}>
+      <div className="flex items-center justify-between mb-1">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-gray-900 truncate">{vet.name}</p>
-          <p className="text-xs text-gray-400 capitalize truncate">{vet.role}{vet.district ? ` · ${vet.district}` : ''}</p>
+          <p className="text-sm font-bold text-gray-900 truncate">{vet.name}</p>
+          <p className="text-xs text-gray-500 capitalize truncate">{vet.role}{vet.district ? ` · ${vet.district}` : ''}</p>
         </div>
-        <span className={`ml-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${vet.is_available ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${vet.is_available ? 'bg-green-500' : 'bg-gray-400'}`}/>
-          {vet.is_available ? 'Available' : 'Busy'}
-        </span>
+        <span className={`ml-2 w-2 h-2 rounded-full flex-shrink-0 ${vet.is_available ? 'bg-green-500' : 'bg-gray-400'}`}/>
       </div>
       {items.length > 0 && (
-        <div className="mt-1 space-y-0.5 border-t border-gray-100 pt-1.5">
+        <div className="mt-1.5 space-y-0.5 pt-1.5 border-t border-black/5">
           {items.slice(0,3).map((item, i) => (
-            <div key={i} className="flex justify-between text-gray-500">
-              <span className="truncate">{item.product_name}</span>
-              <span className="ml-1 flex-shrink-0 text-gray-400">{parseFloat(item.quantity_in_stock || 0).toFixed(0)} {item.unit}</span>
+            <div key={i} className="flex justify-between text-xs">
+              <span className="text-gray-600 truncate">{item.product_name}</span>
+              <span className="ml-1 flex-shrink-0 text-gray-400 font-mono">{parseFloat(item.quantity_in_stock || 0).toFixed(0)}</span>
             </div>
           ))}
-          {items.length > 3 && <p className="text-gray-400">+{items.length - 3} more</p>}
+          {items.length > 3 && <p className="text-xs text-gray-400">+{items.length - 3} more</p>}
         </div>
       )}
     </div>
@@ -190,8 +187,28 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
   const availableVets = vets.filter(v => v.is_available).length;
   const emergencyPending = dispatches.filter(d => d.urgency_level === 'emergency' && d.status === 'pending');
 
+  const agentsActive = agents.filter(a => a.status === 'on_call' || a.status === 'online').length;
+  const pendingCount = dispatches.filter(d => d.status === 'pending').length;
+  const callsToday   = metrics?.calls?.calls_today ?? '—';
+
   return (
     <>
+      {/* ── KPI metrics row ── */}
+      <div className="grid grid-cols-4 gap-px bg-gray-100 border-b border-gray-200 flex-shrink-0">
+        {[
+          { value: agentsActive,     label: 'Agents Active',      sub: `of ${agents.length} total`,                  accent: 'border-green-500',  num: 'text-green-700' },
+          { value: pendingCount,     label: 'Pending Dispatches', sub: emergencyPending.length ? `${emergencyPending.length} emergency` : 'none urgent', accent: pendingCount > 0 ? 'border-amber-400' : 'border-gray-300', num: pendingCount > 0 ? 'text-amber-600' : 'text-gray-400', alert: emergencyPending.length > 0 },
+          { value: `${availableVets}/${vets.length}`, label: 'Vets Available', sub: 'ready for dispatch', accent: availableVets > 0 ? 'border-teal-500' : 'border-red-400', num: availableVets > 0 ? 'text-teal-700' : 'text-red-600' },
+          { value: callsToday,       label: 'Calls Today',        sub: 'since midnight',                             accent: 'border-blue-400',   num: 'text-blue-700' },
+        ].map(({ value, label, sub, accent, num, alert }) => (
+          <div key={label} className={`bg-white px-5 py-4 border-t-2 ${accent} ${alert ? 'animate-pulse' : ''}`}>
+            <p className={`text-3xl font-black tracking-tight leading-none ${num}`}>{value}</p>
+            <p className="text-sm font-semibold text-gray-900 mt-1.5 leading-tight">{label}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+          </div>
+        ))}
+      </div>
+
       {l4.length > 0 && (
         <div className="flex items-center gap-3 px-4 py-2 bg-red-50 border-b border-red-200 animate-pulse flex-shrink-0">
           <AlertTriangle size={14} className="text-red-500 flex-shrink-0"/>
@@ -202,9 +219,9 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT */}
         <div className="w-56 flex-shrink-0 border-r border-gray-200 bg-white flex flex-col">
-          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
-            <ArrowUpCircle size={13} className="text-amber-500"/>
-            <span className="text-sm font-semibold text-gray-700">Escalation Queue</span>
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2 flex-shrink-0 bg-gray-50/80">
+            <ArrowUpCircle size={12} className="text-amber-500"/>
+            <span className="text-xs font-black uppercase tracking-widest text-gray-500">Escalation Queue</span>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             {[4,3,2].map(lvl => {
@@ -243,10 +260,10 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
 
         {/* CENTER */}
         <div className="flex-1 overflow-hidden flex flex-col min-w-0">
-          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0 bg-white">
-            <LayoutGrid size={13} className="text-teal-600"/>
-            <span className="text-sm font-semibold text-gray-700">Dispatch Board</span>
-            <span className="text-xs text-gray-400 ml-1">{filtered.length} total</span>
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2 flex-shrink-0 bg-gray-50/80">
+            <LayoutGrid size={12} className="text-teal-600"/>
+            <span className="text-xs font-black uppercase tracking-widest text-gray-500">Dispatch Board</span>
+            <span className="text-xs font-bold text-gray-400 ml-1">{filtered.length}</span>
             <div className="ml-auto flex items-center gap-2">
               {emergencyPending.length > 0 && (
                 <span className="flex items-center gap-1.5 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full animate-pulse text-xs">
@@ -268,11 +285,11 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
                 const Icon = col.icon;
                 const cards = byStatus[col.id] || [];
                 return (
-                  <div key={col.id} className="flex-1 border-r border-gray-200 last:border-0 flex flex-col min-w-0">
-                    <div className="px-3 py-2.5 border-b border-gray-200 flex items-center gap-1.5 bg-white flex-shrink-0">
-                      <Icon size={13} className={col.color}/>
-                      <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
-                      <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full font-medium">{cards.length}</span>
+                  <div key={col.id} className="flex-1 border-r border-gray-100 last:border-0 flex flex-col min-w-0">
+                    <div className="px-3 py-3 border-b border-gray-100 flex items-center gap-2 bg-gray-50/80 flex-shrink-0">
+                      <Icon size={12} className={col.color}/>
+                      <span className={`text-xs font-black uppercase tracking-widest ${col.color}`}>{col.label}</span>
+                      <span className={`ml-auto text-xs font-black w-5 h-5 rounded-full flex items-center justify-center ${cards.length > 0 ? 'bg-gray-200 text-gray-700' : 'bg-gray-100 text-gray-300'}`}>{cards.length}</span>
                     </div>
                     <div className="flex-1 overflow-y-auto p-3">
                       {cards.map(d => <DispatchCard key={d.id} dispatch={d} vets={vets} onEscalate={escalate} onAssign={assign} onResolve={resolve} onCancel={cancel}/>)}
@@ -287,10 +304,10 @@ function DispatchTab({ dispatches, vets, inventory, agents, metrics, urgencyFilt
 
         {/* RIGHT */}
         <div className="w-52 flex-shrink-0 border-l border-gray-200 bg-white flex flex-col">
-          <div className="px-4 py-2.5 border-b border-gray-200 flex items-center gap-2 flex-shrink-0">
-            <Stethoscope size={13} className="text-green-700"/>
-            <span className="text-sm font-semibold text-gray-700">Vet Resources</span>
-            <span className="ml-auto text-sm text-green-700 font-semibold">{availableVets}/{vets.length}</span>
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2 flex-shrink-0 bg-gray-50/80">
+            <Stethoscope size={12} className="text-green-700"/>
+            <span className="text-xs font-black uppercase tracking-widest text-gray-500">Vet Resources</span>
+            <span className="ml-auto text-sm font-black text-green-700">{availableVets}<span className="text-gray-400 font-medium">/{vets.length}</span></span>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             {vets.map(vet => <VetCard key={vet.id} vet={vet} inventory={inventory}/>)}
@@ -829,7 +846,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* Tab content */}
-      <div className="flex-1 flex flex-col overflow-hidden mx-5 mb-5 mt-4 rounded-xl border border-gray-200 shadow-sm bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden bg-white">
         {tab === 'dispatch' && (
           <DispatchTab
             dispatches={dispatches} vets={vets} inventory={inventory}

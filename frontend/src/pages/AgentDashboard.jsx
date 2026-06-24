@@ -113,10 +113,10 @@ export default function AgentDashboard() {
       </header>
 
       {/* ── Desktop layout (md+): 3-column ── */}
-      <div className="hidden md:flex flex-1 overflow-hidden mx-3 lg:mx-5 mb-5 gap-3">
+      <div className="hidden md:flex flex-1 overflow-hidden gap-px bg-gray-100">
 
         {/* Left — call info + caller panel */}
-        <div className="w-56 lg:w-64 flex-shrink-0 border border-gray-200 bg-white flex flex-col overflow-y-auto rounded-xl shadow-sm">
+        <div className="w-56 lg:w-64 flex-shrink-0 bg-white flex flex-col overflow-y-auto">
           <CallDisplay onEnd={clearCall} />
           <div className="border-t border-gray-200 flex-1 overflow-y-auto">
             <CallerPanel
@@ -133,10 +133,10 @@ export default function AgentDashboard() {
         </div>
 
         {/* Center — collapsible transcript */}
-        <div className={`hidden lg:flex flex-col border border-gray-200 bg-gray-50 rounded-xl shadow-sm transition-all duration-200 ${
+        <div className={`hidden lg:flex flex-col bg-white transition-all duration-200 ${
           transcriptOpen ? 'w-64 flex-shrink-0' : 'w-10 flex-shrink-0'
         }`}>
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-100 flex-shrink-0 bg-gray-50/80">
             <button onClick={() => setTranscriptOpen(o => !o)}
               className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 ml-auto min-h-[36px] min-w-[36px]"
               aria-label={transcriptOpen ? 'Collapse transcript' : 'Expand transcript'}>
@@ -151,7 +151,7 @@ export default function AgentDashboard() {
         </div>
 
         {/* Right — Call Companion */}
-        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden">
           <CallCompanion />
         </div>
       </div>
