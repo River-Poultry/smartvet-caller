@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { LogOut, Users, Stethoscope, LayoutDashboard, ChevronLeft, ChevronRight, Phone, Brain, FileText } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
 import { CallDisplay } from '../components/features/agent/CallDisplay.jsx';
@@ -11,16 +11,12 @@ import { VetDispatchModal } from '../components/features/agent/VetDispatchModal.
 import { PostCallForm } from '../components/features/agent/PostCallForm.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
-import { AppShell } from '../components/layout/AppShell.jsx';
 
-const AGENT_NAV = [{
-  title: 'Call Centre',
-  items: [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/agent' },
-    { id: 'farmers',   label: 'Farmers',   icon: Users,           href: '/agent/farmers' },
-    { id: 'vets',      label: 'Vets',      icon: Stethoscope,     href: '/agent/vets' },
-  ],
-}];
+const NAV_ITEMS = [
+  { to: '/agent',          icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/agent/farmers',  icon: Users,           label: 'Farmers'   },
+  { to: '/agent/vets',     icon: Stethoscope,     label: 'Vets'      },
+];
 
 const MOBILE_TABS = [
   { id: 'call',       icon: Phone,      label: 'Call'       },
@@ -44,37 +40,73 @@ export default function AgentDashboard() {
     if (activeCall?.call_id) lastCallId.current = activeCall.call_id;
   }, [activeCall?.call_id]);
 
-  const activeId = location.pathname === '/agent/farmers' ? 'farmers'
-    : location.pathname === '/agent/vets' ? 'vets'
-    : 'dashboard';
-
   return (
-    <AppShell
-      navSections={AGENT_NAV}
-      activeId={activeId}
-      headerCenter={
-        <span className="text-green-200 text-xs hidden md:block">
-          Welcome, {agent?.name}{agent?.role ? ` · ${agent.role.replace('_', ' ')}` : ''}
-        </span>
-      }
-      headerRight={
-        <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+
+      {/* Top bar */}
+      <header className="sticky top-0 z-20 flex items-center justify-between px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+        <div className="flex items-center gap-2 sm:gap-5">
+          <Link to="/agent" className="flex items-center gap-2 flex-shrink-0">
+            <img src="/logo.png" alt="SmartVet" className="h-7 sm:h-8 w-auto"
+              onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+            <div className="leading-tight hidden sm:block">
+              <p className="text-base font-extrabold text-gray-900 leading-none">SmartVet</p>
+              <p className="text-xs text-green-700 leading-none mt-0.5">Call Centre</p>
+            </div>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+              const active = location.pathname === to;
+              return (
+                <Link key={to} to={to}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                    active
+                      ? 'bg-green-700 text-white'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}>
+                  <Icon size={13} />
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Mobile nav icons */}
+          <nav className="flex md:hidden items-center gap-1">
+            {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+              const active = location.pathname === to;
+              return (
+                <Link key={to} to={to} title={label}
+                  className={`p-2 rounded-lg transition-colors ${
+                    active ? 'bg-green-700 text-white' : 'text-gray-500 hover:bg-gray-100'
+                  }`}>
+                  <Icon size={16} />
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
           {activeCall && (
-            <span className="flex items-center gap-1.5 text-xs text-red-300 border border-red-500/40 bg-red-900/30 px-2.5 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400" /> Live Call
+            <span className="flex items-center gap-1 sm:gap-1.5 text-xs text-red-600 border border-red-200 bg-red-50 px-2 sm:px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              <span className="hidden xs:inline">Live </span>Call
             </span>
           )}
+          <ThemeToggle />
           <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize hidden sm:inline-flex">
             {agent?.status?.replace('_', ' ')}
           </Badge>
-          <ThemeToggle />
-          <button onClick={logout} aria-label="Logout"
-            className="text-green-200 hover:text-white transition-colors p-1.5 rounded min-h-[36px] min-w-[36px] flex items-center justify-center">
+          <span className="text-sm font-semibold text-gray-700 hidden lg:inline">{agent?.name}</span>
+          <button onClick={logout} title="Logout" aria-label="Logout"
+            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded min-h-[36px] min-w-[36px]">
             <LogOut size={15} />
           </button>
         </div>
-      }
-    >
+      </header>
 
       {/* ── Desktop layout (md+): 3-column ── */}
       <div className="hidden md:flex flex-1 overflow-hidden mx-3 lg:mx-5 mb-5 gap-3">
@@ -165,6 +197,6 @@ export default function AgentDashboard() {
 
       <VetDispatchModal />
       <PostCallForm lastCallId={lastCallId.current} />
-    </AppShell>
+    </div>
   );
 }

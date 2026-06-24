@@ -8,7 +8,6 @@ import {
 import api from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
-import { AppShell } from '../components/layout/AppShell.jsx';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -422,39 +421,53 @@ export default function VetBoardDashboard() {
   }
 
   return (
-    <AppShell
-      navSections={[{
-        title: 'Vet Board',
-        items: [
-          { id: 'queue', label: 'Review Queue', icon: Stethoscope, count: stats?.pending_count || 0 },
-          { id: 'stats', label: 'Board Stats',  icon: BarChart2 },
-        ],
-      }]}
-      activeId={view}
-      onNav={setView}
-      headerCenter={
-        <span className="text-green-200 text-xs hidden md:flex items-center gap-4">
-          <span>Dr. {agent?.name} · Vet Science Board</span>
+    <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
+
+      {/* Header */}
+      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shadow-sm flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+          <div>
+            <p className="text-base font-extrabold text-gray-900 leading-none tracking-tight">Vet Science Board</p>
+            <p className="text-xs text-teal-600 leading-none mt-0.5">AI Diagnosis Review Panel</p>
+          </div>
+
+          {/* View toggle */}
+          <div className="ml-4 flex border border-gray-200 rounded-lg overflow-hidden text-xs font-semibold">
+            {[
+              { id: 'queue', icon: Stethoscope, label: 'Review Queue' },
+              { id: 'stats', icon: BarChart2,   label: 'Board Stats' },
+            ].map(t => (
+              <button key={t.id} onClick={() => setView(t.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors ${view === t.id ? 'bg-teal-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                <t.icon size={12} /> {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
           {stats && (
-            <>
-              <span className="flex items-center gap-1 text-amber-300"><Clock size={11}/> {stats.pending_count} pending</span>
+            <div className="hidden md:flex items-center gap-4 text-sm">
+              <span className="flex items-center gap-1.5 text-amber-600 font-semibold">
+                <Clock size={13} className="text-amber-500" /> {stats.pending_count} pending
+              </span>
               {stats.board?.ai_accuracy_pct != null && (
-                <span className="flex items-center gap-1 text-green-300"><Target size={11}/> {stats.board.ai_accuracy_pct}% AI accuracy</span>
+                <span className="flex items-center gap-1.5 text-teal-700 font-semibold">
+                  <Target size={13} className="text-teal-500" /> {stats.board.ai_accuracy_pct}% AI accuracy
+                </span>
               )}
-            </>
+            </div>
           )}
-        </span>
-      }
-      headerRight={
-        <div className="flex items-center gap-2">
           <ThemeToggle />
-          <button onClick={logout} aria-label="Logout"
-            className="text-green-200 hover:text-white transition-colors p-1.5 rounded min-h-[36px] min-w-[36px] flex items-center justify-center">
+          <div className="text-xs text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded">
+            Dr. {agent?.name}
+          </div>
+          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1">
             <LogOut size={14} />
           </button>
         </div>
-      }
-    >
+      </header>
 
       <div className="flex flex-1 overflow-hidden">
 
@@ -567,6 +580,6 @@ export default function VetBoardDashboard() {
           )}
         </main>
       </div>
-    </AppShell>
+    </div>
   );
 }

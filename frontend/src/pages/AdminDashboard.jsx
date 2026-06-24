@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   AlertTriangle, CheckCircle, Clock, Truck, Users, Stethoscope,
-  ChevronUp, ChevronDown, RefreshCw, Package, LayoutGrid, LayoutDashboard,
+  ChevronUp, ChevronDown, RefreshCw, Package, LayoutGrid,
   ArrowUpCircle, Phone, LogOut, Shield, Activity, X,
   PhoneCall, FileText, Warehouse, ChevronRight, Plus, Minus, BarChart2, Brain,
 } from 'lucide-react';
-import { AppShell } from '../components/layout/AppShell.jsx';
 import api from '../services/api.js';
 import { useAuthStore } from '../store/authStore.js';
 import { useWebSocket } from '../hooks/useWebSocket.js';
@@ -674,7 +673,6 @@ function InventoryTab({ vets }) {
 
 export default function AdminDashboard() {
   const { agent, logout } = useAuthStore();
-  const navigate = useNavigate();
   const [tab, setTab] = useState('dispatch');
 
   const [dispatches, setDispatches] = useState([]);
@@ -736,72 +734,72 @@ export default function AdminDashboard() {
     setDispatches(ds => ds.map(d => d.id === id ? { ...d, status: 'cancelled' } : d));
   }
 
-  const pendingCount = dispatches.filter(d => d.status === 'pending').length;
-
-  const navSections = [
-    {
-      title: 'Operations',
-      items: [
-        { id: 'dispatch',  label: 'Dispatch',  icon: Truck,         count: pendingCount },
-        { id: 'calls',     label: 'Calls',     icon: PhoneCall },
-        { id: 'inventory', label: 'Inventory', icon: Warehouse },
-      ],
-    },
-    {
-      title: 'Analytics',
-      items: [
-        { id: 'insights',  label: 'Insights',  icon: BarChart2 },
-        { id: 'ai-alerts', label: 'AI Alerts', icon: Brain,         count: openAlerts },
-      ],
-    },
-    {
-      title: 'Management',
-      items: [
-        { id: 'users',      label: 'Users',      icon: Users },
-        { id: 'agent-view', label: 'Agent View', icon: LayoutDashboard },
-      ],
-    },
+  const TABS = [
+    { id: 'dispatch',  label: 'Dispatch',  icon: Truck,      count: dispatches.filter(d => d.status === 'pending').length },
+    { id: 'calls',     label: 'Calls',     icon: PhoneCall },
+    { id: 'inventory', label: 'Inventory', icon: Warehouse },
+    { id: 'insights',  label: 'Insights',  icon: BarChart2 },
+    { id: 'ai-alerts', label: 'AI Alerts', icon: Brain,      count: openAlerts },
   ];
 
-  function handleNav(id) {
-    if (id === 'users')      { setUsersOpen(true); return; }
-    if (id === 'agent-view') { navigate('/agent'); return; }
-    setTab(id);
-  }
-
   return (
-    <AppShell
-      navSections={navSections}
-      activeId={tab}
-      onNav={handleNav}
-      headerCenter={
-        <span className="text-green-200 text-xs hidden md:flex items-center gap-4">
-          <span>Welcome, {agent?.name} · Operations Centre</span>
-          {lastRefresh && <span className="text-green-300">Updated {lastRefresh.toLocaleTimeString()}</span>}
-        </span>
-      }
-      headerRight={
-        <div className="flex items-center gap-2">
-          <span className="hidden lg:flex items-center gap-3 text-xs text-green-200 mr-2">
-            <span className="flex items-center gap-1"><Clock size={11} className="text-amber-400"/> <span className="text-amber-300 font-bold">{pendingCount}</span> pending</span>
-            <span className="flex items-center gap-1"><Stethoscope size={11} className="text-green-400"/> <span className="text-green-300 font-bold">{vets.filter(v => v.is_available).length}</span>/{vets.length} vets</span>
-            {metrics?.calls?.calls_today != null && <span className="flex items-center gap-1"><Activity size={11}/> {metrics.calls.calls_today} today</span>}
-          </span>
-          <button onClick={load} aria-label="Refresh"
-            className={`text-green-200 hover:text-white p-1.5 rounded transition-colors ${loading ? 'animate-spin' : ''}`}>
-            <RefreshCw size={14}/>
+    <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
+
+      {/* Header */}
+      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+          <div>
+            <p className="text-base font-extrabold text-gray-900 leading-none tracking-tight">Operations Centre</p>
+            <p className="text-xs text-teal-600 leading-none mt-0.5">{lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Loading…'}</p>
+          </div>
+
+          {/* Tab nav */}
+          <div className="flex ml-2 border border-gray-200 rounded-lg overflow-hidden">
+            {TABS.map(t => {
+              const Icon = t.icon;
+              return (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
+                  <Icon size={13}/> {t.label}
+                  {t.count > 0 && <span className={`text-xs font-bold px-1.5 rounded-full ${tab === t.id ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>{t.count}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5"><Clock size={13} className="text-amber-500"/> <span className="text-amber-600 font-bold">{dispatches.filter(d => d.status === 'pending').length}</span> pending</span>
+            <span className="flex items-center gap-1.5"><Stethoscope size={13} className="text-green-600"/> <span className="text-green-700 font-bold">{vets.filter(v => v.is_available).length}</span>/{vets.length} vets</span>
+            {metrics?.calls?.calls_today != null && <span className="flex items-center gap-1.5"><Activity size={13}/> {metrics.calls.calls_today} calls today</span>}
+          </div>
+
+          <button onClick={load}
+            className={`p-1.5 rounded border border-gray-200 text-gray-400 hover:text-gray-700 transition-colors ${loading ? 'animate-spin' : ''}`}>
+            <RefreshCw size={13}/>
           </button>
+
+          <button onClick={() => setUsersOpen(true)}
+            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-teal-600 border border-gray-200 px-2.5 py-1.5 rounded hover:border-gray-300 transition-colors">
+            <Users size={12}/> Users
+          </button>
+
+          <Link to="/agent" className="text-xs text-gray-500 hover:text-teal-600 border border-gray-200 px-2.5 py-1.5 rounded hover:border-gray-300 transition-colors">
+            Agent View
+          </Link>
+
           <ThemeToggle/>
-          <button onClick={logout} aria-label="Logout"
-            className="text-green-200 hover:text-white transition-colors p-1.5 rounded min-h-[36px] min-w-[36px] flex items-center justify-center">
+
+          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1">
             <LogOut size={14}/>
           </button>
         </div>
-      }
-    >
+      </header>
 
       {/* Tab content */}
-      <div className="flex-1 flex flex-col overflow-hidden m-4 rounded-xl border border-gray-200 shadow-sm bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden mx-5 mb-5 mt-4 rounded-xl border border-gray-200 shadow-sm bg-white">
         {tab === 'dispatch' && (
           <DispatchTab
             dispatches={dispatches} vets={vets} inventory={inventory}
@@ -818,6 +816,6 @@ export default function AdminDashboard() {
       </div>
 
       {usersOpen && <UsersPanel onClose={() => setUsersOpen(false)} />}
-    </AppShell>
+    </div>
   );
 }
