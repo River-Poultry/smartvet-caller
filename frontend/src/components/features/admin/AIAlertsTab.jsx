@@ -35,7 +35,7 @@ function AlertRow({ alert, onUpdate }) {
       <button
         onClick={() => setExpanded(e => !e)}
         className="w-full flex items-center gap-3 px-4 py-3 bg-white hover:bg-gray-50 transition-colors text-left">
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${trigger.color}`}>
+        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${trigger.color}`}>
           {trigger.label}
         </span>
         <span className="font-semibold text-gray-900 text-sm flex-1 min-w-0 truncate">{alert.disease_name}</span>
@@ -52,7 +52,7 @@ function AlertRow({ alert, onUpdate }) {
           </span>
         )}
 
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 capitalize ${STATUS_COLORS[alert.status]}`}>
+        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border flex-shrink-0 capitalize ${STATUS_COLORS[alert.status]}`}>
           {alert.status}
         </span>
         <span className="text-xs text-gray-400 flex-shrink-0 hidden sm:inline">
@@ -66,23 +66,23 @@ function AlertRow({ alert, onUpdate }) {
           {/* Context */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="bg-white border border-gray-200 rounded-lg p-3">
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Trigger type</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Trigger type</p>
               <p className="text-sm font-semibold text-gray-800 capitalize">{alert.trigger_type.replace('_', ' ')}</p>
             </div>
             {alert.accuracy_pct != null && (
               <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Accuracy (30d)</p>
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Accuracy (30d)</p>
                 <p className={`text-sm font-bold ${alert.accuracy_pct < 50 ? 'text-red-600' : 'text-amber-600'}`}>{alert.accuracy_pct}%</p>
               </div>
             )}
             {alert.rejection_count != null && (
               <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Rejections</p>
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Rejections</p>
                 <p className="text-sm font-bold text-gray-800">{alert.rejection_count} / {alert.review_count || '?'} reviews</p>
               </div>
             )}
             <div className="bg-white border border-gray-200 rounded-lg p-3">
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Window</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Window</p>
               <p className="text-sm font-semibold text-gray-800">{alert.window_days}d</p>
             </div>
           </div>
@@ -183,7 +183,7 @@ export default function AIAlertsTab() {
           <Brain size={15} className="text-purple-600" />
           <span className="font-bold text-gray-900 text-sm">AI Model Alerts</span>
           {counts.open > 0 && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 border border-red-200">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 border border-red-200">
               {counts.open} open
             </span>
           )}

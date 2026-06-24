@@ -38,24 +38,24 @@ function StatsPanel({ stats, onExport }) {
 
       {/* My stats */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">My Activity</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">My Activity</p>
         <div className="space-y-2">
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
             <p className="text-2xl font-extrabold text-amber-600">{stats?.pending_count ?? '—'}</p>
-            <p className="text-[11px] text-amber-500 font-semibold mt-0.5">Awaiting my review</p>
+            <p className="text-xs text-amber-500 font-semibold mt-0.5">Awaiting my review</p>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             <div className="bg-green-50 border border-green-100 rounded-xl p-2.5 text-center">
               <p className="text-lg font-extrabold text-green-700">{p?.correct ?? '—'}</p>
-              <p className="text-[10px] text-green-600">Correct</p>
+              <p className="text-xs text-green-600">Correct</p>
             </div>
             <div className="bg-red-50 border border-red-100 rounded-xl p-2.5 text-center">
               <p className="text-lg font-extrabold text-red-600">{p?.incorrect ?? '—'}</p>
-              <p className="text-[10px] text-red-500">Incorrect</p>
+              <p className="text-xs text-red-500">Incorrect</p>
             </div>
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-2.5 text-center">
               <p className="text-lg font-extrabold text-amber-600">{p?.partial ?? '—'}</p>
-              <p className="text-[10px] text-amber-500">Partial</p>
+              <p className="text-xs text-amber-500">Partial</p>
             </div>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl px-3 py-2.5 flex items-center justify-between">
@@ -72,11 +72,11 @@ function StatsPanel({ stats, onExport }) {
       {/* Board-wide AI accuracy */}
       {b && (
         <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Board-Wide AI Accuracy</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Board-Wide AI Accuracy</p>
           <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 text-center mb-2">
             <p className="text-3xl font-extrabold text-teal-700">{b.ai_accuracy_pct ?? '—'}%</p>
-            <p className="text-[11px] text-teal-500 mt-0.5">AI diagnosis accuracy</p>
-            <p className="text-[10px] text-gray-400 mt-1">from {b.total_reviews} reviews by {b.total_reviewers} reviewers</p>
+            <p className="text-xs text-teal-500 mt-0.5">AI diagnosis accuracy</p>
+            <p className="text-xs text-gray-400 mt-1">from {b.total_reviews} reviews by {b.total_reviewers} reviewers</p>
           </div>
           <div className="space-y-1.5">
             {[
@@ -84,7 +84,7 @@ function StatsPanel({ stats, onExport }) {
               { label: 'Avg confidence when wrong',    value: b.avg_confidence_when_wrong,   color: 'text-red-600' },
             ].map(r => (
               <div key={r.label} className="bg-white border border-gray-200 rounded-xl px-3 py-2 flex items-center justify-between">
-                <span className="text-[11px] text-gray-500">{r.label}</span>
+                <span className="text-xs text-gray-500">{r.label}</span>
                 <span className={`text-sm font-bold ${r.color}`}>{r.value != null ? `${r.value}%` : '—'}</span>
               </div>
             ))}
@@ -95,13 +95,13 @@ function StatsPanel({ stats, onExport }) {
       {/* Disease accuracy */}
       {stats?.by_disease?.length > 0 && (
         <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Accuracy by Disease</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Accuracy by Disease</p>
           <div className="space-y-1.5">
             {stats.by_disease.filter(d => d.disease !== 'Other').map(d => (
               <div key={d.disease} className="bg-white border border-gray-100 rounded-lg px-2.5 py-2">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-medium text-gray-700 truncate">{d.disease}</span>
-                  <span className={`text-[11px] font-bold ml-2 flex-shrink-0 ${
+                  <span className="text-xs font-medium text-gray-700 truncate">{d.disease}</span>
+                  <span className={`text-xs font-bold ml-2 flex-shrink-0 ${
                     d.accuracy_pct >= 70 ? 'text-green-700' :
                     d.accuracy_pct >= 40 ? 'text-amber-600' : 'text-red-500'
                   }`}>{d.accuracy_pct ?? '—'}%</span>
@@ -111,7 +111,7 @@ function StatsPanel({ stats, onExport }) {
                     d.accuracy_pct >= 70 ? 'bg-green-500' :
                     d.accuracy_pct >= 40 ? 'bg-amber-400' : 'bg-red-400'
                   } />
-                  <span className="text-[10px] text-gray-400 flex-shrink-0">{d.reviews} reviews</span>
+                  <span className="text-xs text-gray-400 flex-shrink-0">{d.reviews} reviews</span>
                 </div>
               </div>
             ))}
@@ -204,12 +204,12 @@ function ReviewCard({ s, onReview }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             {s.is_emergency && (
-              <span className="text-[10px] bg-red-50 border border-red-200 text-red-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Emergency</span>
+              <span className="text-xs bg-red-50 border border-red-200 text-red-600 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wide">Emergency</span>
             )}
             {s.was_acted_on && (
-              <span className="text-[10px] bg-green-50 border border-green-200 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">✓ Agent acted on this</span>
+              <span className="text-xs bg-green-50 border border-green-200 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">✓ Agent acted on this</span>
             )}
-            <span className="text-[10px] text-gray-400">
+            <span className="text-xs text-gray-400">
               {s.farmer_name || s.phone_number || '—'} · {fmt(s.call_date)} · Agent: {s.agent_name || '—'}
             </span>
           </div>
@@ -218,12 +218,12 @@ function ReviewCard({ s, onReview }) {
             <p className="text-xs text-gray-700 leading-relaxed line-clamp-2">{s.suggestion_text}</p>
           )}
           {!expanded && s.confidence_score && (
-            <p className="text-[10px] text-gray-400 mt-1">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
+            <p className="text-xs text-gray-400 mt-1">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
           )}
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 ml-2">
           {saved && verdict && verdictCfg && (
-            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+            <span className={`text-xs font-bold px-2 py-1 rounded-full ${
               verdict === 'correct' ? 'bg-green-100 text-green-700' :
               verdict === 'incorrect' ? 'bg-red-100 text-red-600' :
               'bg-amber-100 text-amber-700'
@@ -239,18 +239,18 @@ function ReviewCard({ s, onReview }) {
 
           {/* AI output — read-only box at top of expanded panel */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">AI Suggestion to Review</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">AI Suggestion to Review</p>
             <div className="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
               <p className="text-xs text-gray-800 whitespace-pre-wrap leading-relaxed">{s.suggestion_text}</p>
               {s.confidence_score && (
-                <p className="text-[10px] text-teal-600 mt-1.5 font-medium">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
+                <p className="text-xs text-teal-600 mt-1.5 font-medium">AI confidence: {Math.round(s.confidence_score * 100)}%</p>
               )}
             </div>
           </div>
 
           {/* Verdict selector */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Overall Verdict</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Overall Verdict</p>
             <div className="flex gap-2">
               {Object.entries(VERDICT_CONFIG).map(([v, cfg]) => {
                 const Icon = cfg.icon;
@@ -271,7 +271,7 @@ function ReviewCard({ s, onReview }) {
 
           {/* Dimension checkboxes */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dimension Breakdown</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Dimension Breakdown</p>
             <div className="grid grid-cols-2 gap-2">
               {CHECKBOXES.map(({ key, label }) => {
                 const val = checks[key];
@@ -295,16 +295,16 @@ function ReviewCard({ s, onReview }) {
                 );
               })}
             </div>
-            <p className="text-[10px] text-gray-400 mt-1.5">Click once = ✓, twice = ✗, three times = unset</p>
+            <p className="text-xs text-gray-400 mt-1.5">Click once = ✓, twice = ✗, three times = unset</p>
           </div>
 
           {/* True severity override */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">True Severity (your assessment)</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">True Severity (your assessment)</p>
             <div className="flex gap-1.5">
               {['low', 'moderate', 'high', 'critical', 'unknown'].map(sev => (
                 <button key={sev} onClick={() => { setTrueSeverity(sev === trueSeverity ? '' : sev); setSaved(false); }}
-                  className={`flex-1 py-1.5 rounded-lg border text-[11px] font-semibold capitalize transition-all ${
+                  className={`flex-1 py-1.5 rounded-lg border text-xs font-semibold capitalize transition-all ${
                     trueSeverity === sev
                       ? sev === 'critical' ? 'bg-red-600 border-red-600 text-white' :
                         sev === 'high'     ? 'bg-orange-500 border-orange-500 text-white' :
@@ -322,7 +322,7 @@ function ReviewCard({ s, onReview }) {
           {/* Alternative diagnosis (if incorrect) */}
           {(verdict === 'incorrect' || verdict === 'partial') && (
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Correct / More Likely Diagnosis</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Correct / More Likely Diagnosis</p>
               <input type="text" value={suggestedDx}
                 onChange={e => { setSuggestedDx(e.target.value); setSaved(false); }}
                 placeholder="e.g. Infectious Bronchitis + CRD co-infection"
@@ -333,7 +333,7 @@ function ReviewCard({ s, onReview }) {
 
           {/* Field experience note */}
           <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Field Context / Experience Note</p>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Field Context / Experience Note</p>
             <textarea value={fieldNote} onChange={e => { setFieldNote(e.target.value); setSaved(false); }} rows={3}
               placeholder="Your clinical reasoning, field experience, or additional context that supports or contradicts this diagnosis…"
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500 resize-none leading-relaxed transition-colors"

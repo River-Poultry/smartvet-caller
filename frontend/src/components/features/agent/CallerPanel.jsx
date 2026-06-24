@@ -161,8 +161,8 @@ export function CallerPanel({ activeCall, onFarmerSelect }) {
           )}
 
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">New farmer?</p>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">New farmer?</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
               Register on SmartVet — data saves directly to the system. Come back and click <span className="text-gray-900 font-semibold">Find after registering</span>.
             </p>
             <button onClick={openSignupPopup}

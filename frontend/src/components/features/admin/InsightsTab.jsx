@@ -34,10 +34,10 @@ function KPICard({ icon: Icon, label, value, sub, color = 'text-green-700', bg =
     <div className={`rounded-xl border ${border} ${bg} p-4 flex flex-col gap-1`}>
       <div className="flex items-center gap-2 mb-1">
         <Icon size={13} className={color} />
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
+        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{label}</span>
       </div>
       <p className={`text-2xl font-extrabold ${color} leading-none`}>{value ?? '—'}</p>
-      {sub && <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -109,7 +109,7 @@ function CallDrilldown({ callId, onClose }) {
             <FileText size={14} className="text-teal-600" />
             <span className="text-sm font-bold text-gray-900">Call Detail</span>
             {data?.call?.is_emergency && (
-              <span className="text-[10px] bg-red-50 border border-red-200 text-red-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide animate-pulse">Emergency</span>
+              <span className="text-xs bg-red-50 border border-red-200 text-red-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide animate-pulse">Emergency</span>
             )}
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition-colors"><X size={15} /></button>
@@ -131,7 +131,7 @@ function CallDrilldown({ callId, onClose }) {
                 { label: 'Outcome',  value: (data.call.outcome || '—').replace('_', ' ') },
               ].map(f => (
                 <div key={f.label} className="bg-gray-50 rounded-lg px-3 py-2">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">{f.label}</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-0.5">{f.label}</p>
                   <p className="text-sm font-semibold text-gray-800 capitalize">{f.value}</p>
                 </div>
               ))}
@@ -161,16 +161,16 @@ function CallDrilldown({ callId, onClose }) {
                         <div className="flex items-start gap-2">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                              <span className={`text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                                 s.category === 'escalation_alert' ? 'bg-red-100 text-red-600' :
                                 s.category === 'disease_diagnosis' ? 'bg-teal-100 text-teal-700' :
                                 'bg-gray-100 text-gray-500'
                               }`}>{s.category.replace('_', ' ')}</span>
                               {s.confidence_score && (
-                                <span className="text-[10px] text-gray-400">{Math.round(s.confidence_score * 100)}% confidence</span>
+                                <span className="text-xs text-gray-400">{Math.round(s.confidence_score * 100)}% confidence</span>
                               )}
                               {s.was_acted_on && (
-                                <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">✓ Acted on</span>
+                                <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">✓ Acted on</span>
                               )}
                             </div>
                             <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed line-clamp-4">{s.suggestion_text}</p>
@@ -203,7 +203,7 @@ function CallDrilldown({ callId, onClose }) {
                 <div className="space-y-1.5 max-h-64 overflow-y-auto bg-gray-50 rounded-xl p-3">
                   {data.transcript.map(t => (
                     <div key={t.id} className={`flex gap-2 text-xs ${t.speaker === 'farmer' ? 'flex-row' : 'flex-row-reverse'}`}>
-                      <span className={`flex-shrink-0 text-[10px] font-bold uppercase tracking-widest mt-0.5 ${
+                      <span className={`flex-shrink-0 text-xs font-bold uppercase tracking-widest mt-0.5 ${
                         t.speaker === 'farmer' ? 'text-blue-600' :
                         t.speaker === 'agent'  ? 'text-green-700' : 'text-gray-400'
                       }`}>{t.speaker}</span>
@@ -235,7 +235,7 @@ function AgentTable({ agents }) {
         <thead>
           <tr className="bg-gray-50 border-b border-gray-200">
             {['Agent', 'Role', 'Calls', 'Avg Duration', 'Diagnosis', 'Escalations', 'Resolution', 'AI Suggestions', 'AI Acted On'].map(h => (
-              <th key={h} className="px-3 py-2 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+              <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
@@ -244,10 +244,10 @@ function AgentTable({ agents }) {
             <tr key={a.id} className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}>
               <td className="px-3 py-2.5">
                 <p className="font-semibold text-gray-900">{a.name}</p>
-                <p className="text-gray-400 text-[10px]">{a.email}</p>
+                <p className="text-gray-400 text-xs">{a.email}</p>
               </td>
               <td className="px-3 py-2.5">
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${
+                <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${
                   a.role === 'admin' ? 'bg-purple-50 text-purple-700' :
                   a.role === 'supervisor' ? 'bg-blue-50 text-blue-700' :
                   'bg-gray-100 text-gray-500'
@@ -298,27 +298,27 @@ function DiseaseTable({ diseases, suggestionStats }) {
     <div className="space-y-1.5">
       {diseases.filter(d => d.disease !== 'Other').map((d, i) => (
         <div key={d.disease} className="flex items-center gap-3 px-3 py-2.5 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-          <span className="w-5 text-[11px] font-bold text-gray-300 text-right">{i + 1}</span>
+          <span className="w-5 text-xs font-bold text-gray-300 text-right">{i + 1}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <p className="text-xs font-semibold text-gray-800 truncate">{d.disease}</p>
               {d.emergency_count > 0 && (
-                <span className="flex-shrink-0 text-[10px] bg-red-50 border border-red-200 text-red-600 px-1.5 py-0.5 rounded-full font-bold">⚠ {d.emergency_count} emergency</span>
+                <span className="flex-shrink-0 text-xs bg-red-50 border border-red-200 text-red-600 px-1.5 py-0.5 rounded-full font-bold">⚠ {d.emergency_count} emergency</span>
               )}
             </div>
             <MiniBar value={d.mentions} max={maxMentions} color="bg-teal-500" />
           </div>
           <div className="flex items-center gap-3 flex-shrink-0 text-right">
             <div>
-              <p className="text-[10px] text-gray-400">Mentions</p>
+              <p className="text-xs text-gray-400">Mentions</p>
               <p className="text-sm font-bold text-gray-800">{d.mentions}</p>
             </div>
             <div>
-              <p className="text-[10px] text-gray-400">Avg conf.</p>
+              <p className="text-xs text-gray-400">Avg conf.</p>
               <p className={`text-sm font-bold ${d.avg_confidence >= 70 ? 'text-green-700' : d.avg_confidence >= 50 ? 'text-amber-600' : 'text-red-500'}`}>{d.avg_confidence ?? '—'}%</p>
             </div>
             <div>
-              <p className="text-[10px] text-gray-400">Acted on</p>
+              <p className="text-xs text-gray-400">Acted on</p>
               <p className="text-sm font-bold text-teal-700">{d.acted_on}</p>
             </div>
           </div>
@@ -334,7 +334,7 @@ function DiseaseTable({ diseases, suggestionStats }) {
             { label: 'Escalation alerts',        value: suggestionStats.escalation_suggestions, color: 'text-red-600' },
           ].map(s => (
             <div key={s.label} className="bg-gray-50 rounded-xl border border-gray-100 px-3 py-2.5 text-center">
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-0.5">{s.label}</p>
+              <p className="text-xs text-gray-400 uppercase tracking-widest mb-0.5">{s.label}</p>
               <p className={`text-lg font-extrabold ${s.color}`}>{s.value ?? '—'}</p>
             </div>
           ))}
@@ -423,11 +423,11 @@ export default function InsightsTab() {
           {/* Sparkline */}
           {overview?.daily_volume?.length > 0 && (
             <div className="mt-3 bg-white rounded-xl border border-gray-200 p-4">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Daily call volume</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Daily call volume</p>
               <DaySparkline data={overview.daily_volume} />
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] text-gray-400">{overview.daily_volume[0]?.day}</span>
-                <span className="text-[10px] text-gray-400">{overview.daily_volume.at(-1)?.day}</span>
+                <span className="text-xs text-gray-400">{overview.daily_volume[0]?.day}</span>
+                <span className="text-xs text-gray-400">{overview.daily_volume.at(-1)?.day}</span>
               </div>
             </div>
           )}
@@ -437,7 +437,7 @@ export default function InsightsTab() {
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {overview?.intent_breakdown?.length > 0 && (
                 <div className="bg-white rounded-xl border border-gray-200 p-4">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Call intent breakdown</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Call intent breakdown</p>
                   <div className="space-y-2">
                     {overview.intent_breakdown.map(r => (
                       <div key={r.call_intent} className="flex items-center gap-2">
@@ -451,7 +451,7 @@ export default function InsightsTab() {
               )}
               {overview?.outcome_breakdown?.length > 0 && (
                 <div className="bg-white rounded-xl border border-gray-200 p-4">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Call outcome breakdown</p>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Call outcome breakdown</p>
                   <div className="space-y-2">
                     {overview.outcome_breakdown.map(r => (
                       <div key={r.outcome} className="flex items-center gap-2">
@@ -504,7 +504,7 @@ export default function InsightsTab() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     {['', 'Farmer', 'Agent', 'Date', 'Duration', 'Intent', 'Outcome', 'Dispatch', ''].map((h, i) => (
-                      <th key={i} className="px-3 py-2 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                      <th key={i} className="px-3 py-2 text-left text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -518,7 +518,7 @@ export default function InsightsTab() {
                       </td>
                       <td className="px-3 py-2.5">
                         <p className="font-semibold text-gray-800">{c.farmer_name || '—'}</p>
-                        <p className="text-gray-400 text-[10px]">{c.phone_number}</p>
+                        <p className="text-gray-400 text-xs">{c.phone_number}</p>
                       </td>
                       <td className="px-3 py-2.5 text-gray-600">{c.agent_name || '—'}</td>
                       <td className="px-3 py-2.5 text-gray-500 whitespace-nowrap">{fmt(c.started_at)}</td>
@@ -530,7 +530,7 @@ export default function InsightsTab() {
                       </td>
                       <td className="px-3 py-2.5">
                         {c.outcome
-                          ? <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${
+                          ? <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold capitalize ${
                               c.outcome === 'resolved'      ? 'bg-green-50 text-green-700 border-green-200' :
                               c.outcome === 'vet_requested' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                               c.outcome === 'follow_up'     ? 'bg-amber-50 text-amber-700 border-amber-200' :

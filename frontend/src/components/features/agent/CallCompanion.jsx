@@ -67,7 +67,7 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Bird Type */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Type</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Type</p>
         <div className="grid grid-cols-2 gap-1.5">
           {BIRD_TYPES.map(bt => (
             <button key={bt.value} type="button"
@@ -78,7 +78,7 @@ function FlockTab({ fd, setFlock }) {
                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
               }`}>
               <span className="font-semibold">{bt.label}</span>
-              {bt.note && <span className="text-[10px] text-gray-400 mt-0.5">{bt.note}</span>}
+              {bt.note && <span className="text-xs text-gray-400 mt-0.5">{bt.note}</span>}
             </button>
           ))}
         </div>
@@ -86,7 +86,7 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Age */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Age</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Bird Age</p>
         <div className="flex gap-2 items-center">
           <input type="number" min="1" value={fd.ageValue}
             onChange={e => setFlock({ ageValue: e.target.value })}
@@ -113,17 +113,17 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Flock Size & Deaths */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Flock Size & Mortality</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Flock Size & Mortality</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-[10px] text-gray-400 mb-1 block">Total birds</label>
+            <label className="text-xs text-gray-400 mb-1 block">Total birds</label>
             <input type="number" min="1" value={fd.flockSize}
               onChange={e => setFlock({ flockSize: e.target.value })}
               placeholder="e.g. 500"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600 transition-colors" />
           </div>
           <div>
-            <label className="text-[10px] text-gray-400 mb-1 block">Current deaths</label>
+            <label className="text-xs text-gray-400 mb-1 block">Current deaths</label>
             <input type="number" min="0" value={fd.deadCount}
               onChange={e => setFlock({ deadCount: e.target.value })}
               placeholder="e.g. 12"
@@ -142,7 +142,7 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Vaccinations */}
       <div>
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Vaccinations Given</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Vaccinations Given</p>
         <div className="flex flex-wrap gap-1.5">
           {VACCINES.map(v => {
             const active = (fd.vaccinations || []).includes(v.value);
@@ -160,7 +160,7 @@ function FlockTab({ fd, setFlock }) {
           })}
         </div>
         {(fd.vaccinations || []).length === 0 && (
-          <p className="text-[11px] text-gray-400 mt-1.5">Tap vaccines the farmer has used</p>
+          <p className="text-xs text-gray-400 mt-1.5">Tap vaccines the farmer has used</p>
         )}
       </div>
     </div>
@@ -272,7 +272,7 @@ function ConfidenceBar({ pct, isEmergency }) {
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[11px] text-gray-400 font-mono w-8 text-right">{pct}%</span>
+      <span className="text-xs text-gray-400 font-mono w-8 text-right">{pct}%</span>
     </div>
   );
 }
@@ -299,10 +299,10 @@ function DiseaseCard({ d, rank }) {
               </p>
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 {d.is_zoonotic && (
-                  <span className="text-[10px] font-bold text-amber-700 px-1.5 py-0.5 bg-amber-50 border border-amber-200 rounded">ZOONOTIC</span>
+                  <span className="text-xs font-bold text-amber-700 px-1.5 py-0.5 bg-amber-50 border border-amber-200 rounded">ZOONOTIC</span>
                 )}
                 {d.is_notifiable && (
-                  <span className="text-[10px] font-bold text-red-600 px-1.5 py-0.5 bg-red-50 border border-red-200 rounded animate-pulse">NOTIFY</span>
+                  <span className="text-xs font-bold text-red-600 px-1.5 py-0.5 bg-red-50 border border-red-200 rounded animate-pulse">NOTIFY</span>
                 )}
                 <a href={`https://smartvet.africa/?q=${encodeURIComponent(d.name)}`}
                   target="_blank" rel="noopener noreferrer"
@@ -313,7 +313,7 @@ function DiseaseCard({ d, rank }) {
             </div>
             <ConfidenceBar pct={pct} isEmergency={d.is_emergency} />
             {d.matched_symptoms?.length > 0 && (
-              <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
                 Matched: {d.matched_symptoms.join(' · ')}
               </p>
             )}
@@ -332,13 +332,13 @@ function DiseaseCard({ d, rank }) {
             <div className="px-3.5 py-3 border-t border-gray-100 space-y-3 bg-gray-50">
               {d.treatment && (
                 <div>
-                  <p className="text-[10px] font-bold text-green-700 uppercase tracking-widest mb-1">Treatment</p>
+                  <p className="text-xs font-bold text-green-700 uppercase tracking-widest mb-1">Treatment</p>
                   <p className="text-xs text-gray-700 leading-relaxed">{d.treatment}</p>
                 </div>
               )}
               {d.prevention && (
                 <div>
-                  <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest mb-1">Prevention</p>
+                  <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-1">Prevention</p>
                   <p className="text-xs text-gray-700 leading-relaxed">{d.prevention}</p>
                 </div>
               )}
@@ -365,7 +365,7 @@ function DrugCard({ drug }) {
             <p className="font-semibold text-gray-900 text-sm">{drug.product_name}</p>
             <p className={`text-xs font-medium mt-0.5 ${catColor}`}>{catLabel}</p>
           </div>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
             inStock ? 'text-green-700 border-green-200 bg-green-50' : 'text-gray-400 border-gray-200 bg-gray-50'
           }`}>
             {inStock ? 'IN STOCK' : 'LOW'}
@@ -373,18 +373,18 @@ function DrugCard({ drug }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-            <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wide">Field stock</p>
+            <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Field stock</p>
             <p className="text-sm font-bold text-gray-900">{vetStock.toFixed(0)} <span className="text-xs font-normal text-gray-400">{drug.unit}</span></p>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-            <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wide">Warehouse</p>
+            <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Warehouse</p>
             <p className="text-sm font-bold text-gray-900">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-gray-400">{drug.unit}</span></p>
           </div>
         </div>
       </div>
       {drug.available_from_vets?.length > 0 && (
         <div className="px-3.5 py-2 border-t border-gray-100 bg-gray-50">
-          <p className="text-[11px] text-gray-500">Via: <span className="text-gray-800 font-medium">{drug.available_from_vets.join(', ')}</span></p>
+          <p className="text-xs text-gray-500">Via: <span className="text-gray-800 font-medium">{drug.available_from_vets.join(', ')}</span></p>
         </div>
       )}
     </div>
@@ -494,19 +494,19 @@ export function CallCompanion() {
         <span className="font-bold text-gray-900 text-xs uppercase tracking-widest whitespace-nowrap">Call Companion</span>
 
         {symptoms.length > 0 && (
-          <span className="text-[11px] bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 font-semibold flex-shrink-0">
+          <span className="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded-full border border-green-200 font-semibold flex-shrink-0">
             {symptoms.length} sx
           </span>
         )}
 
         <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
           {isEmergency && (
-            <span className="flex items-center gap-1 text-[10px] sm:text-[11px] bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
+            <span className="flex items-center gap-1 text-xs sm:text-xs bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full animate-pulse font-bold uppercase tracking-wide">
               <AlertTriangle size={9} /> <span className="hidden sm:inline">Emergency</span><span className="sm:hidden">🚨</span>
             </span>
           )}
           {isNotifiable && !isEmergency && (
-            <span className="text-[10px] sm:text-[11px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
+            <span className="text-xs sm:text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
               <span className="hidden sm:inline">Notify Auth.</span><span className="sm:hidden">⚠️</span>
             </span>
           )}
@@ -517,7 +517,7 @@ export function CallCompanion() {
       <div className="flex border-b border-gray-200 bg-white flex-shrink-0">
         {TABS.map(t => (
           <button key={t.id} onClick={() => setSection(t.id)}
-            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 sm:py-2.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wide transition-colors relative ${
+            className={`flex-1 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 sm:py-2.5 text-xs sm:text-xs font-semibold uppercase tracking-wide transition-colors relative ${
               section === t.id
                 ? 'text-green-700 border-b-2 border-green-700 bg-green-50'
                 : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
@@ -539,7 +539,7 @@ export function CallCompanion() {
           <div className="p-5 space-y-5">
 
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Severity for new selections</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Severity for new selections</p>
               <div className="flex gap-2">
                 {SEVERITY_CONFIG.map(({ v, label, chip, ring }) => (
                   <button key={v} onClick={() => setSeverity(v)}
@@ -556,7 +556,7 @@ export function CallCompanion() {
 
             {SYMPTOM_GROUPS.map(group => (
               <div key={group.label}>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">{group.label}</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">{group.label}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {group.symptoms.map(s => {
                     const active = activeLower.includes(s.toLowerCase());
@@ -590,7 +590,7 @@ export function CallCompanion() {
 
             {symptoms.length > 0 && (
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Logged ({symptoms.length})</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Logged ({symptoms.length})</p>
                 <div className="flex flex-wrap gap-1.5">
                   {symptoms.map(s => {
                     const cfg = SEVERITY_CONFIG.find(c => c.v === s.severity);
@@ -670,7 +670,7 @@ export function CallCompanion() {
         {section === 'notes' && (
           <div className="p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Call Notes</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Call Notes</p>
               {transcriptSegments.length > 0 && (
                 <button onClick={pullFromTranscript}
                   className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800 border border-teal-200 hover:border-teal-300 rounded-full px-2.5 py-1 font-medium transition-colors">
@@ -686,7 +686,7 @@ export function CallCompanion() {
 
             {(symptoms.length > 0 || callNotes) && (
               <div className="rounded-xl border border-gray-200 bg-white p-3.5 space-y-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Vet Handover Preview</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Vet Handover Preview</p>
                 {symptoms.length > 0 && (
                   <p className="text-xs text-gray-700 leading-relaxed">
                     <span className="text-gray-400">Symptoms: </span>{symptoms.map(s => s.symptom).join(', ')}
@@ -722,7 +722,7 @@ export function CallCompanion() {
             <Truck size={13} />
             {isEmergency ? 'Emergency Vet Dispatch' : 'Dispatch Vet'}
             {symptoms.length > 0 && (
-              <span className="opacity-70 font-normal normal-case tracking-normal text-[11px]">({symptoms.length} symptoms)</span>
+              <span className="opacity-70 font-normal normal-case tracking-normal text-xs">({symptoms.length} symptoms)</span>
             )}
           </button>
         </div>

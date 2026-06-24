@@ -101,8 +101,8 @@ export default function AgentDashboard() {
             {agent?.status?.replace('_', ' ')}
           </Badge>
           <span className="text-sm font-semibold text-gray-700 hidden lg:inline">{agent?.name}</span>
-          <button onClick={logout} title="Logout"
-            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
+          <button onClick={logout} title="Logout" aria-label="Logout"
+            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded min-h-[36px] min-w-[36px]">
             <LogOut size={15} />
           </button>
         </div>
@@ -134,8 +134,8 @@ export default function AgentDashboard() {
         }`}>
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 flex-shrink-0">
             <button onClick={() => setTranscriptOpen(o => !o)}
-              className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 ml-auto"
-              title={transcriptOpen ? 'Collapse' : 'Expand'}>
+              className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0 ml-auto min-h-[36px] min-w-[36px]"
+              aria-label={transcriptOpen ? 'Collapse transcript' : 'Expand transcript'}>
               {transcriptOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
             </button>
           </div>
@@ -189,7 +189,7 @@ export default function AgentDashboard() {
                   : 'text-gray-500 hover:bg-gray-100'
               }`}>
               <Icon size={18} />
-              <span className="text-[10px] font-semibold leading-none">{label}</span>
+              <span className="text-xs font-semibold leading-none">{label}</span>
             </button>
           ))}
         </nav>

@@ -43,7 +43,7 @@ function RoleBadge({ role }) {
   const Icon = ROLE_ICONS[role] || User;
   const meta = ROLES[role] || { label: role };
   return (
-    <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded border ${ROLE_BADGE_CLASS[role] || 'text-gray-600 border-gray-300 bg-gray-100'}`}>
+    <span className={`inline-flex items-center gap-0.5 text-xs font-bold px-1.5 py-0.5 rounded border ${ROLE_BADGE_CLASS[role] || 'text-gray-600 border-gray-300 bg-gray-100'}`}>
       <Icon size={8} /> {meta.label}
     </span>
   );
@@ -66,7 +66,7 @@ function AgentRow({ agent, onEdit, onToggleActive, onDelete }) {
         <div className="flex items-center gap-2 flex-wrap">
           <p className="text-sm font-medium text-gray-900 truncate">{agent.name}</p>
           <RoleBadge role={agent.role || (agent.is_admin ? 'admin' : 'agent')} />
-          {disabled && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border text-red-600 border-red-200 bg-red-50">DISABLED</span>}
+          {disabled && <span className="text-xs font-bold px-1.5 py-0.5 rounded border text-red-600 border-red-200 bg-red-50">DISABLED</span>}
         </div>
         <p className="text-xs text-gray-500 truncate">{agent.email}</p>
         {(agent.phone || agent.phone_number) && <p className="text-xs text-gray-400 truncate">{agent.phone || agent.phone_number}</p>}
@@ -78,16 +78,17 @@ function AgentRow({ agent, onEdit, onToggleActive, onDelete }) {
                                       'text-gray-500 border-gray-200 bg-gray-50'
       }`}>{agent.status?.replace('_', ' ') || 'offline'}</span>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-        <button onClick={() => onEdit(agent)} title="Edit"
-          className="p-1.5 rounded text-gray-400 hover:text-green-700 transition-colors">
+        <button onClick={() => onEdit(agent)} title="Edit" aria-label={`Edit ${agent.name}`}
+          className="p-1.5 rounded text-gray-400 hover:text-green-700 transition-colors min-h-[36px] min-w-[36px]">
           <Pencil size={12} />
         </button>
         <button onClick={() => onToggleActive(agent)} title={disabled ? 'Enable account' : 'Disable account'}
-          className={`p-1.5 rounded transition-colors ${disabled ? 'text-gray-400 hover:text-green-600' : 'text-gray-400 hover:text-amber-600'}`}>
+          aria-label={disabled ? `Enable ${agent.name}` : `Disable ${agent.name}`}
+          className={`p-1.5 rounded transition-colors min-h-[36px] min-w-[36px] ${disabled ? 'text-gray-400 hover:text-green-600' : 'text-gray-400 hover:text-amber-600'}`}>
           {disabled ? <Power size={12} /> : <PowerOff size={12} />}
         </button>
-        <button onClick={() => onDelete(agent)} title="Delete user"
-          className="p-1.5 rounded text-gray-400 hover:text-red-600 transition-colors">
+        <button onClick={() => onDelete(agent)} title="Delete user" aria-label={`Delete ${agent.name}`}
+          className="p-1.5 rounded text-gray-400 hover:text-red-600 transition-colors min-h-[36px] min-w-[36px]">
           <Trash2 size={12} />
         </button>
       </div>
@@ -130,7 +131,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Full Name *</label>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Full Name *</label>
           <div className="relative">
             <User size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={form.name} onChange={e => set('name', e.target.value)}
@@ -140,7 +141,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Phone</label>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Phone</label>
           <div className="relative">
             <Phone size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={form.phone} onChange={e => set('phone', e.target.value)}
@@ -152,7 +153,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
 
       {/* Role selector */}
       <div>
-        <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Role *</label>
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Role *</label>
         <div className="grid grid-cols-2 gap-2">
           {ROLE_ORDER.map(r => {
             const Icon = ROLE_ICONS[r];
@@ -172,7 +173,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
                   <p className={`text-xs font-semibold ${form.role === r ? 'text-green-800' : 'text-gray-700'}`}>
                     {meta.label}
                   </p>
-                  <p className="text-[10px] text-gray-400 leading-tight mt-0.5">{meta.description}</p>
+                  <p className="text-xs text-gray-400 leading-tight mt-0.5">{meta.description}</p>
                 </div>
               </button>
             );
@@ -183,7 +184,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
       {!isEdit && (
         <>
           <div>
-            <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Email *</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Email *</label>
             <div className="relative">
               <Mail size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input type="email" value={form.email} onChange={e => set('email', e.target.value)}
@@ -193,7 +194,7 @@ function UserForm({ initial, onSave, onCancel, saving, error }) {
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Password *</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Password *</label>
             <div className="relative">
               <Lock size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => set('password', e.target.value)}
@@ -251,7 +252,7 @@ function ImportResults({ results, onClose }) {
               <p className="text-gray-900 font-medium truncate">{u.name}</p>
               <p className="text-gray-500 truncate">{u.email}</p>
             </div>
-            <code className="text-amber-700 bg-amber-100 px-2 py-0.5 rounded font-mono text-[11px] flex-shrink-0">
+            <code className="text-amber-700 bg-amber-100 px-2 py-0.5 rounded font-mono text-xs flex-shrink-0">
               {u.temp_password}
             </code>
             <button onClick={() => copy(`${u.email} / ${u.temp_password}`, u.id)}
@@ -464,8 +465,8 @@ export default function UsersPanel({ onClose }) {
                 <div key={role}>
                   <div className="px-4 pt-3 pb-1 flex items-center gap-1.5">
                     <Icon size={10} className="text-gray-400" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{meta.label}s</p>
-                    <span className="text-[10px] text-gray-300 ml-1">({group.length})</span>
+                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400">{meta.label}s</p>
+                    <span className="text-xs text-gray-300 ml-1">({group.length})</span>
                   </div>
                   {group.map(a => (
                     <AgentRow key={a.id} agent={a}

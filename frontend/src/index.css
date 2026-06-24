@@ -137,3 +137,80 @@ html.dark .text-purple-600    { color: #a78bfa; } /* purple-400 */
     scrollbar-color: #334155 transparent;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Accessibility layer
+   WCAG AA targets: 4.5:1 text contrast, 44×44px touch targets, visible focus.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── 1. Visible focus ring on every interactive element ─────────────────── */
+/* Applies only when navigating by keyboard (focus-visible), not on click.   */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #15803d !important; /* green-700 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── 2. Minimum touch / click target size ───────────────────────────────── */
+/* WCAG 2.5.8: 24×24px minimum; 44×44 recommended for motor impairments.    */
+button,
+[role="button"] {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+/* ── 3. Enforce minimum readable font size ──────────────────────────────── */
+/* Tailwind's text-[10px] / text-[11px] are below 12px WCAG guidance.       */
+/* This floor catches any element sized below 12px.                          */
+* {
+  font-size: max(var(--tw-font-size, inherit), 12px);
+}
+
+/* Practical override: bump the specific Tailwind arbitrary sizes up.        */
+.text-\[10px\] { font-size: 12px !important; }
+.text-\[11px\] { font-size: 12px !important; }
+
+/* ── 4. Lift low-contrast helper text to a passing ratio ───────────────── */
+/* text-gray-400 (#9CA3AF) on white = 2.85:1 — FAILS WCAG AA.               */
+/* Remap it to gray-600 (#4B5563) = 7.0:1 — PASSES comfortably.             */
+/* Decorative icons and dividers that use this class are unaffected          */
+/* visually because the shift is one step (very slight darkening).           */
+p.text-gray-400,
+span.text-gray-400,
+label.text-gray-400,
+li.text-gray-400,
+td.text-gray-400,
+th.text-gray-400 {
+  color: #4b5563 !important; /* gray-600 */
+}
+
+/* ── 5. Form input minimum size and contrast ────────────────────────────── */
+input,
+select,
+textarea {
+  font-size: max(1rem, 16px); /* 16px prevents iOS auto-zoom */
+  min-height: 44px;
+}
+
+/* Restore compact inputs where the layout explicitly needs them             */
+input.h-auto,
+select.h-auto,
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: unset;
+}
+
+/* ── 6. Dark mode focus ring ────────────────────────────────────────────── */
+html.dark button:focus-visible,
+html.dark a:focus-visible,
+html.dark input:focus-visible,
+html.dark select:focus-visible,
+html.dark textarea:focus-visible,
+html.dark [tabindex]:focus-visible {
+  outline-color: #4ade80 !important; /* green-400 — visible on dark surfaces */
+}

@@ -397,7 +397,7 @@ function CallsTab() {
                   <td className="px-3 py-2.5 text-gray-500 font-mono whitespace-nowrap">{duration(c.started_at, c.ended_at)}</td>
                   <td className="px-3 py-2">
                     {c.outcome
-                      ? <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold capitalize ${OUTCOME_COLORS[c.outcome] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>{c.outcome.replace('_', ' ')}</span>
+                      ? <span className={`px-2 py-0.5 rounded-full border text-xs font-semibold capitalize ${OUTCOME_COLORS[c.outcome] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>{c.outcome.replace('_', ' ')}</span>
                       : <span className="text-gray-300">—</span>
                     }
                   </td>
@@ -542,16 +542,16 @@ function InventoryTab({ vets }) {
                         <p className="font-semibold text-gray-900 text-sm leading-tight">{item.product_name}</p>
                         <p className={`text-xs font-medium mt-0.5 ${catColor[item.category] || 'text-gray-500'}`}>{item.category}</p>
                       </div>
-                      {low && <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">LOW</span>}
+                      {low && <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">LOW</span>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-                        <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wide">Warehouse</p>
+                        <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Warehouse</p>
                         <p className="text-sm font-bold text-gray-900">{parseFloat(item.quantity || 0).toFixed(0)} <span className="text-xs font-normal text-gray-400">{item.unit}</span></p>
                       </div>
                       <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-                        <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wide">In field</p>
+                        <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">In field</p>
                         <p className="text-sm font-bold text-gray-900">{parseFloat(item.allocated_to_vets || 0).toFixed(0)} <span className="text-xs font-normal text-gray-400">{item.unit}</span></p>
                       </div>
                     </div>
@@ -597,7 +597,7 @@ function InventoryTab({ vets }) {
                 <thead>
                   <tr className="border-b border-gray-200">
                     {['Product', 'Vet', 'Qty', 'Allocated by', 'When', 'Notes'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">{h}</th>
+                      <th key={h} className="px-3 py-2 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -762,7 +762,7 @@ export default function AdminDashboard() {
                 <button key={t.id} onClick={() => setTab(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
                   <Icon size={13}/> {t.label}
-                  {t.count > 0 && <span className={`text-[10px] font-bold px-1.5 rounded-full ${tab === t.id ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>{t.count}</span>}
+                  {t.count > 0 && <span className={`text-xs font-bold px-1.5 rounded-full ${tab === t.id ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>{t.count}</span>}
                 </button>
               );
             })}

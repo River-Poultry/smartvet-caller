@@ -39,7 +39,7 @@ export function RealTimeTranscript() {
                 ? 'bg-gray-100 text-gray-800 border border-gray-200'
                 : 'bg-green-700 text-white'
             }`}>
-              <span className={`block text-[10px] mb-1 font-semibold ${seg.speaker === 'farmer' ? 'text-gray-400' : 'text-green-100'}`}>
+              <span className={`block text-xs mb-1 font-semibold ${seg.speaker === 'farmer' ? 'text-gray-400' : 'text-green-100'}`}>
                 {seg.speaker === 'farmer' ? '👨‍🌾 Farmer' : '🎧 Agent'}
               </span>
               {seg.text}

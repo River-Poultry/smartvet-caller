@@ -68,7 +68,7 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mt-3">
       <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{tabLabel}</p>
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{tabLabel}</p>
       </div>
 
       <div className="flex border-b border-gray-200 bg-white">
@@ -91,7 +91,7 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
 
         {tab === 'call' && (
           <>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
+            <p className="text-xs text-gray-500 leading-relaxed">
               Initiates an outbound call to <span className="font-semibold text-gray-800">{name}</span> at <span className="font-mono text-gray-800">{phone}</span>.
             </p>
 
@@ -127,7 +127,7 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
           <>
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <button onClick={() => setTemplateOpen(o => !o)}
-                className="w-full flex items-center justify-between px-2.5 py-2 bg-gray-50 text-[11px] text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors">
+                className="w-full flex items-center justify-between px-2.5 py-2 bg-gray-50 text-xs text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors">
                 <span>Pick a reminder template…</span>
                 {templateOpen ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
               </button>
@@ -136,8 +136,8 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
                   {SMS_TEMPLATES.map((t, i) => (
                     <button key={i} onClick={() => { setMessage(applyTemplate(t.text, name)); setTemplateOpen(false); }}
                       className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors">
-                      <p className="text-[11px] font-semibold text-gray-800">{t.label}</p>
-                      <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2">{applyTemplate(t.text, name)}</p>
+                      <p className="text-xs font-semibold text-gray-800">{t.label}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{applyTemplate(t.text, name)}</p>
                     </button>
                   ))}
                 </div>
@@ -148,7 +148,7 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
               <textarea value={message} onChange={e => { setMessage(e.target.value); setSmsStatus('idle'); }}
                 placeholder={`Type a message to ${name}…`} rows={3} maxLength={480}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:border-green-600 transition-colors" />
-              <p className={`text-right text-[10px] mt-0.5 ${message.length > 400 ? 'text-amber-600' : 'text-gray-400'}`}>
+              <p className={`text-right text-xs mt-0.5 ${message.length > 400 ? 'text-amber-600' : 'text-gray-400'}`}>
                 {message.length}/480
               </p>
             </div>

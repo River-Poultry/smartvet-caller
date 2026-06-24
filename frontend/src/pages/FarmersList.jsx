@@ -227,23 +227,23 @@ function FarmerDetail({ farmer, onDispatch }) {
 
                 <div className="px-4 py-3 flex items-center justify-between gap-3 border-b border-gray-100">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-[10px] font-bold text-gray-300 w-5 flex-shrink-0">#{callHistory.length - idx}</span>
+                    <span className="text-xs font-bold text-gray-300 w-5 flex-shrink-0">#{callHistory.length - idx}</span>
                     <div>
                       <p className="text-xs font-semibold text-gray-900">
                         {date ? date.toLocaleDateString('en-UG', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                         {dur && <span className="ml-2 text-gray-400 font-normal">· {dur}</span>}
                       </p>
-                      {call.agent_name && <p className="text-[11px] text-gray-400 mt-0.5">Agent: {call.agent_name}</p>}
+                      {call.agent_name && <p className="text-xs text-gray-400 mt-0.5">Agent: {call.agent_name}</p>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {call.is_emergency && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 animate-pulse">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full border border-red-200 bg-red-50 text-red-600 animate-pulse">
                         EMERGENCY
                       </span>
                     )}
                     {call.outcome && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize ${outcomeStyle}`}>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full border capitalize ${outcomeStyle}`}>
                         {call.outcome.replace(/_/g, ' ')}
                       </span>
                     )}
@@ -253,7 +253,7 @@ function FarmerDetail({ farmer, onDispatch }) {
                 <div className="px-4 py-3 space-y-3">
                   {symptoms.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Symptoms Reported</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Symptoms Reported</p>
                       <div className="flex flex-wrap gap-1.5">
                         {symptoms.map((s, i) => {
                           const chip =
@@ -261,7 +261,7 @@ function FarmerDetail({ farmer, onDispatch }) {
                             s.severity === 'mild'   ? 'border-green-200 bg-green-50 text-green-700' :
                                                       'border-amber-200 bg-amber-50 text-amber-700';
                           return (
-                            <span key={i} className={`text-[11px] px-2.5 py-0.5 rounded-full border font-medium ${chip}`}>
+                            <span key={i} className={`text-xs px-2.5 py-0.5 rounded-full border font-medium ${chip}`}>
                               {s.symptom}
                             </span>
                           );
@@ -272,7 +272,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
                   {call.agent_notes && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Agent Notes</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Agent Notes</p>
                       <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
                         {call.agent_notes}
                       </p>
@@ -281,7 +281,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
                   {nextSteps.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Action Points</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Action Points</p>
                       <div className="space-y-1">
                         {nextSteps.map((step, i) => {
                           const done = step.startsWith('[x]');
@@ -304,7 +304,7 @@ function FarmerDetail({ farmer, onDispatch }) {
                   )}
 
                   {call.call_intent && call.call_intent !== 'other' && (
-                    <p className="text-[11px] text-gray-400 capitalize">
+                    <p className="text-xs text-gray-400 capitalize">
                       Intent: <span className="text-gray-600">{call.call_intent.replace(/_/g, ' ')}</span>
                     </p>
                   )}

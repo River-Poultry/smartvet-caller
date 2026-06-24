@@ -135,7 +135,7 @@ export function PostCallForm({ lastCallId }) {
 
             {/* Outcome */}
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Call Outcome *</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Call Outcome *</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {OUTCOMES.map(o => (
                   <button key={o.value} type="button" onClick={() => selectOutcome(o.value)}
@@ -153,7 +153,7 @@ export function PostCallForm({ lastCallId }) {
 
             {/* Agent Notes */}
             <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Agent Notes</p>
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Agent Notes</p>
               <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
                 placeholder="Key details from the call — flock size, farmer concerns, observations…"
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 resize-none leading-relaxed transition-colors"
@@ -163,7 +163,7 @@ export function PostCallForm({ lastCallId }) {
             {/* Action Points */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                   Action Points
                   {actions.length > 0 && (
                     <span className="ml-2 text-green-700 normal-case tracking-normal font-semibold">
