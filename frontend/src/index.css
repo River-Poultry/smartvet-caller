@@ -214,3 +214,126 @@ html.dark textarea:focus-visible,
 html.dark [tabindex]:focus-visible {
   outline-color: #4ade80 !important; /* green-400 — visible on dark surfaces */
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Global Visibility Layer — inspired by reference dashboard
+   Goal: near-black text, clear hierarchy, no "invisible" labels
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Base font bump ─────────────────────────────────────────────────────── */
+html {
+  font-size: 15px; /* already set, kept explicit */
+}
+
+/* ── Body text: force near-black, never light gray for reading text ─────── */
+body {
+  color: #111827; /* gray-900 — maximum readability */
+}
+
+/* ── ALL paragraph / span / div text defaults to readable dark ──────────── */
+/* text-gray-500 on white = 4.48:1 — borderline. Bump to gray-700 (10.7:1). */
+p, li, td, span, div {
+  color: inherit; /* don't fight component colours */
+}
+
+/* ── Table header text: bold + near-black, not faded gray ──────────────── */
+th {
+  font-weight: 700 !important;
+  color: #111827 !important;    /* gray-900 */
+  font-size: 0.8rem !important; /* 12px floor already applied, this sets min */
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── Table row text: ensure body cells are dark, not faded ─────────────── */
+td {
+  color: #1f2937; /* gray-800 */
+  font-size: 0.875rem; /* 14px — clearly readable */
+}
+
+/* ── Table borders: visible row separation like the reference ───────────── */
+table {
+  border-collapse: collapse;
+}
+tr {
+  border-bottom: 1px solid #e5e7eb; /* gray-200 */
+}
+tr:last-child {
+  border-bottom: none;
+}
+
+/* ── Section / panel headings: bold and clearly distinct ───────────────── */
+h1, h2, h3, h4 {
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ── Label text (form labels, stat labels) must never be near-invisible ─── */
+label {
+  color: #374151 !important; /* gray-700 — passes 8.6:1 on white */
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* ── Sidebar / nav text: sharp and legible ──────────────────────────────── */
+nav a,
+nav button {
+  font-weight: 600;
+  color: #1f2937; /* gray-800 */
+}
+
+/* ── Badge / chip text: always readable ────────────────────────────────────*/
+/* Ensure no badge goes below 12px or uses near-invisible contrast          */
+[class*="rounded-full"],
+[class*="rounded-lg"] {
+  font-size: inherit;
+}
+
+/* ── Status dots / icons beside text: size them to be visible ───────────── */
+svg {
+  flex-shrink: 0;
+}
+
+/* ── Header bars: enforce white text on dark green ──────────────────────── */
+header {
+  font-weight: 600;
+}
+
+/* ── Card headings inside panels: dark & bold ───────────────────────────── */
+.font-semibold {
+  font-weight: 700 !important; /* upgrade semibold → bold globally */
+}
+
+/* ── Lift all text-gray-400 / text-gray-500 used as readable text ────────  */
+/* (extends the earlier selector to cover div and more contexts)             */
+div.text-gray-400,
+p.text-gray-400,
+span.text-gray-400,
+label.text-gray-400,
+li.text-gray-400,
+td.text-gray-400,
+th.text-gray-400 {
+  color: #4b5563 !important; /* gray-600 — 7.0:1 on white */
+}
+
+.text-gray-500 {
+  color: #374151 !important; /* gray-700 — bump 500 → 700 globally */
+}
+
+/* ── Input placeholder: dark enough to read ────────────────────────────── */
+::placeholder {
+  color: #6b7280 !important; /* gray-500 — 4.5:1 on white */
+  opacity: 1;
+}
+
+/* ── Dark mode overrides for the above ────────────────────────────────────*/
+html.dark th              { color: #e2e8f0 !important; }
+html.dark td              { color: #cbd5e1; }
+html.dark h1, html.dark h2, html.dark h3, html.dark h4 { color: #f1f5f9; }
+html.dark label           { color: #cbd5e1 !important; }
+html.dark nav a,
+html.dark nav button      { color: #e2e8f0; }
+html.dark .text-gray-500  { color: #94a3b8 !important; }
+html.dark tr              { border-color: #1e293b; }
+html.dark ::placeholder   { color: #64748b !important; }
