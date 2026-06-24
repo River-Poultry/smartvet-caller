@@ -1,13 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, MapPin, Phone, Star, CheckCircle, XCircle, Stethoscope, LogOut, ArrowLeft } from 'lucide-react';
+import { Search, MapPin, Phone, Star, CheckCircle, XCircle, Stethoscope, Users, LayoutDashboard, LogOut, ArrowLeft } from 'lucide-react';
 import api from '../services/api.js';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { Logo } from '../components/ui/Logo.jsx';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
 import { OutreachPanel } from '../components/features/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
+import { AppShell } from '../components/layout/AppShell.jsx';
+
+const AGENT_NAV = [{
+  title: 'Call Centre',
+  items: [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/agent' },
+    { id: 'farmers',   label: 'Farmers',   icon: Users,           href: '/agent/farmers' },
+    { id: 'vets',      label: 'Vets',      icon: Stethoscope,     href: '/agent/vets' },
+  ],
+}];
 
 function VetCard({ vet, selected, onClick }) {
   return (
@@ -191,46 +200,30 @@ export default function VetsList() {
     navigate(-1);
   }
 
-  const NAV = [
-    { to: '/agent',          label: 'Dashboard' },
-    { to: '/agent/farmers',  label: 'Farmers' },
-    { to: '/agent/vets',     label: 'Vets', active: true },
-  ];
-
   const available = vets.filter(v => v.is_available).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        {selected && (
-          <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
-            <ArrowLeft size={18} />
-          </button>
-        )}
-        <Logo size="sm" />
-        <nav className="flex items-center gap-0.5 sm:gap-1">
-          {NAV.map(n => (
-            <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
-                n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}>
-              {n.label}
-            </button>
-          ))}
-        </nav>
-        {dispatchId && (
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
-            <span className="text-xs text-amber-700">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
-          </div>
-        )}
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+    <AppShell
+      navSections={AGENT_NAV}
+      activeId="vets"
+      headerCenter={
+        <span className="text-green-200 text-xs hidden md:flex items-center gap-3">
+          <span>Welcome, {agent?.name}{agent?.role ? ` · ${agent.role.replace('_', ' ')}` : ''}</span>
+          {dispatchId && (
+            <span className="text-amber-300 font-semibold">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
+          )}
+        </span>
+      }
+      headerRight={
+        <div className="flex items-center gap-2">
           <ThemeToggle />
-          <span className="text-sm text-gray-600 hidden sm:inline">{agent?.name}</span>
-          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
+          <button onClick={logout} aria-label="Logout"
+            className="text-green-200 hover:text-white transition-colors p-1.5 rounded min-h-[36px] min-w-[36px] flex items-center justify-center">
             <LogOut size={15} />
           </button>
         </div>
-      </header>
+      }
+    >
 
       {/* ── Desktop layout (md+): side-by-side ── */}
       <div className="hidden md:flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
@@ -335,6 +328,6 @@ export default function VetsList() {
           </div>
         )}
       </div>
-    </div>
+    </AppShell>
   );
 }

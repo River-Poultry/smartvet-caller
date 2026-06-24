@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut, ArrowLeft } from 'lucide-react';
+import { Search, Phone, MapPin, Users, Stethoscope, LayoutDashboard, Calendar, AlertTriangle, LogOut, ArrowLeft } from 'lucide-react';
 import api from '../services/api.js';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
-import { Logo } from '../components/ui/Logo.jsx';
 import { ThemeToggle } from '../components/ui/ThemeToggle.jsx';
 import { VetDispatchModal } from '../components/features/agent/VetDispatchModal.jsx';
 import { OutreachPanel } from '../components/features/agent/OutreachPanel.jsx';
 import { useAuthStore } from '../store/authStore.js';
 import { useCallStore } from '../store/callStore.js';
+import { AppShell } from '../components/layout/AppShell.jsx';
+
+const AGENT_NAV = [{
+  title: 'Call Centre',
+  items: [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/agent' },
+    { id: 'farmers',   label: 'Farmers',   icon: Users,           href: '/agent/farmers' },
+    { id: 'vets',      label: 'Vets',      icon: Stethoscope,     href: '/agent/vets' },
+  ],
+}];
 
 const STAGE_COLOR = { brooding: 'blue', growing: 'green', finishing: 'yellow', laying: 'green' };
 
@@ -356,40 +365,25 @@ export default function FarmersList() {
     openDispatchModal({ urgency: 'scheduled', farmer });
   }
 
-  const NAV = [
-    { to: '/agent',         label: 'Dashboard' },
-    { to: '/agent/farmers', label: 'Farmers',  active: true },
-    { to: '/agent/vets',    label: 'Vets' },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        {/* Mobile: back arrow when detail is shown */}
-        {selected && (
-          <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
-            <ArrowLeft size={18} />
-          </button>
-        )}
-        <Logo size="sm" />
-        <nav className="flex items-center gap-0.5 sm:gap-1">
-          {NAV.map(n => (
-            <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
-                n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}>
-              {n.label}
-            </button>
-          ))}
-        </nav>
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+    <AppShell
+      navSections={AGENT_NAV}
+      activeId="farmers"
+      headerCenter={
+        <span className="text-green-200 text-xs hidden md:block">
+          Welcome, {agent?.name}{agent?.role ? ` · ${agent.role.replace('_', ' ')}` : ''}
+        </span>
+      }
+      headerRight={
+        <div className="flex items-center gap-2">
           <ThemeToggle />
-          <span className="text-sm text-gray-600 hidden sm:inline">{agent?.name}</span>
-          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
+          <button onClick={logout} aria-label="Logout"
+            className="text-green-200 hover:text-white transition-colors p-1.5 rounded min-h-[36px] min-w-[36px] flex items-center justify-center">
             <LogOut size={15} />
           </button>
         </div>
-      </header>
+      }
+    >
 
       {/* ── Desktop layout (md+): side-by-side ── */}
       <div className="hidden md:flex flex-1 overflow-hidden mx-5 mb-5 mt-4 gap-4">
@@ -522,6 +516,6 @@ export default function FarmersList() {
         )}
       </div>
       <VetDispatchModal />
-    </div>
+    </AppShell>
   );
 }
