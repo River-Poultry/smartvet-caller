@@ -201,34 +201,34 @@ export default function VetsList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
-        <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2.5">
+      <header className="sticky top-0 z-20 flex-shrink-0 bg-white/90 border-b border-black/[0.07]" style={{ backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' }}>
+        <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2">
           {selected && (
-            <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-green-200 hover:text-white">
+            <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
               <ArrowLeft size={18} />
             </button>
           )}
-          <Logo size="sm" imgClassName="brightness-0 invert" />
-          <div className="h-7 w-px bg-white/20 hidden sm:block" />
+          <Logo size="sm" />
+          <div className="h-6 w-px bg-gray-200 hidden sm:block" />
           <nav className="flex items-center gap-0.5 sm:gap-1">
             {NAV.map(n => (
               <button key={n.to} onClick={() => navigate(n.to)}
                 className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
-                  n.active ? 'bg-white text-green-800 shadow-sm' : 'text-green-100 hover:bg-white/15 hover:text-white'
+                  n.active ? 'bg-green-50 text-green-700' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                 }`}>
                 {n.label}
               </button>
             ))}
           </nav>
           {dispatchId && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-400/20 border border-amber-300/40 rounded-lg">
-              <span className="text-xs text-amber-200 font-semibold">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+              <span className="text-xs text-amber-700 font-semibold">🚑 Assigning vet to dispatch #{dispatchId.slice(0,8)}</span>
             </div>
           )}
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
-            <span className="text-sm font-semibold text-green-100 hidden sm:inline">{agent?.name}</span>
-            <button onClick={logout} className="text-green-200 hover:text-red-300 transition-all p-1.5 rounded-lg hover:bg-white/10">
+            <span className="text-sm font-semibold text-gray-600 hidden sm:inline">{agent?.name}</span>
+            <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-gray-100">
               <LogOut size={15} />
             </button>
           </div>

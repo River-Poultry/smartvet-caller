@@ -424,26 +424,26 @@ export default function VetBoardDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
 
       {/* Header */}
-      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #134e4a 0%, #0f766e 60%, #0d9488 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
-        <div className="flex items-center justify-between px-5 py-2.5">
+      <header className="sticky top-0 z-20 flex-shrink-0 bg-white/90 border-b border-black/[0.07]" style={{ backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)' }}>
+        <div className="flex items-center justify-between px-5 py-2">
           <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="SmartVet" className="h-7 w-auto brightness-0 invert" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+            <img src="/logo.png" alt="SmartVet" className="h-7 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div>
-              <p className="text-sm font-black text-white leading-tight tracking-tight">Vet Science Board</p>
-              <p className="text-[11px] text-teal-300 leading-none mt-0.5">AI Diagnosis Review Panel</p>
+              <p className="text-sm font-bold text-gray-900 leading-tight tracking-tight">Vet Science Board</p>
+              <p className="text-[11px] text-gray-400 leading-none mt-0.5">AI Diagnosis Review Panel</p>
             </div>
 
-            <div className="h-7 w-px bg-white/20" />
+            <div className="h-6 w-px bg-gray-200" />
 
             {/* View toggle */}
-            <nav className="flex items-center gap-1">
+            <nav className="flex items-center gap-0.5">
               {[
                 { id: 'queue', icon: Stethoscope, label: 'Review Queue' },
                 { id: 'stats', icon: BarChart2,   label: 'Board Stats' },
               ].map(t => (
                 <button key={t.id} onClick={() => setView(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                    view === t.id ? 'bg-white text-teal-800 shadow-sm' : 'text-teal-100 hover:bg-white/15 hover:text-white'
+                    view === t.id ? 'bg-teal-50 text-teal-700' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                   }`}>
                   <t.icon size={13} /> {t.label}
                 </button>
@@ -451,28 +451,26 @@ export default function VetBoardDashboard() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {stats && (
-              <div className="hidden md:flex items-center gap-1 bg-white/10 rounded-lg px-3 py-1.5 border border-white/15">
-                <span className="flex items-center gap-1.5 pr-3 border-r border-white/20 text-xs text-white">
-                  <Clock size={12} className="text-amber-300"/>
-                  <span className="font-black text-amber-300">{stats.pending_count}</span>
-                  <span className="text-teal-200">pending</span>
+              <div className="hidden md:flex items-center gap-3 text-xs text-gray-500 border-r border-gray-200 pr-3 mr-1">
+                <span className="flex items-center gap-1">
+                  <Clock size={11} className="text-amber-500"/>
+                  <span className="font-bold text-amber-600">{stats.pending_count}</span> pending
                 </span>
                 {stats.board?.ai_accuracy_pct != null && (
-                  <span className="flex items-center gap-1.5 pl-3 text-xs text-white">
-                    <Target size={12} className="text-teal-300"/>
-                    <span className="font-black text-teal-200">{stats.board.ai_accuracy_pct}%</span>
-                    <span className="text-teal-300">AI accuracy</span>
+                  <span className="flex items-center gap-1">
+                    <Target size={11} className="text-teal-500"/>
+                    <span className="font-bold text-teal-700">{stats.board.ai_accuracy_pct}%</span> AI accuracy
                   </span>
                 )}
               </div>
             )}
             <ThemeToggle />
-            <div className="text-xs text-teal-100 font-semibold border border-white/20 px-2.5 py-1.5 rounded-lg bg-white/10">
+            <div className="text-xs text-gray-600 font-semibold border border-gray-200 px-2.5 py-1.5 rounded-lg bg-gray-50">
               Dr. {agent?.name}
             </div>
-            <button onClick={logout} className="text-teal-200 hover:text-red-300 transition-all p-1.5 rounded-lg hover:bg-white/10">
+            <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-gray-100">
               <LogOut size={14} />
             </button>
           </div>
