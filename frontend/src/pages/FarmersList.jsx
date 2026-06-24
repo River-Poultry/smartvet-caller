@@ -364,30 +364,32 @@ export default function FarmersList() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="sticky top-0 z-20 flex items-center gap-2 sm:gap-4 px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        {/* Mobile: back arrow when detail is shown */}
-        {selected && (
-          <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-gray-500 hover:text-gray-900">
-            <ArrowLeft size={18} />
-          </button>
-        )}
-        <Logo size="sm" />
-        <nav className="flex items-center gap-0.5 sm:gap-1">
-          {NAV.map(n => (
-            <button key={n.to} onClick={() => navigate(n.to)}
-              className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
-                n.active ? 'bg-green-700 text-white' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}>
-              {n.label}
+      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
+        <div className="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-2.5">
+          {selected && (
+            <button onClick={() => setSelected(null)} className="md:hidden p-1.5 -ml-0.5 text-green-200 hover:text-white">
+              <ArrowLeft size={18} />
             </button>
-          ))}
-        </nav>
-        <div className="ml-auto flex items-center gap-2 sm:gap-3">
-          <ThemeToggle />
-          <span className="text-sm text-gray-600 hidden sm:inline">{agent?.name}</span>
-          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded">
-            <LogOut size={15} />
-          </button>
+          )}
+          <Logo size="sm" imgClassName="brightness-0 invert" />
+          <div className="h-7 w-px bg-white/20 hidden sm:block" />
+          <nav className="flex items-center gap-0.5 sm:gap-1">
+            {NAV.map(n => (
+              <button key={n.to} onClick={() => navigate(n.to)}
+                className={`px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all ${
+                  n.active ? 'bg-white text-green-800 shadow-sm' : 'text-green-100 hover:bg-white/15 hover:text-white'
+                }`}>
+                {n.label}
+              </button>
+            ))}
+          </nav>
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
+            <span className="text-sm font-semibold text-green-100 hidden sm:inline">{agent?.name}</span>
+            <button onClick={logout} className="text-green-200 hover:text-red-300 transition-all p-1.5 rounded-lg hover:bg-white/10">
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </header>
 

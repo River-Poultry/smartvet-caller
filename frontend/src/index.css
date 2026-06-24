@@ -275,8 +275,8 @@ table { border-collapse: collapse; }
 tr    { border-bottom: 1px solid #9ca3af !important; } /* gray-400 — clearly visible */
 tr:last-child { border-bottom: none !important; }
 
-/* ── 9. Nav / sidebar link text: bold and black ────────────────────────── */
-nav a, nav button { color: #0f172a !important; font-weight: 700 !important; }
+/* ── 9. Sidebar nav links (not header nav — header keeps white text) ──── */
+aside nav a, aside nav button { color: #0f172a !important; font-weight: 700 !important; }
 
 /* ── 10. font-semibold and font-medium → bold ──────────────────────────── */
 .font-semibold { font-weight: 700 !important; }
@@ -378,7 +378,8 @@ button {
   transition: background-color 0.15s ease, box-shadow 0.15s ease,
               transform 0.1s ease, color 0.15s ease !important;
 }
-button:not(:disabled):hover {
+/* Only lift buttons that have real visual content — skip tiny icon-only buttons */
+button[class*="px-"]:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(15,23,42,0.14) !important;
 }

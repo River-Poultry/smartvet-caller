@@ -424,48 +424,58 @@ export default function VetBoardDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
 
       {/* Header */}
-      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white shadow-sm flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-          <div>
-            <p className="text-base font-extrabold text-gray-900 leading-none tracking-tight">Vet Science Board</p>
-            <p className="text-xs text-teal-600 leading-none mt-0.5">AI Diagnosis Review Panel</p>
-          </div>
-
-          {/* View toggle */}
-          <div className="ml-4 flex border border-gray-200 rounded-lg overflow-hidden text-xs font-semibold">
-            {[
-              { id: 'queue', icon: Stethoscope, label: 'Review Queue' },
-              { id: 'stats', icon: BarChart2,   label: 'Board Stats' },
-            ].map(t => (
-              <button key={t.id} onClick={() => setView(t.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 transition-colors ${view === t.id ? 'bg-teal-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
-                <t.icon size={12} /> {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {stats && (
-            <div className="hidden md:flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1.5 text-amber-600 font-semibold">
-                <Clock size={13} className="text-amber-500" /> {stats.pending_count} pending
-              </span>
-              {stats.board?.ai_accuracy_pct != null && (
-                <span className="flex items-center gap-1.5 text-teal-700 font-semibold">
-                  <Target size={13} className="text-teal-500" /> {stats.board.ai_accuracy_pct}% AI accuracy
-                </span>
-              )}
+      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #134e4a 0%, #0f766e 60%, #0d9488 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
+        <div className="flex items-center justify-between px-5 py-2.5">
+          <div className="flex items-center gap-4">
+            <img src="/logo.png" alt="SmartVet" className="h-7 w-auto brightness-0 invert" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+            <div>
+              <p className="text-sm font-black text-white leading-tight tracking-tight">Vet Science Board</p>
+              <p className="text-[11px] text-teal-300 leading-none mt-0.5">AI Diagnosis Review Panel</p>
             </div>
-          )}
-          <ThemeToggle />
-          <div className="text-xs text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded">
-            Dr. {agent?.name}
+
+            <div className="h-7 w-px bg-white/20" />
+
+            {/* View toggle */}
+            <nav className="flex items-center gap-1">
+              {[
+                { id: 'queue', icon: Stethoscope, label: 'Review Queue' },
+                { id: 'stats', icon: BarChart2,   label: 'Board Stats' },
+              ].map(t => (
+                <button key={t.id} onClick={() => setView(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                    view === t.id ? 'bg-white text-teal-800 shadow-sm' : 'text-teal-100 hover:bg-white/15 hover:text-white'
+                  }`}>
+                  <t.icon size={13} /> {t.label}
+                </button>
+              ))}
+            </nav>
           </div>
-          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1">
-            <LogOut size={14} />
-          </button>
+
+          <div className="flex items-center gap-3">
+            {stats && (
+              <div className="hidden md:flex items-center gap-1 bg-white/10 rounded-lg px-3 py-1.5 border border-white/15">
+                <span className="flex items-center gap-1.5 pr-3 border-r border-white/20 text-xs text-white">
+                  <Clock size={12} className="text-amber-300"/>
+                  <span className="font-black text-amber-300">{stats.pending_count}</span>
+                  <span className="text-teal-200">pending</span>
+                </span>
+                {stats.board?.ai_accuracy_pct != null && (
+                  <span className="flex items-center gap-1.5 pl-3 text-xs text-white">
+                    <Target size={12} className="text-teal-300"/>
+                    <span className="font-black text-teal-200">{stats.board.ai_accuracy_pct}%</span>
+                    <span className="text-teal-300">AI accuracy</span>
+                  </span>
+                )}
+              </div>
+            )}
+            <ThemeToggle />
+            <div className="text-xs text-teal-100 font-semibold border border-white/20 px-2.5 py-1.5 rounded-lg bg-white/10">
+              Dr. {agent?.name}
+            </div>
+            <button onClick={logout} className="text-teal-200 hover:text-red-300 transition-all p-1.5 rounded-lg hover:bg-white/10">
+              <LogOut size={14} />
+            </button>
+          </div>
         </div>
       </header>
 

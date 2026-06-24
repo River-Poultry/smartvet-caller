@@ -746,55 +746,90 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
 
       {/* Header */}
-      <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        <div className="flex items-center gap-4">
-          <img src="/logo.png" alt="SmartVet" className="h-8 w-auto" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-          <div>
-            <p className="text-base font-extrabold text-gray-900 leading-none tracking-tight">Operations Centre</p>
-            <p className="text-xs text-teal-600 leading-none mt-0.5">{lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Loading…'}</p>
+      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
+        <div className="flex items-center justify-between px-5 py-2.5">
+          {/* LEFT: Brand + tabs */}
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="SmartVet" className="h-7 w-auto brightness-0 invert" onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+              <div>
+                <p className="text-sm font-black text-white leading-tight tracking-tight">Operations Centre</p>
+                <p className="text-[11px] text-green-300 leading-none mt-0.5">{lastRefresh ? `Updated ${lastRefresh.toLocaleTimeString()}` : 'Loading…'}</p>
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="h-8 w-px bg-white/20" />
+
+            {/* Tab nav */}
+            <nav className="flex items-center gap-1">
+              {TABS.map(t => {
+                const Icon = t.icon;
+                const isActive = tab === t.id;
+                return (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                      isActive
+                        ? 'bg-white text-green-800 shadow-sm'
+                        : 'text-green-100 hover:bg-white/15 hover:text-white'
+                    }`}>
+                    <Icon size={13} />
+                    {t.label}
+                    {t.count > 0 && (
+                      <span className={`text-xs font-black px-1.5 py-0.5 rounded-full leading-none ${
+                        isActive ? 'bg-amber-100 text-amber-700' : 'bg-amber-400/80 text-white'
+                      }`}>{t.count}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
-          {/* Tab nav */}
-          <div className="flex ml-2 border border-gray-200 rounded-lg overflow-hidden">
-            {TABS.map(t => {
-              const Icon = t.icon;
-              return (
-                <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-800'}`}>
-                  <Icon size={13}/> {t.label}
-                  {t.count > 0 && <span className={`text-xs font-bold px-1.5 rounded-full ${tab === t.id ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'}`}>{t.count}</span>}
-                </button>
-              );
-            })}
+          {/* RIGHT: Stats + actions */}
+          <div className="flex items-center gap-3">
+            {/* Live stats */}
+            <div className="hidden md:flex items-center gap-1 bg-white/10 rounded-lg px-3 py-1.5 border border-white/15">
+              <span className="flex items-center gap-1.5 pr-3 border-r border-white/20 text-xs text-white">
+                <Clock size={12} className="text-amber-300"/>
+                <span className="font-black text-amber-300">{dispatches.filter(d => d.status === 'pending').length}</span>
+                <span className="text-green-200">pending</span>
+              </span>
+              <span className="flex items-center gap-1.5 px-3 border-r border-white/20 text-xs text-white">
+                <Stethoscope size={12} className="text-green-300"/>
+                <span className="font-black text-green-300">{vets.filter(v => v.is_available).length}/{vets.length}</span>
+                <span className="text-green-200">vets</span>
+              </span>
+              {metrics?.calls?.calls_today != null && (
+                <span className="flex items-center gap-1.5 pl-3 text-xs text-white">
+                  <Activity size={12} className="text-blue-300"/>
+                  <span className="font-black text-blue-200">{metrics.calls.calls_today}</span>
+                  <span className="text-green-200">today</span>
+                </span>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <button onClick={load}
+              className={`p-1.5 rounded-lg border border-white/20 text-green-200 hover:text-white hover:bg-white/15 transition-all ${loading ? 'animate-spin' : ''}`}>
+              <RefreshCw size={13}/>
+            </button>
+
+            <button onClick={() => setUsersOpen(true)}
+              className="flex items-center gap-1.5 text-xs text-green-100 hover:text-white border border-white/20 hover:bg-white/15 px-2.5 py-1.5 rounded-lg transition-all">
+              <Users size={12}/> Users
+            </button>
+
+            <Link to="/agent" className="text-xs text-green-100 hover:text-white border border-white/20 hover:bg-white/15 px-2.5 py-1.5 rounded-lg transition-all">
+              Agent View
+            </Link>
+
+            <ThemeToggle/>
+
+            <button onClick={logout} aria-label="Logout" className="text-green-200 hover:text-red-300 transition-colors p-1.5 rounded-lg hover:bg-white/10">
+              <LogOut size={14}/>
+            </button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-4 text-sm text-gray-500">
-            <span className="flex items-center gap-1.5"><Clock size={13} className="text-amber-500"/> <span className="text-amber-600 font-bold">{dispatches.filter(d => d.status === 'pending').length}</span> pending</span>
-            <span className="flex items-center gap-1.5"><Stethoscope size={13} className="text-green-600"/> <span className="text-green-700 font-bold">{vets.filter(v => v.is_available).length}</span>/{vets.length} vets</span>
-            {metrics?.calls?.calls_today != null && <span className="flex items-center gap-1.5"><Activity size={13}/> {metrics.calls.calls_today} calls today</span>}
-          </div>
-
-          <button onClick={load}
-            className={`p-1.5 rounded border border-gray-200 text-gray-400 hover:text-gray-700 transition-colors ${loading ? 'animate-spin' : ''}`}>
-            <RefreshCw size={13}/>
-          </button>
-
-          <button onClick={() => setUsersOpen(true)}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-teal-600 border border-gray-200 px-2.5 py-1.5 rounded hover:border-gray-300 transition-colors">
-            <Users size={12}/> Users
-          </button>
-
-          <Link to="/agent" className="text-xs text-gray-500 hover:text-teal-600 border border-gray-200 px-2.5 py-1.5 rounded hover:border-gray-300 transition-colors">
-            Agent View
-          </Link>
-
-          <ThemeToggle/>
-
-          <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors p-1">
-            <LogOut size={14}/>
-          </button>
         </div>
       </header>
 

@@ -44,67 +44,71 @@ export default function AgentDashboard() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       {/* Top bar */}
-      <header className="sticky top-0 z-20 flex items-center justify-between px-3 sm:px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0 shadow-sm">
-        <div className="flex items-center gap-2 sm:gap-5">
-          <Link to="/agent" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.png" alt="SmartVet" className="h-7 sm:h-8 w-auto"
-              onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-            <div className="leading-tight hidden sm:block">
-              <p className="text-base font-extrabold text-gray-900 leading-none">SmartVet</p>
-              <p className="text-xs text-green-700 leading-none mt-0.5">Call Centre</p>
-            </div>
-          </Link>
+      <header className="sticky top-0 z-20 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #14532d 0%, #166534 60%, #15803d 100%)', boxShadow: '0 2px 12px rgba(15,23,42,0.22)' }}>
+        <div className="flex items-center justify-between px-3 sm:px-5 py-2.5">
+          <div className="flex items-center gap-2 sm:gap-5">
+            <Link to="/agent" className="flex items-center gap-2 flex-shrink-0">
+              <img src="/logo.png" alt="SmartVet" className="h-7 sm:h-8 w-auto brightness-0 invert"
+                onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+              <div className="leading-tight hidden sm:block">
+                <p className="text-sm font-black text-white leading-tight">SmartVet</p>
+                <p className="text-[11px] text-green-300 leading-none mt-0.5">Call Centre</p>
+              </div>
+            </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
-              const active = location.pathname === to;
-              return (
-                <Link key={to} to={to}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                    active
-                      ? 'bg-green-700 text-white'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}>
-                  <Icon size={13} />
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
+            <div className="h-7 w-px bg-white/20 hidden sm:block" />
 
-          {/* Mobile nav icons */}
-          <nav className="flex md:hidden items-center gap-1">
-            {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
-              const active = location.pathname === to;
-              return (
-                <Link key={to} to={to} title={label}
-                  className={`p-2 rounded-lg transition-colors ${
-                    active ? 'bg-green-700 text-white' : 'text-gray-500 hover:bg-gray-100'
-                  }`}>
-                  <Icon size={16} />
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1">
+              {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+                const active = location.pathname === to;
+                return (
+                  <Link key={to} to={to}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                      active
+                        ? 'bg-white text-green-800 shadow-sm'
+                        : 'text-green-100 hover:bg-white/15 hover:text-white'
+                    }`}>
+                    <Icon size={13} />
+                    {label}
+                  </Link>
+                );
+              })}
+            </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {activeCall && (
-            <span className="flex items-center gap-1 sm:gap-1.5 text-xs text-red-600 border border-red-200 bg-red-50 px-2 sm:px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              <span className="hidden xs:inline">Live </span>Call
-            </span>
-          )}
-          <ThemeToggle />
-          <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize hidden sm:inline-flex">
-            {agent?.status?.replace('_', ' ')}
-          </Badge>
-          <span className="text-sm font-semibold text-gray-700 hidden lg:inline">{agent?.name}</span>
-          <button onClick={logout} title="Logout" aria-label="Logout"
-            className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded min-h-[36px] min-w-[36px]">
-            <LogOut size={15} />
-          </button>
+            {/* Mobile nav icons */}
+            <nav className="flex md:hidden items-center gap-1">
+              {NAV_ITEMS.map(({ to, icon: Icon, label }) => {
+                const active = location.pathname === to;
+                return (
+                  <Link key={to} to={to} title={label}
+                    className={`p-2 rounded-lg transition-all ${
+                      active ? 'bg-white text-green-800' : 'text-green-200 hover:bg-white/15'
+                    }`}>
+                    <Icon size={16} />
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {activeCall && (
+              <span className="flex items-center gap-1 sm:gap-1.5 text-xs text-white border border-red-400/60 bg-red-500/80 px-2 sm:px-3 py-1 rounded-full animate-pulse font-bold uppercase tracking-wide">
+                <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                <span className="hidden xs:inline">Live </span>Call
+              </span>
+            )}
+            <ThemeToggle />
+            <Badge variant={STATUS_COLOR[agent?.status] || 'gray'} className="capitalize hidden sm:inline-flex">
+              {agent?.status?.replace('_', ' ')}
+            </Badge>
+            <span className="text-sm font-semibold text-green-100 hidden lg:inline">{agent?.name}</span>
+            <button onClick={logout} title="Logout" aria-label="Logout"
+              className="text-green-200 hover:text-red-300 transition-all p-1.5 rounded-lg hover:bg-white/10 min-h-[36px] min-w-[36px]">
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </header>
 
