@@ -177,30 +177,32 @@ export default function Login() {
 
         <div className="relative z-10 flex flex-col h-full p-12 xl:p-14">
 
-          {/* Wordmark */}
-          <div className="flex-shrink-0">
-            <p className="text-xl font-bold text-gray-900 tracking-tight leading-none">SmartVet</p>
-            <p className="text-xs text-green-700 font-semibold tracking-widest uppercase mt-1">Call Centre</p>
+          {/* Wordmark — logo + text inline */}
+          <div className="flex-shrink-0 flex items-center gap-3">
+            <img src="/logo.png" alt="SmartVet"
+              className="h-11 w-auto drop-shadow-sm"
+              onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+            <div>
+              <p className="text-xl font-bold text-gray-900 tracking-tight leading-none">SmartVet</p>
+              <p className="text-xs text-green-700 font-semibold tracking-widest uppercase mt-1">Call Centre</p>
+            </div>
           </div>
 
-          {/* Mascot — centre stage */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <img src="/logo.png" alt="SmartVet mascot"
-                className="w-52 xl:w-60 h-auto mx-auto drop-shadow-xl"
-                onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-
-              <h1 className="mt-8 text-3xl xl:text-4xl font-bold text-gray-900 leading-snug tracking-tight">
+          {/* Hero copy — centred, no mascot duplication */}
+          <div className="flex-1 flex items-center">
+            <div>
+              <h1 className="text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight">
                 Every farmer.<br />
                 Every flock.<br />
-                <span className="text-green-700">Every call matters.</span>
+                Every call<br />
+                <span className="text-green-700">matters.</span>
               </h1>
-              <p className="mt-4 text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+              <p className="mt-5 text-base text-gray-500 leading-relaxed max-w-sm">
                 AI-powered call centre for SmartVet agents — log symptoms, diagnose instantly, dispatch vets.
               </p>
 
               {/* Feature pills */}
-              <div className="mt-8 flex flex-wrap gap-2 justify-center">
+              <div className="mt-10 flex flex-wrap gap-2">
                 {FEATURES.map(({ icon: Icon, text }) => (
                   <span key={text}
                     className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600

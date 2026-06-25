@@ -29,7 +29,7 @@ export function CallDisplay({ onEnd }) {
   /* ── Idle / waiting state ── */
   if (!activeCall) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-5 p-6 text-center">
+      <div className="flex flex-col items-center justify-start gap-5 p-6 pt-4 text-center">
         {/* Ready indicator */}
         <div className="relative">
           <div className="w-20 h-20 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center shadow-sm">
