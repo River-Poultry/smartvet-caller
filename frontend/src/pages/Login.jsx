@@ -162,53 +162,55 @@ export default function Login() {
     <div className="min-h-screen flex">
 
       {/* ── Left panel — brand showcase ── */}
-      <div className="hidden lg:flex flex-col w-[52%] relative overflow-hidden bg-[#f8faf8]">
-
-        {/* Top green accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-600 via-green-500 to-emerald-400" />
-
-        {/* Faint radial glow behind mascot */}
-        <div className="absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 52%, rgba(22,163,74,0.07) 0%, transparent 70%)' }} />
+      <div className="hidden lg:flex flex-col w-[52%] relative overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #071a0e 0%, #0a2015 45%, #0c2a1a 100%)' }}>
 
         {/* Dot-grid texture */}
-        <div className="absolute inset-0 opacity-[0.35]"
-          style={{ backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute inset-0 opacity-[0.18]"
+          style={{ backgroundImage: 'radial-gradient(circle, #4ade80 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+
+        {/* Green glow — upper right */}
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(74,222,128,0.10) 0%, transparent 65%)' }} />
+
+        {/* Green glow — lower left */}
+        <div className="absolute bottom-[-15%] left-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 65%)' }} />
 
         <div className="relative z-10 flex flex-col h-full p-12 xl:p-14">
 
           {/* Wordmark — logo + text inline */}
           <div className="flex-shrink-0 flex items-center gap-3">
             <img src="/logo.png" alt="SmartVet"
-              className="h-11 w-auto drop-shadow-sm"
+              className="h-11 w-auto drop-shadow-lg"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div>
-              <p className="text-xl font-bold text-gray-900 tracking-tight leading-none">SmartVet</p>
-              <p className="text-xs text-green-700 font-semibold tracking-widest uppercase mt-1">Call Centre</p>
+              <p className="text-xl font-bold text-white tracking-tight leading-none">SmartVet</p>
+              <p className="text-xs text-green-400 font-semibold tracking-widest uppercase mt-1">Call Centre</p>
             </div>
           </div>
 
-          {/* Hero copy — centred, no mascot duplication */}
+          {/* Hero copy */}
           <div className="flex-1 flex items-center">
             <div>
-              <h1 className="text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight">
+              <h1 className="text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight">
                 Every farmer.<br />
                 Every flock.<br />
                 Every call<br />
-                <span className="text-green-700">matters.</span>
+                <span className="text-green-400">matters.</span>
               </h1>
-              <p className="mt-5 text-base text-gray-500 leading-relaxed max-w-sm">
+              <p className="mt-5 text-base text-white/50 leading-relaxed max-w-sm">
                 AI-powered call centre for SmartVet agents — log symptoms, diagnose instantly, dispatch vets.
               </p>
 
-              {/* Feature pills */}
+              {/* Feature pills — frosted glass */}
               <div className="mt-10 flex flex-wrap gap-2">
                 {FEATURES.map(({ icon: Icon, text }) => (
                   <span key={text}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600
-                               bg-white border border-gray-200 px-3 py-1.5 rounded-full
-                               shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-                    <Icon size={11} className="text-green-600 flex-shrink-0" />
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-white/70
+                               bg-white/8 border border-white/12 px-3 py-1.5 rounded-full backdrop-blur-sm"
+                    style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,255,255,0.10)' }}>
+                    <Icon size={11} className="text-green-400 flex-shrink-0" />
                     {text}
                   </span>
                 ))}
@@ -216,7 +218,7 @@ export default function Login() {
             </div>
           </div>
 
-          <p className="flex-shrink-0 text-xs text-gray-400 tracking-wide">© SmartVet Africa</p>
+          <p className="flex-shrink-0 text-xs text-white/25 tracking-wide">© SmartVet Africa</p>
         </div>
       </div>
 
