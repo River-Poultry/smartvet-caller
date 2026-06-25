@@ -5,10 +5,10 @@ import { Loader2, Eye, EyeOff, CheckCircle, Zap, Users, Stethoscope, Activity } 
 import api from '../services/api.js';
 
 const FEATURES = [
-  { icon: Zap,         text: 'AI diagnosis in under 2 seconds' },
-  { icon: Stethoscope, text: 'Instant vet dispatch to the field' },
-  { icon: Users,       text: 'Full farmer & flock history on every call' },
-  { icon: Activity,    text: 'Live call transcription & real-time guidance' },
+  { icon: Zap,         text: 'AI diagnosis in under 2 seconds'              },
+  { icon: Stethoscope, text: 'Instant vet dispatch to the field'             },
+  { icon: Users,       text: 'Full farmer & flock history on every call'     },
+  { icon: Activity,    text: 'Live call transcription & real-time guidance'  },
 ];
 
 // ── Forgot / Reset password sub-flow ────────────────────────────────────────
@@ -81,11 +81,9 @@ function ForgotPassword({ onBack }) {
             : `We sent a code to ${email}. Enter it below with your new password.`}
         </p>
       </div>
-
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">{error}</div>
       )}
-
       {step === 'email' ? (
         <form onSubmit={sendCode} className="space-y-4">
           <div>
@@ -98,7 +96,7 @@ function ForgotPassword({ onBack }) {
           <button type="submit" disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm
                        text-white bg-green-700 hover:bg-green-600 shadow-[0_2px_8px_rgba(21,128,61,0.3)]
-                       hover:shadow-[0_4px_16px_rgba(21,128,61,0.4)] disabled:opacity-50 transition-all">
+                       disabled:opacity-50 transition-all">
             {loading ? <><Loader2 size={14} className="animate-spin" /> Sending…</> : 'Send reset code →'}
           </button>
         </form>
@@ -161,84 +159,80 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex">
 
-      {/* ── Left panel — brand ── */}
-      <div className="hidden lg:flex flex-col w-[52%] relative overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #052e16 0%, #14532d 50%, #166534 100%)' }}>
+      {/* ── Left panel — brand showcase ── */}
+      <div className="hidden lg:flex flex-col w-[52%] relative overflow-hidden bg-[#f8faf8]">
 
-        {/* Subtle grid overlay */}
-        <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        {/* Top green accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-600 via-green-500 to-emerald-400" />
 
-        {/* Glow orbs */}
-        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 rounded-full opacity-[0.12]"
-          style={{ background: 'radial-gradient(circle, #4ade80 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[-10%] left-[-5%] w-80 h-80 rounded-full opacity-[0.08]"
-          style={{ background: 'radial-gradient(circle, #86efac 0%, transparent 70%)' }} />
+        {/* Faint radial glow behind mascot */}
+        <div className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 70% 55% at 50% 52%, rgba(22,163,74,0.07) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 flex flex-col h-full p-12 xl:p-16">
-          {/* Logo */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <img src="/logo.png" alt="SmartVet" className="h-9 w-auto"
-              style={{ filter: 'brightness(0) invert(1)' }}
-              onError={e => { e.currentTarget.src = '/logo.svg'; }} />
-            <div>
-              <p className="font-bold text-white text-base leading-none tracking-tight">SmartVet</p>
-              <p className="text-green-300/70 text-[11px] leading-none mt-1 font-medium tracking-wide uppercase">Call Centre</p>
+        {/* Dot-grid texture */}
+        <div className="absolute inset-0 opacity-[0.35]"
+          style={{ backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+
+        <div className="relative z-10 flex flex-col h-full p-12 xl:p-14">
+
+          {/* Wordmark */}
+          <div className="flex-shrink-0">
+            <p className="text-xl font-bold text-gray-900 tracking-tight leading-none">SmartVet</p>
+            <p className="text-xs text-green-700 font-semibold tracking-widest uppercase mt-1">Call Centre</p>
+          </div>
+
+          {/* Mascot — centre stage */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <img src="/logo.png" alt="SmartVet mascot"
+                className="w-52 xl:w-60 h-auto mx-auto drop-shadow-xl"
+                onError={e => { e.currentTarget.src = '/logo.svg'; }} />
+
+              <h1 className="mt-8 text-3xl xl:text-4xl font-bold text-gray-900 leading-snug tracking-tight">
+                Every farmer.<br />
+                Every flock.<br />
+                <span className="text-green-700">Every call matters.</span>
+              </h1>
+              <p className="mt-4 text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                AI-powered call centre for SmartVet agents — log symptoms, diagnose instantly, dispatch vets.
+              </p>
+
+              {/* Feature pills */}
+              <div className="mt-8 flex flex-wrap gap-2 justify-center">
+                {FEATURES.map(({ icon: Icon, text }) => (
+                  <span key={text}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600
+                               bg-white border border-gray-200 px-3 py-1.5 rounded-full
+                               shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+                    <Icon size={11} className="text-green-600 flex-shrink-0" />
+                    {text}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Hero copy */}
-          <div className="flex-1 flex flex-col justify-center py-12">
-            <div className="mb-2">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-300/80 bg-green-400/10 border border-green-400/20 px-3 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                AI-Powered Platform
-              </span>
-            </div>
-            <h1 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] tracking-tight mt-4 mb-5">
-              Every farmer.<br />
-              Every flock.<br />
-              <span className="text-green-300">Every call counts.</span>
-            </h1>
-            <p className="text-green-100/60 text-base leading-relaxed max-w-sm">
-              Equip your agents with real-time AI diagnosis, instant vet dispatch, and full farmer history on every call.
-            </p>
-
-            {/* Feature list */}
-            <div className="mt-10 space-y-4">
-              {FEATURES.map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                    <Icon size={14} className="text-green-300" />
-                  </div>
-                  <p className="text-sm text-green-100/70">{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <p className="text-green-200/30 text-xs tracking-wide">© SmartVet Africa</p>
+          <p className="flex-shrink-0 text-xs text-gray-400 tracking-wide">© SmartVet Africa</p>
         </div>
       </div>
 
       {/* ── Right panel — form ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-16 bg-gray-50/60">
+      <div className="flex-1 flex items-center justify-center px-6 py-16 bg-white border-l border-gray-100">
         <div className="w-full max-w-[380px]">
 
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-10 lg:hidden">
-            <img src="/logo.png" alt="SmartVet" className="h-9 w-auto"
+            <img src="/logo.png" alt="SmartVet" className="h-12 w-auto"
               onError={e => { e.currentTarget.src = '/logo.svg'; }} />
             <div>
-              <p className="font-bold text-gray-900 text-base leading-none">SmartVet</p>
-              <p className="text-green-700 text-[11px] leading-none mt-1 font-medium tracking-wide uppercase">Call Centre</p>
+              <p className="font-bold text-gray-900 text-lg leading-none">SmartVet</p>
+              <p className="text-green-700 text-xs font-semibold leading-none mt-1.5 uppercase tracking-widest">Call Centre</p>
             </div>
           </div>
 
-          {/* Card */}
+          {/* Form */}
           <div className="bg-white rounded-2xl p-8 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_8px_32px_rgba(0,0,0,0.08)]">
             {forgot ? (
               <ForgotPassword onBack={() => setForgot(false)} />
@@ -261,9 +255,8 @@ export default function Login() {
                     <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)}
                       required autoFocus placeholder="agent@smartvet.africa"
                       className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm
-                                 bg-white placeholder-gray-400
-                                 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10
-                                 transition-all" />
+                                 placeholder-gray-400 focus:outline-none focus:border-green-600
+                                 focus:ring-2 focus:ring-green-600/10 transition-all" />
                   </div>
 
                   <div>
@@ -279,9 +272,8 @@ export default function Login() {
                         onChange={e => setPassword(e.target.value)}
                         required placeholder="••••••••"
                         className="w-full border border-gray-200 rounded-xl px-4 pr-11 py-3 text-gray-900 text-sm
-                                   bg-white placeholder-gray-400
-                                   focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/10
-                                   transition-all" />
+                                   placeholder-gray-400 focus:outline-none focus:border-green-600
+                                   focus:ring-2 focus:ring-green-600/10 transition-all" />
                       <button type="button" onClick={() => setShowPw(s => !s)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                         {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
