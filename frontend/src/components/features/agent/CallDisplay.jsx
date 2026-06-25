@@ -6,7 +6,7 @@ import { useCallStore } from '../../../store/callStore.js';
 import api from '../../../services/api.js';
 
 export function CallDisplay({ onEnd }) {
-  const { activeCall, isMuted, isOnHold, toggleMute, toggleHold, openDispatchModal, setActiveCall } = useCallStore();
+  const { activeCall, isMuted, isOnHold, toggleMute, toggleHold, setActiveCall } = useCallStore();
   const timer = useCallTimer(!!activeCall, isOnHold);
   const [demoLoading, setDemoLoading] = useState(false);
 
@@ -164,18 +164,6 @@ export function CallDisplay({ onEnd }) {
         </button>
       </div>
 
-      {/* Dispatch CTA */}
-      <button
-        onClick={() => openDispatchModal({ urgency: is_emergency ? 'emergency' : 'scheduled' })}
-        className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all ${
-          is_emergency
-            ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_4px_16px_rgba(220,38,38,0.4)]'
-            : 'bg-green-700 hover:bg-green-600 text-white shadow-[0_4px_16px_rgba(21,128,61,0.4)]'
-        }`}
-      >
-        <span className="text-base">🚑</span>
-        {is_emergency ? 'Emergency Vet Dispatch' : 'Request Vet Visit'}
-      </button>
     </div>
   );
 }
