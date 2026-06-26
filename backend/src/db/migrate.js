@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pg from 'pg';
+import bcrypt from 'bcryptjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const { Pool } = pg;
 
@@ -65,6 +66,32 @@ export async function runMigrations() {
     }
 
     console.log('[migrate] Done.');
+
+    // Seed admin from env vars if provided and account doesn't exist yet
+    const seedEmail    = process.env.SEED_ADMIN_EMAIL?.toLowerCase().trim();
+    const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+    const seedName     = process.env.SEED_ADMIN_NAME || 'Admin';
+    if (seedEmail && seedPassword) {
+      const { rows: existing } = await client.query(
+        'SELECT id FROM agents WHERE email = $1', [seedEmail]
+      );
+      if (!existing.length) {
+        const hash = await bcrypt.hash(seedPassword, 12);
+        await client.query(
+          `INSERT INTO agents (name, email, password_hash, role, is_admin, is_active, is_verified)
+           VALUES ($1, $2, $3, 'admin', true, true, true)`,
+          [seedName, seedEmail, hash]
+        );
+        console.log(`[migrate] Seeded admin account: ${seedEmail}`);
+      } else {
+        // Ensure existing account has admin rights
+        await client.query(
+          `UPDATE agents SET role = 'admin', is_admin = true WHERE email = $1`,
+          [seedEmail]
+        );
+        console.log(`[migrate] Admin account confirmed: ${seedEmail}`);
+      }
+    }
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
     console.error('[migrate] Failed:', err.message);
