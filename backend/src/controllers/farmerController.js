@@ -59,10 +59,20 @@ export async function getFarmer(req, res) {
       [farmer.phone]
     );
 
+    const dispatchRes = await query(
+      `SELECT id, created_at, vet_name, status, notes
+       FROM vet_dispatch_requests
+       WHERE farmer_phone = $1
+       ORDER BY created_at DESC
+       LIMIT 5`,
+      [farmer.phone]
+    ).catch(() => ({ rows: [] }));
+
     res.json({
       farmer,
       farms: farmer.farm_name ? [{ name: farmer.farm_name, address: farmer.address }] : [],
       call_history: callsRes.rows,
+      dispatch_history: dispatchRes.rows,
       batches: Array.isArray(batches) ? batches : [],
     });
   } catch (err) {

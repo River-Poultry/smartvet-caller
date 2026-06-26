@@ -1,16 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Phone, MapPin, ChevronDown, ChevronUp, AlertCircle, ExternalLink, RefreshCw, Stethoscope } from 'lucide-react';
+import { Search, Phone, MapPin, ChevronDown, ChevronUp, AlertCircle, ExternalLink, RefreshCw, Stethoscope, Clock, Truck, MessageSquare } from 'lucide-react';
 import { useCallStore } from '../../../store/callStore.js';
 import { OutreachPanel } from './OutreachPanel.jsx';
 import api from '../../../services/api.js';
 
+function timeAgo(dateStr) {
+  if (!dateStr) return null;
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return months === 1 ? '1 mo ago' : `${months} mo ago`;
+}
+
 function FarmerProfile({ farmer }) {
   const [batches, setBatches] = useState([]);
+  const [callHistory, setCallHistory] = useState([]);
+  const [dispatchHistory, setDispatchHistory] = useState([]);
   const [open, setOpen] = useState(true);
 
   useEffect(() => {
     if (!farmer?.django_id && !farmer?.id) return;
-    api.get(`/farmers/${farmer.id}`).then(r => setBatches(r.data.batches || [])).catch(() => {});
+    api.get(`/farmers/${farmer.id}`).then(r => {
+      setBatches(r.data.batches || []);
+      setCallHistory(r.data.call_history || []);
+      setDispatchHistory(r.data.dispatch_history || []);
+    }).catch(() => {});
   }, [farmer?.id]);
 
   if (!farmer) return null;
@@ -32,6 +49,70 @@ function FarmerProfile({ farmer }) {
           </p>
         )}
       </div>
+
+      {/* ── Farmer history summary ── */}
+      {(callHistory.length > 0 || dispatchHistory.length > 0) && (() => {
+        const lastCall = callHistory[0];
+        const lastDispatch = dispatchHistory[0];
+        const topSymptom = lastCall?.symptoms?.[0]?.symptom;
+        return (
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="px-2.5 py-1.5 bg-gray-50 border-b border-gray-100">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Farmer History</span>
+            </div>
+
+            {/* Last call */}
+            {lastCall && (
+              <div className="px-2.5 py-2 border-b border-gray-100 flex items-start gap-2">
+                <Clock size={11} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Last Call</span>
+                    <span className="text-[10px] text-gray-400">{timeAgo(lastCall.started_at)}</span>
+                    {lastCall.is_emergency && (
+                      <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-1 rounded">Emergency</span>
+                    )}
+                  </div>
+                  {topSymptom && <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">{topSymptom}</p>}
+                  {lastCall.outcome && (
+                    <p className="text-[10px] text-gray-400 mt-0.5 truncate">{lastCall.outcome}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Last vet dispatch */}
+            {lastDispatch && (
+              <div className="px-2.5 py-2 border-b border-gray-100 flex items-start gap-2">
+                <Truck size={11} className="text-teal-600 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Last Dispatch</span>
+                    <span className="text-[10px] text-gray-400">{timeAgo(lastDispatch.created_at)}</span>
+                    <span className={`text-[10px] font-semibold px-1 rounded border ${
+                      lastDispatch.status === 'completed' ? 'text-green-700 bg-green-50 border-green-200' :
+                      lastDispatch.status === 'pending'   ? 'text-amber-600 bg-amber-50 border-amber-200' :
+                                                            'text-gray-500 bg-gray-50 border-gray-200'
+                    }`}>{lastDispatch.status}</span>
+                  </div>
+                  {lastDispatch.vet_name && (
+                    <p className="text-xs text-gray-700 font-medium mt-0.5 truncate">Dr. {lastDispatch.vet_name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Call count */}
+            <div className="px-2.5 py-1.5 flex items-center gap-2">
+              <MessageSquare size={11} className="text-gray-400 flex-shrink-0" />
+              <span className="text-[10px] text-gray-500">
+                {callHistory.length >= 20 ? '20+' : callHistory.length} call{callHistory.length !== 1 ? 's' : ''} on record
+                {dispatchHistory.length > 0 && ` · ${dispatchHistory.length} dispatch${dispatchHistory.length !== 1 ? 'es' : ''}`}
+              </span>
+            </div>
+          </div>
+        );
+      })()}
 
       {batches.length > 0 && (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
