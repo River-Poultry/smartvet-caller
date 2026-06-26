@@ -244,13 +244,13 @@ export async function forgotPassword(req, res) {
     return res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
   }
 
-  res.json({ message: 'If that email exists, a reset code has been sent.', agentId: agent.id });
+  res.json({ message: 'If that email exists, a reset code has been sent.' });
 }
 
 export async function resetPassword(req, res) {
-  const { agentId, code, newPassword } = req.body;
-  if (!agentId || !code || !newPassword) {
-    return res.status(400).json({ error: 'agentId, code, and newPassword are required' });
+  const { code, newPassword } = req.body;
+  if (!code || !newPassword) {
+    return res.status(400).json({ error: 'code and newPassword are required' });
   }
 
   const err = validatePassword(newPassword);
@@ -258,12 +258,13 @@ export async function resetPassword(req, res) {
 
   const { rows } = await query(
     `SELECT * FROM otp_codes
-     WHERE agent_id = $1 AND code = $2 AND purpose = 'reset' AND used = false AND expires_at > NOW()
+     WHERE code = $1 AND purpose = 'reset' AND used = false AND expires_at > NOW()
      ORDER BY created_at DESC LIMIT 1`,
-    [agentId, code]
+    [code]
   );
   if (!rows.length) return res.status(400).json({ error: 'Invalid or expired reset code' });
 
+  const agentId = rows[0].agent_id;
   await query(`UPDATE otp_codes SET used = true WHERE id = $1`, [rows[0].id]);
 
   const hash = await bcrypt.hash(newPassword, 12);

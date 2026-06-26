@@ -66,7 +66,7 @@ export async function getFarmer(req, res) {
        ORDER BY created_at DESC
        LIMIT 5`,
       [farmer.phone]
-    ).catch(() => ({ rows: [] }));
+    ).catch(err => { logger.warn('dispatch_history query failed', { farmerId, error: err.message }); return { rows: [] }; });
 
     res.json({
       farmer,

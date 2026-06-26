@@ -10,7 +10,8 @@ const pool = new Pool({
   ssl: isProduction ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 5000,
+  statement_timeout: 8000,
 });
 
 pool.on('error', (err) => {

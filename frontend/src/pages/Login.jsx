@@ -16,7 +16,6 @@ const FEATURES = [
 function ForgotPassword({ onBack }) {
   const [step, setStep]         = useState('email');
   const [email, setEmail]       = useState('');
-  const [agentId, setAgentId]   = useState('');
   const [code, setCode]         = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw]     = useState(false);
@@ -27,8 +26,7 @@ function ForgotPassword({ onBack }) {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      const { data } = await api.post('/auth/forgot-password', { email });
-      setAgentId(data.agentId || '');
+      await api.post('/auth/forgot-password', { email });
       setStep('code');
     } catch (err) {
       setError(err.response?.data?.error || 'Something went wrong');
@@ -39,7 +37,7 @@ function ForgotPassword({ onBack }) {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await api.post('/auth/reset-password', { agentId, code, newPassword: password });
+      await api.post('/auth/reset-password', { code, newPassword: password });
       setStep('done');
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid or expired code');
