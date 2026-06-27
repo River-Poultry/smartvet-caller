@@ -289,12 +289,12 @@ function DiseaseCard({ d, rank }) {
 
       <div className="p-3.5">
         <div className="flex items-start gap-3">
-          <span className={`text-sm font-black w-5 flex-shrink-0 mt-0.5 ${rank === 0 ? 'text-amber-500' : 'text-gray-300'}`}>
+          <span className={`text-base font-black w-5 flex-shrink-0 mt-0.5 ${rank === 0 ? 'text-amber-500' : 'text-gray-300'}`}>
             {rank + 1}
           </span>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <p className={`font-bold text-sm leading-snug ${d.is_emergency ? 'text-red-600' : 'text-gray-900'}`}>
+              <p className={`font-bold text-base leading-snug ${d.is_emergency ? 'text-red-600' : 'text-gray-900'}`}>
                 {d.name}
               </p>
               <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -307,13 +307,13 @@ function DiseaseCard({ d, rank }) {
                 <a href={`https://smartvet.africa/?q=${encodeURIComponent(d.name)}`}
                   target="_blank" rel="noopener noreferrer"
                   className="text-gray-400 hover:text-teal-600 transition-colors">
-                  <ExternalLink size={11} />
+                  <ExternalLink size={13} />
                 </a>
               </div>
             </div>
             <ConfidenceBar pct={pct} isEmergency={d.is_emergency} />
             {d.matched_symptoms?.length > 0 && (
-              <p className="text-xs text-gray-400 mt-1.5 leading-relaxed">
+              <p className="text-sm text-gray-400 mt-1.5 leading-relaxed">
                 Matched: {d.matched_symptoms.join(' · ')}
               </p>
             )}
@@ -324,22 +324,22 @@ function DiseaseCard({ d, rank }) {
       {(d.treatment || d.prevention) && (
         <>
           <button onClick={() => setOpen(o => !o)}
-            className="w-full flex items-center justify-between px-3.5 py-2 border-t border-gray-100 text-xs text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-colors">
+            className="w-full flex items-center justify-between px-3.5 py-2.5 border-t border-gray-100 text-sm text-gray-500 hover:text-gray-800 hover:bg-gray-50 transition-colors">
             <span className="font-semibold">Treatment &amp; Prevention</span>
-            {open ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
+            {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
           </button>
           {open && (
             <div className="px-3.5 py-3 border-t border-gray-100 space-y-3 bg-gray-50">
               {d.treatment && (
                 <div>
-                  <p className="text-[11px] font-semibold text-green-700 mb-1">Treatment</p>
-                  <p className="text-xs text-gray-700 leading-relaxed">{d.treatment}</p>
+                  <p className="text-xs font-semibold text-green-700 mb-1">Treatment</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{d.treatment}</p>
                 </div>
               )}
               {d.prevention && (
                 <div>
-                  <p className="text-[11px] font-semibold text-teal-600 mb-1">Prevention</p>
-                  <p className="text-xs text-gray-700 leading-relaxed">{d.prevention}</p>
+                  <p className="text-xs font-semibold text-teal-600 mb-1">Prevention</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">{d.prevention}</p>
                 </div>
               )}
             </div>
@@ -362,8 +362,8 @@ function DrugCard({ drug }) {
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2 mb-3">
           <div>
-            <p className="font-semibold text-gray-900 text-sm">{drug.product_name}</p>
-            <p className={`text-xs font-medium mt-0.5 ${catColor}`}>{catLabel}</p>
+            <p className="font-semibold text-gray-900 text-base">{drug.product_name}</p>
+            <p className={`text-sm font-medium mt-0.5 ${catColor}`}>{catLabel}</p>
           </div>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
             inStock ? 'text-green-700 border-green-200 bg-green-50' : 'text-gray-400 border-gray-200 bg-gray-50'
@@ -373,12 +373,12 @@ function DrugCard({ drug }) {
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-            <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Field stock</p>
-            <p className="text-sm font-bold text-gray-900">{vetStock.toFixed(0)} <span className="text-xs font-normal text-gray-400">{drug.unit}</span></p>
+            <p className="text-xs text-gray-400 mb-0.5">Field stock</p>
+            <p className="text-base font-bold text-gray-900">{vetStock.toFixed(0)} <span className="text-sm font-normal text-gray-400">{drug.unit}</span></p>
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-            <p className="text-xs text-gray-400 mb-0.5 uppercase tracking-wide">Warehouse</p>
-            <p className="text-sm font-bold text-gray-900">{warehouseStock.toFixed(0)} <span className="text-xs font-normal text-gray-400">{drug.unit}</span></p>
+            <p className="text-xs text-gray-400 mb-0.5">Warehouse</p>
+            <p className="text-base font-bold text-gray-900">{warehouseStock.toFixed(0)} <span className="text-sm font-normal text-gray-400">{drug.unit}</span></p>
           </div>
         </div>
       </div>
@@ -649,7 +649,7 @@ export function CallCompanion() {
             {!symptoms.length && !diagLoading && (
               <div className="text-center py-10 text-gray-400">
                 <Zap size={28} className="mx-auto mb-3 opacity-20" />
-                <p className="text-xs">Add symptoms first to get an AI diagnosis</p>
+                <p className="text-sm">Add symptoms first to get an AI diagnosis</p>
               </div>
             )}
             {diagnoses.map((d, i) => <DiseaseCard key={d.name} d={d} rank={i} />)}
@@ -666,7 +666,7 @@ export function CallCompanion() {
               </div>
             ) : (
               <>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-500">
                   Based on: <span className="text-gray-800 font-medium">{diagnoses.slice(0, 2).map(d => d.name).join(', ')}</span>
                 </p>
                 {drugSuggestions.length === 0
@@ -682,11 +682,11 @@ export function CallCompanion() {
         {section === 'notes' && (
           <div className="p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Call Notes</p></div>
+              <div className="flex items-center gap-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Call Notes</p></div>
               {transcriptSegments.length > 0 && (
                 <button onClick={pullFromTranscript}
-                  className="flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800 border border-teal-200 hover:border-teal-300 rounded-full px-2.5 py-1 font-medium transition-colors">
-                  <Clipboard size={10} /> Pull from transcript
+                  className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-800 border border-teal-200 hover:border-teal-300 rounded-full px-2.5 py-1 font-medium transition-colors">
+                  <Clipboard size={12} /> Pull from transcript
                 </button>
               )}
             </div>
@@ -694,24 +694,24 @@ export function CallCompanion() {
             <textarea value={callNotes} onChange={e => setCallNotes(e.target.value)}
               placeholder="Flock size, age, housing, farmer's history, observations…&#10;&#10;These notes will be sent to the vet on dispatch."
               rows={8}
-              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 resize-none leading-relaxed transition-colors" />
+              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 resize-none leading-relaxed transition-colors" />
 
             {(symptoms.length > 0 || callNotes) && (
-              <div className="rounded-xl border border-gray-200 bg-white p-3.5 space-y-2">
-                <div className="flex items-center gap-2"><span className="w-1 h-3.5 rounded-full bg-teal-400 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Vet Handover Preview</p></div>
+              <div className="rounded-xl border border-gray-200 bg-white p-3.5 space-y-2.5">
+                <div className="flex items-center gap-2"><span className="w-1 h-3.5 rounded-full bg-teal-400 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Vet Handover Preview</p></div>
                 {symptoms.length > 0 && (
-                  <p className="text-xs text-gray-700 leading-relaxed">
+                  <p className="text-sm text-gray-700 leading-relaxed">
                     <span className="text-gray-400">Symptoms: </span>{symptoms.map(s => s.symptom).join(', ')}
                   </p>
                 )}
                 {diagnoses[0] && (
-                  <p className="text-xs text-gray-700">
+                  <p className="text-sm text-gray-700">
                     <span className="text-gray-400">Top AI diagnosis: </span>
                     {diagnoses[0].name} <span className="text-gray-400">({Math.round(diagnoses[0].confidence * 100)}%)</span>
                   </p>
                 )}
                 {callNotes && (
-                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                     <span className="text-gray-400">Notes: </span>{callNotes}
                   </p>
                 )}
