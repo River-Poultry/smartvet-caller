@@ -67,24 +67,28 @@ export function OutreachPanel({ farmer, activeCall, recipientType = 'farmer' }) 
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mt-3">
-      <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{tabLabel}</p>
-      </div>
+      <div className="px-3 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" />
+          <span className="text-xs font-semibold text-gray-500">{tabLabel}</span>
+        </div>
 
-      <div className="flex border-b border-gray-200 bg-white">
-        {[
-          { id: 'call', icon: Phone,         label: 'Call'     },
-          { id: 'sms',  icon: MessageSquare, label: 'Send SMS' },
-        ].map(({ id, icon: Icon, label }) => (
-          <button key={id} onClick={() => { setTab(id); setErrorMsg(''); }}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold transition-colors ${
-              tab === id
-                ? 'text-green-700 border-b-2 border-green-700 bg-green-50'
-                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'
-            }`}>
-            <Icon size={11} /> {label}
-          </button>
-        ))}
+        {/* iOS segment control */}
+        <div className="flex bg-gray-200 rounded-lg p-0.5 gap-0.5">
+          {[
+            { id: 'call', icon: Phone,         label: 'Call'     },
+            { id: 'sms',  icon: MessageSquare, label: 'SMS'      },
+          ].map(({ id, icon: Icon, label }) => (
+            <button key={id} onClick={() => { setTab(id); setErrorMsg(''); }}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                tab === id
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}>
+              <Icon size={10} /> {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="p-3 space-y-3 bg-white">
