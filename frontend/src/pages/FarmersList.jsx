@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut, ArrowLeft } from 'lucide-react';
+import { Search, Phone, MapPin, Users, Stethoscope, Calendar, AlertTriangle, LogOut, ArrowLeft, Clock, Truck } from 'lucide-react';
+
+function timeAgo(dateStr) {
+  if (!dateStr) return null;
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return months === 1 ? '1 mo ago' : `${months} mo ago`;
+}
 import api from '../services/api.js';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -130,6 +141,9 @@ function FarmerDetail({ farmer, onDispatch }) {
   const batches = detail?.batches || [];
   const activeBatches = batches.filter(b => b.is_active !== false);
   const callHistory = detail?.call_history || [];
+  const dispatchHistory = detail?.dispatch_history || [];
+  const lastCall = callHistory[0];
+  const lastDispatch = dispatchHistory[0];
   const matchedVet = farmer.matched_vet_name;
 
   return (
@@ -149,7 +163,7 @@ function FarmerDetail({ farmer, onDispatch }) {
               </p>
             )}
           </div>
-          <Button size="sm" variant="danger" onClick={onDispatch} className="flex items-center gap-1.5 flex-shrink-0">
+          <Button size="sm" variant="outline" onClick={onDispatch} className="flex items-center gap-1.5 flex-shrink-0 text-teal-700 border-teal-300 hover:bg-teal-50">
             🚑 Dispatch Vet
           </Button>
         </div>
@@ -172,6 +186,60 @@ function FarmerDetail({ farmer, onDispatch }) {
         )}
       </div>
 
+      {/* ── Last contact summary ── */}
+      {(lastCall || lastDispatch) && (
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-gray-100 flex items-center gap-2">
+            <span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" />
+            <span className="text-xs font-semibold text-gray-500">Last Contact</span>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {lastCall && (
+              <div className="px-4 py-3 flex items-start gap-3">
+                <Clock size={13} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-gray-700">Last call</span>
+                    <span className="text-xs text-gray-400">{timeAgo(lastCall.started_at)}</span>
+                    {lastCall.is_emergency && (
+                      <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-full">Emergency</span>
+                    )}
+                    {lastCall.outcome && (
+                      <span className="text-[10px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full capitalize">{lastCall.outcome.replace(/_/g, ' ')}</span>
+                    )}
+                  </div>
+                  {lastCall.symptoms?.[0]?.symptom && (
+                    <p className="text-xs text-gray-600 mt-0.5 truncate">{lastCall.symptoms[0].symptom}</p>
+                  )}
+                  {lastCall.agent_notes && (
+                    <p className="text-xs text-gray-400 mt-0.5 truncate">{lastCall.agent_notes}</p>
+                  )}
+                </div>
+              </div>
+            )}
+            {lastDispatch && (
+              <div className="px-4 py-3 flex items-start gap-3">
+                <Truck size={13} className="text-teal-600 mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-semibold text-gray-700">Last dispatch</span>
+                    <span className="text-xs text-gray-400">{timeAgo(lastDispatch.created_at)}</span>
+                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                      lastDispatch.status === 'completed' ? 'text-green-700 bg-green-50 border-green-200' :
+                      lastDispatch.status === 'pending'   ? 'text-amber-600 bg-amber-50 border-amber-200' :
+                                                            'text-gray-500 bg-gray-50 border-gray-200'
+                    }`}>{lastDispatch.status}</span>
+                  </div>
+                  {lastDispatch.vet_name && (
+                    <p className="text-xs text-gray-600 mt-0.5">Dr. {lastDispatch.vet_name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {!detail && <div className="text-gray-400 text-sm text-center py-8">Loading…</div>}
 
       {detail && activeBatches.length === 0 && (
@@ -182,7 +250,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
       {activeBatches.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wide">
+          <h3 className="text-xs font-semibold text-gray-500 mb-3">
             Active Batches ({activeBatches.length})
           </h3>
           <div className="space-y-3">
@@ -193,7 +261,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide">Call History</h3>
+          <h3 className="text-xs font-semibold text-gray-500">Call History</h3>
           <span className="text-xs text-gray-400">{callHistory.length} call{callHistory.length !== 1 ? 's' : ''}</span>
         </div>
 
@@ -253,7 +321,7 @@ function FarmerDetail({ farmer, onDispatch }) {
                 <div className="px-4 py-3 space-y-3">
                   {symptoms.length > 0 && (
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Symptoms Reported</p>
+                      <p className="text-xs font-semibold text-gray-500st mb-1.5">Symptoms Reported</p>
                       <div className="flex flex-wrap gap-1.5">
                         {symptoms.map((s, i) => {
                           const chip =
@@ -272,7 +340,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
                   {call.agent_notes && (
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Agent Notes</p>
+                      <p className="text-xs font-semibold text-gray-500st mb-1">Agent Notes</p>
                       <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
                         {call.agent_notes}
                       </p>
@@ -281,7 +349,7 @@ function FarmerDetail({ farmer, onDispatch }) {
 
                   {nextSteps.length > 0 && (
                     <div>
-                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Action Points</p>
+                      <p className="text-xs font-semibold text-gray-500st mb-1.5">Action Points</p>
                       <div className="space-y-1">
                         {nextSteps.map((step, i) => {
                           const done = step.startsWith('[x]');
