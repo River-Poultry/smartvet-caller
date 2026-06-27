@@ -404,7 +404,7 @@ export function CallCompanion() {
   const [diagLoading, setDiagLoading]   = useState(false);
   const [isEmergency, setIsEmergency]   = useState(false);
   const [isNotifiable, setIsNotifiable] = useState(false);
-  const [section, setSection]           = useState('symptoms');
+  const [section, setSection]           = useState('flock');
   const [drugSuggestions, setDrugSuggestions] = useState([]);
   const diagDebounce = useRef(null);
 
@@ -428,19 +428,20 @@ export function CallCompanion() {
     return () => clearTimeout(diagDebounce.current);
   }, [symptoms, flockDetails]);
 
+  const topDiseaseKey = diagnoses.slice(0, 2).map(d => d.name).join(',');
   useEffect(() => {
-    if (!diagnoses.length) { setDrugSuggestions([]); return; }
-    const top = diagnoses.slice(0, 2).map(d => d.name).join(',');
-    api.get(`/inventory/suggestions?diseases=${encodeURIComponent(top)}`)
+    if (!topDiseaseKey) { setDrugSuggestions([]); return; }
+    api.get(`/inventory/suggestions?diseases=${encodeURIComponent(topDiseaseKey)}`)
       .then(r => setDrugSuggestions(r.data || []))
       .catch(() => {});
-  }, [diagnoses.map(d => d.name).join()]);
+  }, [topDiseaseKey]);
 
   async function addSymptom(text) {
     const trimmed = text.trim();
-    if (!trimmed || !activeCall?.call_id) return;
+    if (!trimmed || !activeCall) return;
     const tempId = Date.now().toString();
     addSymptomLocal({ symptom: trimmed, severity, id: tempId });
+    if (!activeCall.call_id) return; // demo/offline — local only
     try {
       await api.post(`/calls/${activeCall.call_id}/symptoms`, { symptom: trimmed, severity });
     } catch {}
@@ -476,11 +477,11 @@ export function CallCompanion() {
   const flockFilled = !!(flockDetails.birdType || flockDetails.flockSize || flockDetails.ageValue);
 
   const TABS = [
-    { id: 'symptoms',  label: 'Symptoms', shortLabel: 'Sx',  icon: Stethoscope },
-    { id: 'flock',     label: 'Flock',    shortLabel: 'Flock', icon: Bird,      dot: flockFilled },
-    { id: 'diagnosis', label: 'Diagnosis',shortLabel: 'AI',  icon: Zap,         dot: diagnoses.length > 0 },
-    { id: 'drugs',     label: 'Drugs',    shortLabel: 'Rx',  icon: Package,     dot: drugSuggestions.length > 0 },
-    { id: 'notes',     label: 'Notes',    shortLabel: 'Notes',icon: FileText,   dot: !!callNotes },
+    { id: 'flock',     label: 'Flock',    shortLabel: 'Flock', icon: Bird,       dot: flockFilled },
+    { id: 'symptoms',  label: 'Symptoms', shortLabel: 'Sx',    icon: Stethoscope },
+    { id: 'diagnosis', label: 'Diagnosis',shortLabel: 'AI',    icon: Zap,         dot: diagnoses.length > 0 },
+    { id: 'drugs',     label: 'Drugs',    shortLabel: 'Rx',    icon: Package,     dot: drugSuggestions.length > 0 },
+    { id: 'notes',     label: 'Notes',    shortLabel: 'Notes', icon: FileText,    dot: !!callNotes },
   ];
 
   return (
