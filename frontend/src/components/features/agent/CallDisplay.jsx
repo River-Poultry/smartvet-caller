@@ -94,12 +94,12 @@ export function CallDisplay({ onEnd }) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full animate-pulse ${is_emergency ? 'bg-red-500' : 'bg-green-500'}`} />
-            <span className={`text-xs font-black uppercase tracking-widest ${is_emergency ? 'text-red-600' : 'text-green-700'}`}>
+            <span className={`text-sm font-black uppercase tracking-widest ${is_emergency ? 'text-red-600' : 'text-green-700'}`}>
               {is_emergency ? '⚠ Emergency' : 'Active Call'}
             </span>
           </div>
           <div className="text-right">
-            <span className="text-2xl font-mono font-black text-slate-900 tabular-nums tracking-tight">
+            <span className="text-3xl font-mono font-black text-slate-900 tabular-nums tracking-tight">
               {timer}
             </span>
           </div>
@@ -107,18 +107,18 @@ export function CallDisplay({ onEnd }) {
 
         {/* Caller info */}
         <div className="space-y-1">
-          <p className="text-lg font-black text-slate-900 leading-tight">
+          <p className="text-xl font-black text-slate-900 leading-tight">
             {farmer?.name || 'Unknown Caller'}
           </p>
           {farmer?.phone && (
-            <p className="text-sm font-semibold text-slate-500 font-mono">{farmer.phone}</p>
+            <p className="text-base font-semibold text-slate-500 font-mono">{farmer.phone}</p>
           )}
           {farmer?.farms?.length > 0 && (
             <div className="mt-2 space-y-1 pt-2 border-t border-white/60">
               {farmer.farms.map(f => (
                 <div key={f.id} className="flex items-center gap-1.5">
-                  <MapPin size={11} className="text-green-600 flex-shrink-0" />
-                  <span className="text-xs font-semibold text-green-800">{f.name}</span>
+                  <MapPin size={13} className="text-green-600 flex-shrink-0" />
+                  <span className="text-sm font-semibold text-green-800">{f.name}</span>
                 </div>
               ))}
             </div>
@@ -131,35 +131,35 @@ export function CallDisplay({ onEnd }) {
         {/* Mute */}
         <button
           onClick={toggleMute}
-          className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 font-bold text-xs transition-all ${
+          className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 font-bold text-sm transition-all ${
             isMuted
               ? 'bg-amber-500 border-amber-400 text-white shadow-[0_2px_8px_rgba(217,119,6,0.4)]'
               : 'bg-white border-slate-200 text-slate-700 hover:border-amber-300 hover:bg-amber-50'
           }`}
         >
-          {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+          {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
           <span>{isMuted ? 'Unmute' : 'Mute'}</span>
         </button>
 
         {/* Hold */}
         <button
           onClick={toggleHold}
-          className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 font-bold text-xs transition-all ${
+          className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 font-bold text-sm transition-all ${
             isOnHold
               ? 'bg-blue-600 border-blue-500 text-white shadow-[0_2px_8px_rgba(37,99,235,0.4)]'
               : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50'
           }`}
         >
-          {isOnHold ? <Play size={18} /> : <Pause size={18} />}
+          {isOnHold ? <Play size={20} /> : <Pause size={20} />}
           <span>{isOnHold ? 'Resume' : 'Hold'}</span>
         </button>
 
         {/* End call */}
         <button
           onClick={endCall}
-          className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 bg-red-600 border-red-500 text-white font-bold text-xs shadow-[0_2px_8px_rgba(220,38,38,0.4)] hover:bg-red-700 hover:shadow-[0_4px_16px_rgba(220,38,38,0.5)] transition-all"
+          className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border-2 bg-red-600 border-red-500 text-white font-bold text-sm shadow-[0_2px_8px_rgba(220,38,38,0.4)] hover:bg-red-700 hover:shadow-[0_4px_16px_rgba(220,38,38,0.5)] transition-all"
         >
-          <PhoneOff size={18} />
+          <PhoneOff size={20} />
           <span>End</span>
         </button>
       </div>

@@ -67,12 +67,12 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Bird Type */}
       <div>
-        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Bird Type</p></div>
+        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Bird Type</p></div>
         <div className="grid grid-cols-2 gap-1.5">
           {BIRD_TYPES.map(bt => (
             <button key={bt.value} type="button"
               onClick={() => setFlock({ birdType: fd.birdType === bt.value ? '' : bt.value })}
-              className={`flex flex-col items-start px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${
+              className={`flex flex-col items-start px-3 py-2.5 rounded-lg border text-left text-sm font-medium transition-all ${
                 fd.birdType === bt.value
                   ? 'border-green-600 bg-green-50 text-green-800'
                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
@@ -86,7 +86,7 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Age */}
       <div>
-        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Bird Age</p></div>
+        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Bird Age</p></div>
         <div className="flex gap-2 items-center">
           <input type="number" min="1" value={fd.ageValue}
             onChange={e => setFlock({ ageValue: e.target.value })}
@@ -96,7 +96,7 @@ function FlockTab({ fd, setFlock }) {
             {['days','weeks','months'].map(u => (
               <button key={u} type="button"
                 onClick={() => setFlock({ ageUnit: u })}
-                className={`px-3 py-2 text-xs font-medium transition-colors ${
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
                   fd.ageUnit === u ? 'bg-green-700 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'
                 }`}>
                 {u}
@@ -105,7 +105,7 @@ function FlockTab({ fd, setFlock }) {
           </div>
         </div>
         {ageDays && (
-          <p className="text-xs text-gray-500 mt-1.5">
+          <p className="text-sm text-gray-500 mt-1.5">
             = {ageDays} days old · <span className="text-green-700 font-medium">{ageGroup(ageDays)}</span>
           </p>
         )}
@@ -113,17 +113,17 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Flock Size & Deaths */}
       <div>
-        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Flock Size &amp; Mortality</p></div>
+        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Flock Size &amp; Mortality</p></div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">Total birds</label>
+            <label className="text-sm text-gray-500 mb-1 block">Total birds</label>
             <input type="number" min="1" value={fd.flockSize}
               onChange={e => setFlock({ flockSize: e.target.value })}
               placeholder="e.g. 500"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-green-600 transition-colors" />
           </div>
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">Current deaths</label>
+            <label className="text-sm text-gray-500 mb-1 block">Current deaths</label>
             <input type="number" min="0" value={fd.deadCount}
               onChange={e => setFlock({ deadCount: e.target.value })}
               placeholder="e.g. 12"
@@ -131,9 +131,9 @@ function FlockTab({ fd, setFlock }) {
           </div>
         </div>
         {mortalityPct !== null && (
-          <div className={`mt-2 text-sm ${mortalityColor}`}>
+          <div className={`mt-2 text-base ${mortalityColor}`}>
             Mortality rate: <strong>{mortalityPct}%</strong>
-            <span className="text-gray-400 text-xs ml-2">
+            <span className="text-gray-400 text-sm ml-2">
               ({deadCount} of {flockSize} birds)
             </span>
           </div>
@@ -142,25 +142,25 @@ function FlockTab({ fd, setFlock }) {
 
       {/* Vaccinations */}
       <div>
-        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-[11px] font-semibold text-gray-500">Vaccinations Given</p></div>
+        <div className="flex items-center gap-2 mb-2"><span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" /><p className="text-sm font-semibold text-gray-600">Vaccinations Given</p></div>
         <div className="flex flex-wrap gap-1.5">
           {VACCINES.map(v => {
             const active = (fd.vaccinations || []).includes(v.value);
             return (
               <button key={v.value} type="button" onClick={() => toggleVax(v.value)}
-                className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border font-medium transition-all ${
+                className={`inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full border font-medium transition-all ${
                   active
                     ? 'border-teal-500 bg-teal-50 text-teal-700'
                     : 'border-gray-200 bg-white text-gray-500 hover:border-teal-300'
                 }`}>
-                {active && <Check size={9} />}
+                {active && <Check size={11} />}
                 {v.label}
               </button>
             );
           })}
         </div>
         {(fd.vaccinations || []).length === 0 && (
-          <p className="text-xs text-gray-400 mt-1.5">Tap vaccines the farmer has used</p>
+          <p className="text-sm text-gray-400 mt-1.5">Tap vaccines the farmer has used</p>
         )}
       </div>
     </div>
@@ -542,13 +542,13 @@ export function CallCompanion() {
 
             {/* Severity — segmented control */}
             <div>
-              <p className="text-[11px] font-medium text-gray-400 mb-2">Severity for new symptoms</p>
+              <p className="text-sm font-medium text-gray-500 mb-2">Severity for new symptoms</p>
               <div className="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
                 {SEVERITY_CONFIG.map(({ v, label }) => {
                   const activeColor = v === 'mild' ? 'text-green-700' : v === 'moderate' ? 'text-amber-600' : 'text-red-600';
                   return (
                     <button key={v} onClick={() => setSeverity(v)}
-                      className={`flex-1 py-1.5 text-[11px] font-semibold rounded-[9px] transition-all ${
+                      className={`flex-1 py-1.5 text-sm font-semibold rounded-[9px] transition-all ${
                         severity === v
                           ? `bg-white shadow-sm ${activeColor}`
                           : 'text-gray-500 hover:text-gray-700'
@@ -564,7 +564,7 @@ export function CallCompanion() {
               <div key={group.label}>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-1 h-3.5 rounded-full bg-gray-200 flex-shrink-0" />
-                  <p className="text-[11px] font-semibold text-gray-500">{group.label}</p>
+                  <p className="text-sm font-semibold text-gray-600">{group.label}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {group.symptoms.map(s => {
@@ -577,8 +577,8 @@ export function CallCompanion() {
                       <button key={s}
                         disabled={!activeCall}
                         onClick={() => active ? removeSymptom(activeSym?.id) : addSymptom(s)}
-                        className={`inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${chipCls}`}>
-                        {active && <Check size={9} />}
+                        className={`inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full border font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed ${chipCls}`}>
+                        {active && <Check size={11} />}
                         {s}
                       </button>
                     );
@@ -590,7 +590,7 @@ export function CallCompanion() {
             <form onSubmit={handleCustomAdd} className={`flex gap-2 ${!activeCall ? 'opacity-40 pointer-events-none' : ''}`}>
               <input value={custom} onChange={e => setCustom(e.target.value)}
                 placeholder="Type a custom symptom…"
-                className="flex-1 bg-white border border-gray-200 rounded-full px-4 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 transition-colors" />
+                className="flex-1 bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 transition-colors" />
               <button type="submit" disabled={!custom.trim()}
                 className="px-3 py-2 bg-green-700 hover:bg-green-800 text-white rounded-full disabled:opacity-40 transition-colors">
                 <Plus size={13} />
@@ -601,16 +601,16 @@ export function CallCompanion() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="w-1 h-3.5 rounded-full bg-green-400 flex-shrink-0" />
-                  <p className="text-[11px] font-semibold text-gray-500">Logged — {symptoms.length} symptom{symptoms.length !== 1 ? 's' : ''}</p>
+                  <p className="text-sm font-semibold text-gray-600">Logged — {symptoms.length} symptom{symptoms.length !== 1 ? 's' : ''}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {symptoms.map(s => {
                     const cfg = SEVERITY_CONFIG.find(c => c.v === s.severity);
                     return (
-                      <span key={s.id} className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${cfg?.chip || 'border-gray-200 text-gray-500'}`}>
+                      <span key={s.id} className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border font-medium ${cfg?.chip || 'border-gray-200 text-gray-500'}`}>
                         {s.symptom}
                         <button onClick={() => removeSymptom(s.id)} className="opacity-50 hover:opacity-100 transition-opacity ml-0.5">
-                          <X size={9} />
+                          <X size={11} />
                         </button>
                       </span>
                     );
@@ -622,12 +622,12 @@ export function CallCompanion() {
             {!activeCall && (
               <div className="text-center py-6 text-gray-400">
                 <Activity size={24} className="mx-auto mb-2 opacity-30" />
-                <p className="text-xs">Start or receive a call to log symptoms</p>
+                <p className="text-sm">Start or receive a call to log symptoms</p>
               </div>
             )}
 
             {activeCall && symptoms.length === 0 && (
-              <p className="text-center text-gray-400 text-xs py-2">
+              <p className="text-center text-gray-400 text-sm py-2">
                 Select symptoms above — AI diagnosis runs instantly
               </p>
             )}
