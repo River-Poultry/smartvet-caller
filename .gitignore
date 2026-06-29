@@ -11,6 +11,7 @@ backend/.env
 # Build outputs
 frontend/dist/
 frontend/.vite/
+frontend/dev-dist/
 
 # Logs
 *.log
