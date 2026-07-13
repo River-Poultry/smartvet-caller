@@ -8,7 +8,34 @@ A support tool for call center agents handling farmer calls and dispatching para
 - **AI assistant** — agents can ask animal health/protocol questions during a call
 - **Call transcription & summarization** — paste call notes and get an AI-generated summary (symptoms, animal type, urgency, recommended action) attached to the case
 - **Paravet dispatch** — assign available paravets to open cases and schedule visits
-- **Knowledge base** — searchable articles on animal health topics
+- **Automatic call recording** — starting a "Call Session" on a case automatically records and uploads the audio when the call ends, building a training dataset for the AI assistant
+- **User accounts & access levels** — JWT-based login with role-based permissions (admin, supervisor, agent, paravet)
+
+## User accounts & access levels
+
+Roles are modeled after a standard dispatch/emergency call center:
+
+| Role | Access |
+| --- | --- |
+| **Administrator** | Full access, including the User Accounts page to create/edit/disable users and assign roles |
+| **Supervisor** | Full access to cases, dispatch, paravets, recordings (including deleting cases/recordings); no user management |
+| **Agent / Dispatcher** | Create and manage cases, dispatch paravets, record calls, use the AI assistant |
+| **Paravet** | Read-only access to cases, dispatch, paravets, recordings and AI assistant |
+
+A fresh database seeds four default accounts (change these passwords before going to production):
+
+| Email | Password | Role |
+| --- | --- | --- |
+| admin@smartvet.local | admin123 | admin |
+| supervisor@smartvet.local | super123 | supervisor |
+| agent@smartvet.local | agent123 | agent |
+| paravet@smartvet.local | paravet123 | paravet |
+
+The signing secret for login tokens is `JWT_SECRET` in `backend/.env` — change it in production.
+
+## Automatic call recording
+
+Open a case and click **Start Call** in the "Call Session" panel. The browser begins recording your microphone immediately (after granting permission once). Clicking **End Call** stops the recording and uploads it automatically — no manual save step — tagging it with the case, the signed-in agent, and duration. Recordings and transcripts can be reviewed on the Call Recordings page to build a dataset for training the AI assistant.
 
 ## Stack
 

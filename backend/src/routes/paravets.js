@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../db/index.js';
+import { requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ router.put('/:id', (req, res) => {
   res.json(paravet);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireRole('admin', 'supervisor'), (req, res) => {
   const result = db.prepare('DELETE FROM paravets WHERE id = ?').run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: 'Paravet not found' });
   res.status(204).send();

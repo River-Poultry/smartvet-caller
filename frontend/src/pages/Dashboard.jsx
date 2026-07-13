@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [paravets, setParavets] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  if (user?.role === 'super_admin') return <Navigate to="/analytics" replace />;
 
   useEffect(() => {
     Promise.all([api.getTickets(), api.getParavets()])

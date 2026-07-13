@@ -63,6 +63,11 @@ router.put('/:id', (req, res) => {
   if (updates.status === 'completed') {
     db.prepare("UPDATE tickets SET status = 'resolved', updated_at = datetime('now') WHERE id = ?").run(existing.ticket_id);
     db.prepare("UPDATE paravets SET status = 'available' WHERE id = ?").run(existing.paravet_id);
+    // Auto-create VSB review for every resolved case
+    const existingReview = db.prepare('SELECT id FROM vetboard_reviews WHERE ticket_id = ?').get(existing.ticket_id);
+    if (!existingReview) {
+      db.prepare('INSERT INTO vetboard_reviews (ticket_id, created_by) VALUES (?, ?)').run(existing.ticket_id, req.user.id);
+    }
   }
 
   const dispatch = db.prepare(`${dispatchView} WHERE d.id = ?`).get(req.params.id);

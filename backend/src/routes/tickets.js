@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../db/index.js';
+import { requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -23,10 +24,10 @@ router.post('/', (req, res) => {
 
   const result = db
     .prepare(
-      `INSERT INTO tickets (farmer_name, phone, location, animal_type, issue_description, priority)
-       VALUES (?, ?, ?, ?, ?, ?)`
+      `INSERT INTO tickets (farmer_name, phone, location, animal_type, issue_description, priority, agent_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
     )
-    .run(farmer_name, phone || null, location || null, animal_type || null, issue_description || null, priority || 'normal');
+    .run(farmer_name, phone || null, location || null, animal_type || null, issue_description || null, priority || 'normal', req.user.id);
 
   const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json(ticket);
@@ -51,10 +52,19 @@ router.put('/:id', (req, res) => {
   }
 
   const ticket = db.prepare('SELECT * FROM tickets WHERE id = ?').get(req.params.id);
+
+  // Auto-create a VSB review when a case is resolved (if one doesn't already exist)
+  if (updates.status === 'resolved') {
+    const existingReview = db.prepare('SELECT id FROM vetboard_reviews WHERE ticket_id = ?').get(req.params.id);
+    if (!existingReview) {
+      db.prepare('INSERT INTO vetboard_reviews (ticket_id, created_by) VALUES (?, ?)').run(req.params.id, req.user.id);
+    }
+  }
+
   res.json(ticket);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireRole('admin', 'supervisor'), (req, res) => {
   const result = db.prepare('DELETE FROM tickets WHERE id = ?').run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: 'Ticket not found' });
   res.status(204).send();

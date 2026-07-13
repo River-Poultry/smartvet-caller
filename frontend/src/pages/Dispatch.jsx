@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function Dispatch() {
+  const { user } = useAuth();
+  const canEdit = user?.role !== 'paravet';
   const [dispatches, setDispatches] = useState([]);
   const [openTickets, setOpenTickets] = useState([]);
   const [availableParavets, setAvailableParavets] = useState([]);
@@ -41,6 +44,7 @@ export default function Dispatch() {
     <div>
       <h1 className="text-2xl font-semibold text-gray-800 mb-6">Dispatch</h1>
 
+      {canEdit && (
       <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-4 mb-6 grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Case</label>
@@ -96,6 +100,7 @@ export default function Dispatch() {
           </button>
         </div>
       </form>
+      )}
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <table className="w-full text-sm">
@@ -119,7 +124,7 @@ export default function Dispatch() {
                 <td className="px-4 py-2.5 text-gray-600">{d.scheduled_time ? new Date(d.scheduled_time).toLocaleString() : '—'}</td>
                 <td className="px-4 py-2.5 capitalize text-gray-600">{d.status}</td>
                 <td className="px-4 py-2.5">
-                  {d.status !== 'completed' && (
+                  {d.status !== 'completed' && canEdit && (
                     <button onClick={() => handleComplete(d.id)} className="text-brand-red text-sm hover:underline">
                       Mark Completed
                     </button>

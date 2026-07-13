@@ -24,7 +24,7 @@ router.post('/ask', async (req, res) => {
 });
 
 router.post('/summarize', async (req, res) => {
-  const { transcript, ticket_id } = req.body;
+  const { transcript, ticket_id, recording_id } = req.body;
   if (!transcript) return res.status(400).json({ error: 'transcript is required' });
 
   try {
@@ -36,6 +36,10 @@ router.post('/summarize', async (req, res) => {
         summary,
         ticket_id
       );
+    }
+
+    if (recording_id) {
+      db.prepare('UPDATE call_recordings SET transcript = ?, ai_summary = ? WHERE id = ?').run(transcript, summary, recording_id);
     }
 
     res.json({ summary });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 const emptyForm = { name: '', phone: '', specialization: '', location: '' };
 
@@ -10,6 +11,8 @@ const statusStyles = {
 };
 
 export default function Paravets() {
+  const { user } = useAuth();
+  const canEdit = user?.role !== 'paravet';
   const [paravets, setParavets] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -37,15 +40,17 @@ export default function Paravets() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Paravets</h1>
+        {canEdit && (
         <button
           onClick={() => setShowForm((s) => !s)}
           className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark"
         >
           {showForm ? 'Cancel' : 'Add Paravet'}
         </button>
+        )}
       </div>
 
-      {showForm && (
+      {showForm && canEdit && (
         <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-4 mb-6 grid grid-cols-2 gap-3">
           <Input label="Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
           <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
@@ -73,6 +78,7 @@ export default function Paravets() {
               className="w-full border border-gray-300 rounded-md px-2 py-1.5 text-sm"
               value={p.status}
               onChange={(e) => handleStatusChange(p.id, e.target.value)}
+              disabled={!canEdit}
             >
               <option value="available">Available</option>
               <option value="on_call">On Call</option>

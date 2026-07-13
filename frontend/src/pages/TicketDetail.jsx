@@ -2,13 +2,18 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { StatusBadge } from './Dashboard';
+import CallSessionPanel from '../components/CallSessionPanel';
+import { useAuth } from '../context/AuthContext';
 
 export default function TicketDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canEdit = !['paravet', 'vetboard'].includes(user?.role);
   const [ticket, setTicket] = useState(null);
   const [transcript, setTranscript] = useState('');
   const [summarizing, setSummarizing] = useState(false);
+  const [vsbReview, setVsbReview] = useState(null);
   const [error, setError] = useState('');
 
   function load() {
@@ -16,6 +21,11 @@ export default function TicketDetail() {
       setTicket(t);
       setTranscript(t.transcript || '');
     });
+    api.getVetboardReviews().then((reviews) => {
+      const active = reviews.find((r) => r.ticket_id === Number(id) && r.status !== 'completed');
+      const completed = reviews.filter((r) => r.ticket_id === Number(id) && r.status === 'completed');
+      setVsbReview(active || completed[0] || null);
+    }).catch(() => {});
   }
 
   useEffect(load, [id]);
@@ -44,6 +54,7 @@ export default function TicketDetail() {
     navigate('/tickets');
   }
 
+
   if (!ticket) return <p className="text-gray-500">Loading...</p>;
 
   return (
@@ -67,6 +78,7 @@ export default function TicketDetail() {
         </div>
       </div>
 
+      {canEdit && (
       <div className="flex gap-2 mb-6">
         {['open', 'in_progress', 'assigned', 'resolved'].map((s) => (
           <button
@@ -83,6 +95,21 @@ export default function TicketDetail() {
           Delete Case
         </button>
       </div>
+      )}
+
+      {/* VSB Review status (auto-created on resolution) */}
+      {vsbReview && (
+        <div className={`rounded-lg p-3 mb-4 text-sm border ${vsbReview.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+          <p className="font-medium text-gray-700 mb-0.5">
+            ⚖ Vet Science Board Review — <span className="capitalize">{vsbReview.status.replace('_', ' ')}</span>
+          </p>
+          {vsbReview.findings && <p className="text-gray-600 mt-1"><span className="font-medium">Findings:</span> {vsbReview.findings}</p>}
+          {vsbReview.recommendation && <p className="text-gray-600"><span className="font-medium">Recommendation:</span> {vsbReview.recommendation}</p>}
+          {!vsbReview.findings && <p className="text-gray-500 text-xs mt-0.5">Queued for VSB review — resolve the case to trigger review.</p>}
+        </div>
+      )}
+
+      <CallSessionPanel ticketId={id} />
 
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <h2 className="font-semibold text-gray-700 mb-2">Call Transcript &amp; AI Summary</h2>
@@ -92,7 +119,9 @@ export default function TicketDetail() {
           placeholder="Paste or type the call transcript / notes here..."
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
+          disabled={!canEdit}
         />
+        {canEdit && (
         <button
           onClick={handleSummarize}
           disabled={summarizing || !transcript.trim()}
@@ -100,6 +129,7 @@ export default function TicketDetail() {
         >
           {summarizing ? 'Summarizing...' : 'Summarize with AI'}
         </button>
+        )}
         {error && <p className="text-amber-700 text-sm mt-2 bg-amber-50 border border-amber-200 rounded-md p-2">{error}</p>}
         {ticket.ai_summary && (
           <div className="mt-3 bg-amber-50 border border-amber-200 rounded-md p-3 text-sm whitespace-pre-wrap">

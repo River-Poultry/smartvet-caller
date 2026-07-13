@@ -6,3 +6,5 @@ dist/
 *.sqlite-wal
 *.sqlite-shm
 .DS_Store
+backend/uploads/recordings/*
+!backend/uploads/recordings/.gitkeep

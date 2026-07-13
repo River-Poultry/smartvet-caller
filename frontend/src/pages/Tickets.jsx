@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { StatusBadge } from './Dashboard';
+import { useAuth } from '../context/AuthContext';
 
 const emptyForm = { farmer_name: '', phone: '', location: '', animal_type: '', issue_description: '', priority: 'normal' };
 
 export default function Tickets() {
+  const { user } = useAuth();
+  const canEdit = user?.role !== 'paravet';
   const [tickets, setTickets] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -31,15 +34,17 @@ export default function Tickets() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Cases</h1>
+        {canEdit && (
         <button
           onClick={() => setShowForm((s) => !s)}
           className="bg-brand-red text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-brand-red-dark"
         >
           {showForm ? 'Cancel' : 'New Case'}
         </button>
+        )}
       </div>
 
-      {showForm && (
+      {showForm && canEdit && (
         <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-4 mb-6 grid grid-cols-2 gap-3">
           <Input label="Farmer Name" value={form.farmer_name} onChange={(v) => setForm({ ...form, farmer_name: v })} required />
           <Input label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />

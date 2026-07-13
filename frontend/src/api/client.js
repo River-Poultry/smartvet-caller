@@ -1,8 +1,18 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4500/api';
 
+let authToken = null;
+
+export function setAuthToken(token) {
+  authToken = token;
+}
+
 async function request(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+  if (authToken) headers.Authorization = `Bearer ${authToken}`;
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
 
@@ -18,7 +28,19 @@ async function request(path, options = {}) {
   return response.json();
 }
 
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
+
 export const api = {
+  // Auth
+  login: (email, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  getMe: () => request('/auth/me'),
+
+  // Users (admin only)
+  getUsers: () => request('/users'),
+  createUser: (data) => request('/users', { method: 'POST', body: JSON.stringify(data) }),
+  updateUser: (id, data) => request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteUser: (id) => request(`/users/${id}`, { method: 'DELETE' }),
+
   // Tickets
   getTickets: (status) => request(`/tickets${status ? `?status=${status}` : ''}`),
   getTicket: (id) => request(`/tickets/${id}`),
@@ -31,12 +53,6 @@ export const api = {
   createParavet: (data) => request('/paravets', { method: 'POST', body: JSON.stringify(data) }),
   updateParavet: (id, data) => request(`/paravets/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 
-  // Knowledge base
-  getArticles: (params) => request(`/knowledge${params ? `?${params}` : ''}`),
-  createArticle: (data) => request('/knowledge', { method: 'POST', body: JSON.stringify(data) }),
-  updateArticle: (id, data) => request(`/knowledge/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteArticle: (id) => request(`/knowledge/${id}`, { method: 'DELETE' }),
-
   // Dispatch
   getDispatches: () => request('/dispatch'),
   createDispatch: (data) => request('/dispatch', { method: 'POST', body: JSON.stringify(data) }),
@@ -45,6 +61,28 @@ export const api = {
   // AI
   getAiStatus: () => request('/ai/status'),
   askAi: (question, context) => request('/ai/ask', { method: 'POST', body: JSON.stringify({ question, context }) }),
-  summarizeTranscript: (transcript, ticket_id) =>
-    request('/ai/summarize', { method: 'POST', body: JSON.stringify({ transcript, ticket_id }) }),
+  summarizeTranscript: (transcript, ticket_id, recording_id) =>
+    request('/ai/summarize', { method: 'POST', body: JSON.stringify({ transcript, ticket_id, recording_id }) }),
+
+  // Recordings
+  getRecordings: (ticket_id) => request(`/recordings${ticket_id ? `?ticket_id=${ticket_id}` : ''}`),
+  getRecording: (id) => request(`/recordings/${id}`),
+  uploadRecording: (formData) => request('/recordings', { method: 'POST', body: formData }),
+  updateRecording: (id, data) => request(`/recordings/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRecording: (id) => request(`/recordings/${id}`, { method: 'DELETE' }),
+
+  // Analytics
+  getAnalytics: () => request('/analytics'),
+
+  // VetBoard reviews
+  getVetboardReviews: (status) => request(`/vetboard${status ? `?status=${status}` : ''}`),
+  getVetboardReview: (id) => request(`/vetboard/${id}`),
+  createVetboardReview: (data) => request('/vetboard', { method: 'POST', body: JSON.stringify(data) }),
+  updateVetboardReview: (id, data) => request(`/vetboard/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Calls
+  getCallContacts: (q) => request(`/calls/contacts${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+  getCalls: (params) => request(`/calls${params ? `?${params}` : ''}`),
+  logCall: (formData) => request('/calls', { method: 'POST', body: formData }),
+  updateCall: (id, data) => request(`/calls/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
 };
