@@ -1,80 +1,137 @@
-# SmartVet Call Center
+# SmartVet AI Call Centre
 
-A support tool for call center agents handling farmer calls and dispatching paravets, with an AI assistant powered by a custom model.
+AI-assisted veterinary dispatch call centre for SmartVet Africa. Agents handle inbound farmer calls, track symptoms in real time, get instant AI disease diagnosis, and dispatch field vets — with a full escalation chain (L1 Agent → L2 Paravet → L3 Vet → L4 Emergency).
 
-## Features
+---
 
-- **Case management** — log farmer calls as cases, track status (open → assigned → in progress → resolved)
-- **AI assistant** — agents can ask animal health/protocol questions during a call
-- **Call transcription & summarization** — paste call notes and get an AI-generated summary (symptoms, animal type, urgency, recommended action) attached to the case
-- **Paravet dispatch** — assign available paravets to open cases and schedule visits
-- **Automatic call recording** — starting a "Call Session" on a case automatically records and uploads the audio when the call ends, building a training dataset for the AI assistant
-- **User accounts & access levels** — JWT-based login with role-based permissions (admin, supervisor, agent, paravet)
+## Architecture
 
-## User accounts & access levels
+```
+smartvet-ai-callcenter/
+├── frontend/          React 18 + Vite + Tailwind CSS  (port 5174)
+└── backend/           Node.js + Express + PostgreSQL   (port 4600)
+```
 
-Roles are modeled after a standard dispatch/emergency call center:
+### Frontend (Vite + React)
+- **State**: Zustand (`authStore`, `callStore`)
+- **Routing**: React Router v6
+- **Realtime**: WebSocket via `useWebSocket` hook
+- **Theme**: SmartVet green brand (`#16a34a`), light/dark mode supported
 
-| Role | Access |
-| --- | --- |
-| **Administrator** | Full access, including the User Accounts page to create/edit/disable users and assign roles |
-| **Supervisor** | Full access to cases, dispatch, paravets, recordings (including deleting cases/recordings); no user management |
-| **Agent / Dispatcher** | Create and manage cases, dispatch paravets, record calls, use the AI assistant |
-| **Paravet** | Read-only access to cases, dispatch, paravets, recordings and AI assistant |
+### Backend (Express ESM)
+- **Auth**: JWT (8h expiry) + bcryptjs
+- **Database**: PostgreSQL via `pg` — 6 sequential migrations
+- **Realtime**: `ws` library, keyed per agentId
+- **AI Diagnosis**: Local offline engine (`diseaseDiagnosis.js`) — 10 poultry diseases — with pluggable external model via `AI_MODEL_URL`
+- **Core API**: Proxies to live Django backend at `smartvet.africa` for farmer/vet data
 
-A fresh database seeds four default accounts (change these passwords before going to production):
+### Database migrations (run in order)
+| File | Purpose |
+|------|---------|
+| 001_initial_schema.sql | Core tables: agents, calls, dispatch |
+| 002_farmers_vets.sql | Farmer/vet/call_symptoms tables + seeds |
+| 003_batches_tasks.sql | Farm batches and scheduled tasks |
+| 004_enrich_schema.sql | Schema enrichments |
+| 005_escalation_inventory.sql | Escalation levels + vet_inventory |
+| 006_warehouse_inventory.sql | Central warehouse + stock allocations |
 
-| Email | Password | Role |
-| --- | --- | --- |
-| admin@smartvet.local | admin123 | admin |
-| supervisor@smartvet.local | super123 | supervisor |
-| agent@smartvet.local | agent123 | agent |
-| paravet@smartvet.local | paravet123 | paravet |
+---
 
-The signing secret for login tokens is `JWT_SECRET` in `backend/.env` — change it in production.
+## Local Development
 
-## Automatic call recording
-
-Open a case and click **Start Call** in the "Call Session" panel. The browser begins recording your microphone immediately (after granting permission once). Clicking **End Call** stops the recording and uploads it automatically — no manual save step — tagging it with the case, the signed-in agent, and duration. Recordings and transcripts can be reviewed on the Call Recordings page to build a dataset for training the AI assistant.
-
-## Stack
-
-- **Frontend**: Vite + React + Tailwind CSS (`frontend/`)
-- **Backend**: Node.js + Express + SQLite (`backend/`)
-
-## Setup
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 14+
 
 ### Backend
-
 ```bash
 cd backend
-cp .env.example .env
+cp .env.example .env        # fill in values
 npm install
-npm run dev
+npm run migrate             # run all migrations
+npm run dev                 # starts on :4600
 ```
-
-Runs on `http://localhost:4500`. Database file (`data.sqlite`) is created automatically.
 
 ### Frontend
-
 ```bash
 cd frontend
-cp .env.example .env
+cp .env.example .env.local  # set VITE_API_BASE_URL if needed
 npm install
-npm run dev
+npm run dev                 # starts on :5174, proxies /api → :4600
 ```
 
-Runs on `http://localhost:5173` (or next available port).
-
-## Connecting your AI model
-
-The AI assistant and transcript summarizer call out to your own trained model via a REST endpoint. Set these in `backend/.env`:
-
+### Default credentials (development only)
 ```
-AI_MODEL_API_URL=https://your-ai-model-endpoint.example.com/v1/generate
-AI_MODEL_API_KEY=your-api-key
+Admin:  admin@smartvet.africa  /  Admin123!
+Agent:  (create via admin panel or seed)
 ```
 
-The backend (`backend/src/services/aiService.js`) sends `{ prompt, task }` as a JSON POST and expects a JSON response containing one of `response`, `output`, or `text`. Adjust the request/response shape in that file to match your model's API contract.
+---
 
-Until configured, the AI Assistant page and "Summarize with AI" button will show a clear "not configured" message instead of failing silently.
+## Deployment
+
+### Frontend → Vercel
+```bash
+cd frontend
+# Set environment variables in Vercel dashboard:
+#   VITE_API_BASE_URL = https://your-api.railway.app/api
+#   VITE_WS_URL      = wss://your-api.railway.app
+vercel --prod
+```
+`vercel.json` is included — all routes rewrite to `index.html` (SPA).
+
+### Backend → Railway
+```bash
+# In Railway dashboard:
+# 1. Connect this repo, set root directory to /backend
+# 2. Add environment variables from .env.example
+# 3. Railway auto-runs: npm run migrate && npm start
+```
+`backend/railway.toml` is included with the correct start command.
+
+### Required environment variables (production)
+See `backend/.env.example` and `frontend/.env.example`.
+
+---
+
+## Key Features
+
+| Feature | Location |
+|---------|----------|
+| Live call handling (Twilio) | `backend/src/routes/twilio.js` |
+| Symptom tracker + AI diagnosis | `frontend/src/components/agent/CallCompanion.jsx` |
+| Local AI prescription engine | `backend/src/services/diseaseDiagnosis.js` |
+| Pluggable external AI model | `backend/src/services/aiModel.js` (`AI_MODEL_URL`) |
+| Caller identification + quick-register | `frontend/src/components/agent/CallerPanel.jsx` |
+| FBI-style dispatch board | `frontend/src/pages/AdminDashboard.jsx` |
+| L1→L4 escalation chain | `backend/src/controllers/dispatchController.js` |
+| Vet field stock + warehouse inventory | `backend/src/controllers/inventoryController.js` |
+| Live Django data proxy | `backend/src/services/smartvetCore.js` |
+
+---
+
+## API Overview
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/auth/login` | Agent login |
+| GET | `/api/calls/active` | Active call for agent |
+| POST | `/api/calls/:id/symptoms` | Log symptom to call |
+| POST | `/api/diagnose` | AI diagnosis from symptoms |
+| GET | `/api/inventory/suggestions` | Drug suggestions by disease |
+| POST | `/api/vet-dispatch` | Create dispatch request |
+| PATCH | `/api/vet-dispatch/:id/escalate` | Escalate dispatch level |
+| GET | `/api/inventory/warehouse` | Central warehouse stock |
+| POST | `/api/inventory/warehouse/allocate` | Allocate stock to vet |
+| GET | `/api/ai/status` | AI model status |
+
+---
+
+## Security
+
+- JWT tokens — never stored server-side, validated on every request
+- Passwords hashed with bcryptjs (12 rounds)
+- Helmet.js security headers on all responses
+- CORS restricted to `FRONTEND_URL`
+- Admin-only routes gated by `requireAdmin` middleware
+- No secrets committed — `.env` is in `.gitignore`

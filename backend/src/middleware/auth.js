@@ -1,41 +1,40 @@
 import jwt from 'jsonwebtoken';
+import { query } from '../db/index.js';
+import { env } from '../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'smartvet-dev-secret-change-me';
+export async function requireAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing authorization token' });
+  }
 
-export function signToken(user) {
-  return jwt.sign({ id: user.id, name: user.name, email: user.email, role: user.role }, JWT_SECRET, {
-    expiresIn: '12h',
-  });
-}
-
-export function requireAuth(req, res, next) {
-  const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'Authentication required' });
-
+  const token = header.slice(7);
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, env.jwtSecret);
+    const { rows } = await query(
+      'SELECT id, name, email, status, is_admin, role, is_active FROM agents WHERE id = $1',
+      [payload.agentId]
+    );
+    if (!rows.length) return res.status(401).json({ error: 'Agent not found' });
+    if (rows[0].is_active === false) return res.status(403).json({ error: 'Your account has been disabled. Contact an administrator.' });
+    req.agent = rows[0];
     next();
   } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
 
-export function requireRole(...roles) {
-  return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'You do not have permission to perform this action' });
-    }
-    next();
-  };
-}
-
-// Paravets, super_admins, and vetboard members get read-only access on operational routes.
-export function blockReadOnlyRoles(req, res, next) {
-  if (['paravet', 'super_admin', 'vetboard'].includes(req.user?.role) && req.method !== 'GET') {
-    return res.status(403).json({ error: 'Your role has read-only access on this resource' });
+export function requireAdmin(req, res, next) {
+  if (!req.agent?.is_admin && req.agent?.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
   }
   next();
 }
 
-export { JWT_SECRET };
+export function requireVetBoard(req, res, next) {
+  const role = req.agent?.role;
+  if (role !== 'vet_board' && role !== 'admin' && !req.agent?.is_admin) {
+    return res.status(403).json({ error: 'Vet board access required' });
+  }
+  next();
+}

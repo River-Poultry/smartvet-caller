@@ -1,54 +1,34 @@
-import express from 'express';
-import { askAssistant, summarizeTranscript, isConfigured } from '../services/aiService.js';
-import db from '../db/index.js';
+import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { queryAIModel, isExternalModelConfigured } from '../services/aiModel.js';
 
-const router = express.Router();
+const router = Router();
 
-router.get('/status', (req, res) => {
-  res.json({ configured: isConfigured() });
+/**
+ * POST /api/ai/ask
+ * Send a free-text question OR symptoms to the AI model.
+ * Body: { question?, symptoms?, bird_type?, context? }
+ */
+router.post('/ask', requireAuth, async (req, res) => {
+  const { question = '', symptoms = [], bird_type = 'chicken', context = '' } = req.body;
+  if (!question && !symptoms.length) {
+    return res.status(400).json({ error: 'question or symptoms required' });
+  }
+
+  const result = await queryAIModel({ question, symptoms, bird_type, context });
+  res.json({
+    ...result,
+    external_model_configured: isExternalModelConfigured(),
+  });
 });
 
-router.post('/ask', async (req, res) => {
-  const { question, context } = req.body;
-  if (!question) return res.status(400).json({ error: 'question is required' });
-
-  try {
-    const answer = await askAssistant(question, context);
-    res.json({ answer });
-  } catch (err) {
-    if (err.code === 'AI_NOT_CONFIGURED') {
-      return res.status(503).json({ error: err.message, code: err.code });
-    }
-    res.status(502).json({ error: err.message });
-  }
-});
-
-router.post('/summarize', async (req, res) => {
-  const { transcript, ticket_id, recording_id } = req.body;
-  if (!transcript) return res.status(400).json({ error: 'transcript is required' });
-
-  try {
-    const summary = await summarizeTranscript(transcript);
-
-    if (ticket_id) {
-      db.prepare("UPDATE tickets SET transcript = ?, ai_summary = ?, updated_at = datetime('now') WHERE id = ?").run(
-        transcript,
-        summary,
-        ticket_id
-      );
-    }
-
-    if (recording_id) {
-      db.prepare('UPDATE call_recordings SET transcript = ?, ai_summary = ? WHERE id = ?').run(transcript, summary, recording_id);
-    }
-
-    res.json({ summary });
-  } catch (err) {
-    if (err.code === 'AI_NOT_CONFIGURED') {
-      return res.status(503).json({ error: err.message, code: err.code });
-    }
-    res.status(502).json({ error: err.message });
-  }
+/** GET /api/ai/status — tells frontend if external model is live */
+router.get('/status', requireAuth, (req, res) => {
+  res.json({
+    external_model_configured: isExternalModelConfigured(),
+    model_url: process.env.AI_MODEL_URL ? '(configured)' : null,
+    local_engine: 'SmartVet Local Prescription Engine v1',
+  });
 });
 
 export default router;

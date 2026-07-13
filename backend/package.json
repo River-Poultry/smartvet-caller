@@ -1,21 +1,33 @@
 {
   "name": "smartvet-callcenter-backend",
   "version": "1.0.0",
-  "description": "API for the SmartVet Call Center support app",
-  "main": "src/server.js",
+  "description": "SmartVet AI-Powered Call Centre Backend",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "dev": "nodemon start.js",
+    "start": "node start.js",
+    "migrate": "node src/migrations/run.js"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^11.3.0",
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1",
-    "node-fetch": "^3.3.2"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^9.0.1",
+    "pg": "^8.11.3",
+    "pg-pool": "^3.6.1",
+    "twilio": "^4.19.0",
+    "uuid": "^14.0.1",
+    "winston": "^3.11.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }

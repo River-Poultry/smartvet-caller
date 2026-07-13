@@ -1,60 +1,53 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/Layout';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Tickets from './pages/Tickets';
-import TicketDetail from './pages/TicketDetail';
-import Calls from './pages/Calls';
-import Analytics from './pages/Analytics';
-import VetboardReviews from './pages/VetboardReviews';
-import Paravets from './pages/Paravets';
-import Dispatch from './pages/Dispatch';
-import AiAssistant from './pages/AiAssistant';
-import Recordings from './pages/Recordings';
-import Users from './pages/Users';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useAuthStore } from './store/authStore.js';
+import { on } from './services/websocket.js';
+import { useWebSocket } from './hooks/useWebSocket.js';
+import Login from './pages/Login.jsx';
+import AgentDashboard from './pages/AgentDashboard.jsx';
+import AdminDashboard from './pages/AdminDashboard.jsx';
+import VetBoardDashboard from './pages/VetBoardDashboard.jsx';
+import FarmersList from './pages/FarmersList.jsx';
+import VetsList from './pages/VetsList.jsx';
 
-function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/analytics" element={
-              <ProtectedRoute roles={['super_admin', 'admin']}>
-                <Analytics />
-              </ProtectedRoute>
-            } />
-            <Route path="/tickets" element={<Tickets />} />
-            <Route path="/tickets/:id" element={<TicketDetail />} />
-            <Route path="/calls" element={<Calls />} />
-            <Route path="/paravets" element={<Paravets />} />
-            <Route path="/dispatch" element={<Dispatch />} />
-            <Route path="/assistant" element={<AiAssistant />} />
-            <Route path="/recordings" element={<Recordings />} />
-            <Route path="/vetboard" element={<VetboardReviews />} />
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute roles={['admin']}>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+function homeFor(agent) {
+  if (!agent) return '/login';
+  if (agent.isAdmin) return '/admin';
+  if (agent.isVetBoard) return '/vet-board';
+  return '/agent';
 }
 
-export default App;
+function ProtectedRoute({ children, adminOnly = false, vetBoardOnly = false }) {
+  const { agent } = useAuthStore();
+  if (!agent) return <Navigate to="/login" replace />;
+  if (adminOnly && !agent.isAdmin) return <Navigate to={homeFor(agent)} replace />;
+  if (vetBoardOnly && agent.role !== 'vet_board' && !agent.isAdmin) return <Navigate to={homeFor(agent)} replace />;
+  return children;
+}
+
+export default function App() {
+  const { agent, token } = useAuthStore();
+  const navigate = useNavigate();
+
+  useWebSocket();
+
+  useEffect(() => {
+    if (!token) return;
+    const unsub = on('OUTBOUND_CALL_STARTED', () => {
+      navigate('/agent');
+    });
+    return unsub;
+  }, [token]);
+
+  return (
+    <Routes>
+      <Route path="/login" element={agent ? <Navigate to={homeFor(agent)} /> : <Login />} />
+      <Route path="/agent"         element={<ProtectedRoute><AgentDashboard /></ProtectedRoute>} />
+      <Route path="/agent/farmers" element={<ProtectedRoute><FarmersList /></ProtectedRoute>} />
+      <Route path="/agent/vets"    element={<ProtectedRoute><VetsList /></ProtectedRoute>} />
+      <Route path="/admin"         element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/vet-board"     element={<ProtectedRoute vetBoardOnly><VetBoardDashboard /></ProtectedRoute>} />
+      <Route path="*" element={<Navigate to={homeFor(agent)} replace />} />
+    </Routes>
+  );
+}

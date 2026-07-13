@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/
 dist/
 .env
@@ -8,3 +9,43 @@ dist/
 .DS_Store
 backend/uploads/recordings/*
 !backend/uploads/recordings/.gitkeep
+=======
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Build outputs
+frontend/dist/
+frontend/.vite/
+frontend/dev-dist/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Coverage
+coverage/
+
+# Temporary
+*.tmp
+*.temp
+
+# Claude Code editor files
+.claude/
+frontend/.vercel/
+>>>>>>> 9180d40f17216bf13ea7488fc249fa78a8fec721
