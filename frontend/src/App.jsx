@@ -20,7 +20,7 @@ function homeFor(agent) {
 function ProtectedRoute({ children, adminOnly = false, vetBoardOnly = false }) {
   const { agent } = useAuthStore();
   if (!agent) return <Navigate to="/login" replace />;
-  if (adminOnly && !agent.isAdmin) return <Navigate to={homeFor(agent)} replace />;
+  if (adminOnly && !agent.isAdmin && agent.role !== 'super_admin') return <Navigate to={homeFor(agent)} replace />;
   if (vetBoardOnly && agent.role !== 'vet_board' && !agent.isAdmin) return <Navigate to={homeFor(agent)} replace />;
   return children;
 }
