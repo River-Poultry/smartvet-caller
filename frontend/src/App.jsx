@@ -12,8 +12,8 @@ import VetsList from './pages/VetsList.jsx';
 
 function homeFor(agent) {
   if (!agent) return '/login';
-  if (agent.isAdmin) return '/admin';
-  if (agent.isVetBoard) return '/vet-board';
+  if (agent.isAdmin || agent.role === 'super_admin') return '/admin';
+  if (agent.isVetBoard || agent.role === 'vet_board') return '/vet-board';
   return '/agent';
 }
 
