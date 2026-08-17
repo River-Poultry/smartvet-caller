@@ -181,3 +181,18 @@ export async function syncFromDjango(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function resetAgentPassword(req, res) {
+  const { agentId } = req.params;
+  const { password } = req.body;
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
+  const hash = await bcrypt.hash(password, 12);
+  const { rows } = await query(
+    `UPDATE agents SET password_hash = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, email, role`,
+    [hash, agentId]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'Agent not found' });
+  res.json({ success: true, agent: rows[0] });
+}
