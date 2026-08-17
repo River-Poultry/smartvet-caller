@@ -237,14 +237,13 @@ export async function forgotPassword(req, res) {
     [agent.id, code, exp]
   );
 
-  try {
-    await sendOtpEmail(agent.email, code, 'reset');
-  } catch (emailErr) {
-    console.error('[forgotPassword] Failed to send reset email:', emailErr.message);
-    return res.status(500).json({ error: 'Failed to send reset email. Please try again later.' });
-  }
-
+  // Respond immediately — don't block on SMTP
   res.json({ message: 'If that email exists, a reset code has been sent.' });
+
+  // Send email asynchronously so SMTP delays don't time out the request
+  sendOtpEmail(agent.email, code, 'reset').catch(emailErr => {
+    console.error('[forgotPassword] Failed to send reset email:', emailErr.message);
+  });
 }
 
 export async function resetPassword(req, res) {
