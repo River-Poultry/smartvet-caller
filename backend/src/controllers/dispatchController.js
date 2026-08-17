@@ -129,6 +129,12 @@ export async function listDispatches(req, res) {
   const conditions = [];
   const params = [];
 
+  // Non-admins can only see their own dispatches
+  if (!req.agent.is_admin && req.agent.role !== 'admin' && req.agent.role !== 'super_admin') {
+    params.push(req.agent.id);
+    conditions.push(`agent_id = $${params.length}`);
+  }
+
   if (status) { params.push(status); conditions.push(`status = $${params.length}`); }
   if (urgency) { params.push(urgency); conditions.push(`urgency_level = $${params.length}`); }
 
@@ -147,14 +153,17 @@ export async function escalateDispatch(req, res) {
   const { dispatchId } = req.params;
   const { escalation_level, escalation_notes } = req.body;
 
+  const isAdmin = req.agent.is_admin || req.agent.role === 'admin' || req.agent.role === 'super_admin';
+  const ownerClause = isAdmin ? '' : `AND agent_id = '${req.agent.id}'`;
+
   const { rows } = await query(
     `UPDATE vet_dispatch_requests
      SET escalation_level = $1,
          escalation_notes = $2,
          escalated_at = NOW(),
          updated_at = NOW()
-     WHERE id = $3 RETURNING *`,
-    [escalation_level, escalation_notes || '', dispatchId]
+     WHERE id = $3 ${isAdmin ? '' : 'AND agent_id = $4'} RETURNING *`,
+    isAdmin ? [escalation_level, escalation_notes || '', dispatchId] : [escalation_level, escalation_notes || '', dispatchId, req.agent.id]
   );
 
   if (!rows.length) return res.status(404).json({ error: 'Dispatch not found' });
@@ -166,14 +175,16 @@ export async function resolveDispatch(req, res) {
   const { dispatchId } = req.params;
   const { agent_notes, outcome } = req.body;
 
+  const isAdmin = req.agent.is_admin || req.agent.role === 'admin' || req.agent.role === 'super_admin';
+
   const { rows } = await query(
     `UPDATE vet_dispatch_requests
      SET status = 'completed',
          resolved_at = NOW(),
          agent_notes = COALESCE($1, agent_notes),
          updated_at = NOW()
-     WHERE id = $2 RETURNING *`,
-    [agent_notes, dispatchId]
+     WHERE id = $2 ${isAdmin ? '' : 'AND agent_id = $3'} RETURNING *`,
+    isAdmin ? [agent_notes, dispatchId] : [agent_notes, dispatchId, req.agent.id]
   );
 
   if (!rows.length) return res.status(404).json({ error: 'Dispatch not found' });

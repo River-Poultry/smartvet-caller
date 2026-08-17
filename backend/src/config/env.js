@@ -51,6 +51,7 @@ export function validateEnv() {
   const required = [
     ['DATABASE_URL', env.databaseUrl],
     ['JWT_SECRET', process.env.JWT_SECRET],
+    ['JWT_REFRESH_SECRET', process.env.JWT_REFRESH_SECRET],
   ];
 
   const missing = required.filter(([, v]) => !v).map(([k]) => k);
@@ -60,6 +61,11 @@ export function validateEnv() {
   }
 
   if (env.isProduction && env.jwtSecret.startsWith('dev-')) {
-    console.warn('[env] WARNING: Using development JWT secret in production');
+    console.error('[env] FATAL: Using development JWT secret in production — refusing to start');
+    process.exit(1);
+  }
+  if (env.isProduction && env.jwtRefreshSecret.startsWith('dev-')) {
+    console.error('[env] FATAL: Using development JWT refresh secret in production — refusing to start');
+    process.exit(1);
   }
 }

@@ -10,7 +10,8 @@ function twilioClient() {
 }
 
 export async function getActiveCall(req, res) {
-  const agentId = req.params.agentId || req.agent.id;
+  // Non-admins can only view their own active call
+  const agentId = (req.params.agentId && req.agent.is_admin) ? req.params.agentId : req.agent.id;
 
   const { rows } = await query(
     `SELECT c.*,

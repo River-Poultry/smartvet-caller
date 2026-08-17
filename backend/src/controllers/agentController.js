@@ -67,9 +67,9 @@ export async function updateAgent(req, res) {
     return res.status(400).json({ error: `role must be one of: ${VALID_ROLES.join(', ')}` });
   }
 
-  // Only set is_admin=true when promoting to admin; never clear it via a role change
-  // (prevents accidental lockout when reassigning the last admin's role)
-  const isAdmin = role === 'admin' ? true : undefined;
+  // Explicitly sync is_admin with the role being assigned.
+  // When no role change is requested (role is undefined), leave is_admin unchanged via COALESCE.
+  const isAdmin = role === 'admin' ? true : role ? false : undefined;
 
   const { rows } = await query(
     `UPDATE agents SET
@@ -173,7 +173,8 @@ export async function syncFromDjango(req, res) {
         [vet.name, email, vet.phone || null, hash, vet.django_id, vet.role || 'paravet']
       );
 
-      imported.push({ ...rows[0], temp_password: tempPassword });
+      // Do not expose temp_password in the response — users must reset via forgot-password flow
+      imported.push(rows[0]);
     }
 
     res.json({ imported: imported.length, skipped, users: imported });

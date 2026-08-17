@@ -130,10 +130,10 @@ export async function refresh(req, res) {
 
   const hash = crypto.createHash('sha256').update(refreshToken).digest('hex');
   const { rows } = await query(
-    `SELECT rt.*, a.is_admin, a.role, a.email, a.name, a.phone
+    `SELECT rt.*, a.is_admin, a.role, a.email, a.name, a.phone, a.is_active
      FROM refresh_tokens rt
      JOIN agents a ON a.id = rt.agent_id
-     WHERE rt.token_hash = $1 AND rt.revoked = false AND rt.expires_at > NOW()`,
+     WHERE rt.token_hash = $1 AND rt.revoked = false AND rt.expires_at > NOW() AND a.is_active = true`,
     [hash]
   );
 
@@ -248,19 +248,20 @@ export async function forgotPassword(req, res) {
 }
 
 export async function resetPassword(req, res) {
-  const { code, newPassword } = req.body;
-  if (!code || !newPassword) {
-    return res.status(400).json({ error: 'code and newPassword are required' });
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ error: 'email, code and newPassword are required' });
   }
 
   const err = validatePassword(newPassword);
   if (err) return res.status(400).json({ error: err });
 
   const { rows } = await query(
-    `SELECT * FROM otp_codes
-     WHERE code = $1 AND purpose = 'reset' AND used = false AND expires_at > NOW()
-     ORDER BY created_at DESC LIMIT 1`,
-    [code]
+    `SELECT oc.* FROM otp_codes oc
+     JOIN agents a ON a.id = oc.agent_id
+     WHERE oc.code = $1 AND a.email = $2 AND oc.purpose = 'reset' AND oc.used = false AND oc.expires_at > NOW()
+     ORDER BY oc.created_at DESC LIMIT 1`,
+    [code, email.toLowerCase().trim()]
   );
   if (!rows.length) return res.status(400).json({ error: 'Invalid or expired reset code' });
 
