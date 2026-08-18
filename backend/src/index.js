@@ -63,4 +63,18 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4600;
 server.listen(PORT, () => {
   logger.info(`SmartVet Call Centre backend running on port ${PORT}`);
+
+  // Keep-alive: ping own health endpoint every 10 minutes to prevent Render free-tier spin-down
+  const SELF_URL = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL;
+  if (SELF_URL && process.env.NODE_ENV === 'production') {
+    setInterval(async () => {
+      try {
+        const res = await fetch(`${SELF_URL}/health`);
+        logger.info(`[keep-alive] ping ${res.status}`);
+      } catch (err) {
+        logger.warn(`[keep-alive] ping failed: ${err.message}`);
+      }
+    }, 10 * 60 * 1000); // every 10 minutes
+    logger.info(`[keep-alive] started — pinging ${SELF_URL}/health every 10 min`);
+  }
 });
