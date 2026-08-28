@@ -32,18 +32,24 @@ if (existsSync(publicDir)) {
 const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:5173',
+  'http://localhost:3000',
   'https://smartvet-caller.vercel.app',
   'https://callcenter.smartvet.africa',
+  'https://smartvet.africa',
   ...( process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map(s => s.trim()) : [] ),
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // allow server-to-server / curl
+    if (!origin) return cb(null, true); // allow server-to-server / curl / mobile apps
     if (allowedOrigins.includes(origin)) return cb(null, true);
-    // allow any vercel preview/prod deployments for either project name
-    if (/^https:\/\/smartvet-(?:caller|ai-callcenter)[-\w]*\.vercel\.app$/.test(origin)) return cb(null, true);
-    cb(new Error(`CORS: origin ${origin} not allowed`));
+    // allow any localhost / 127.0.0.1 port
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return cb(null, true);
+    // allow all *.smartvet.africa domains
+    if (/^https:\/\/([a-zA-Z0-9-]+\.)*smartvet\.africa$/.test(origin)) return cb(null, true);
+    // allow all Vercel deployments (*.vercel.app)
+    if (/^https:\/\/[a-zA-Z0-9-_.]+\.vercel\.app$/.test(origin)) return cb(null, true);
+    cb(null, true); // Permissive CORS for deployed client apps
   },
   credentials: true,
 }));

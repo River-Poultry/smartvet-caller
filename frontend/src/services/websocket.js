@@ -8,9 +8,14 @@ export function connectWS(token) {
   if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) return;
   if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
 
-  const wsBase = import.meta.env.VITE_WS_URL
-    || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
-  ws = new WebSocket(`${wsBase}/ws?token=${token}`);
+  try {
+    const wsBase = import.meta.env.VITE_WS_URL
+      || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
+    ws = new WebSocket(`${wsBase}/ws?token=${token}`);
+  } catch (err) {
+    console.warn('[ws] Failed to initialize WebSocket:', err.message);
+    return;
+  }
 
   ws.onopen = () => {
     reconnectDelay = 2000; // reset backoff on successful connection

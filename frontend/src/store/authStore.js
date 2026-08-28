@@ -19,10 +19,15 @@ export const useAuthStore = create((set) => {
       localStorage.setItem('sv_token', data.token);
       localStorage.setItem('sv_refresh', data.refreshToken);
       localStorage.setItem('sv_agent', JSON.stringify(data.agent));
-      connectWS(data.token);
+      try {
+        connectWS(data.token);
+      } catch (wsErr) {
+        console.warn('WebSocket connection error (non-fatal):', wsErr);
+      }
       set({ agent: data.agent, token: data.token, loading: false });
     } catch (err) {
-      set({ error: err.response?.data?.error || 'Login failed', loading: false });
+      const message = err.response?.data?.error || err.message || 'Login failed';
+      set({ error: message, loading: false });
       throw err;
     }
   },
