@@ -1,0 +1,14 @@
+{
+  "name": "smartvet-caller",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SmartVet AI Call Centre Platform",
+  "type": "module",
+  "scripts": {
+    "postinstall": "cd backend && npm install",
+    "build": "cd backend && npm install",
+    "start": "cd backend && npm start",
+    "migrate": "cd backend && npm run migrate",
+    "dev": "cd backend && npm run dev"
+  }
+}
