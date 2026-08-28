@@ -24,6 +24,16 @@ api.interceptors.response.use(
   async (err) => {
     const original = err.config;
 
+    // Do NOT attempt token refresh or session clearing on auth routes (login, reset, forgot)
+    if (
+      original?.url?.includes('/auth/login') ||
+      original?.url?.includes('/auth/forgot-password') ||
+      original?.url?.includes('/auth/reset-password') ||
+      original?.url?.includes('/auth/refresh')
+    ) {
+      return Promise.reject(err);
+    }
+
     if (err.response?.status === 401 && !original._retry) {
       const refreshToken = localStorage.getItem('sv_refresh');
 

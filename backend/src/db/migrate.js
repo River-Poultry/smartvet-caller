@@ -23,6 +23,7 @@ const MIGRATION_FILES = [
   '014_restore_admin.sql',
   '015_feedback_columns.sql',
   '016_model_alerts.sql',
+  '017_seed_default_users.sql',
 ];
 
 export async function runMigrations() {
