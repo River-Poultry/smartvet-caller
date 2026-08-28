@@ -7,7 +7,9 @@
   "scripts": {
     "dev": "nodemon start.js",
     "start": "node start.js",
-    "migrate": "node src/migrations/run.js"
+    "migrate": "node src/migrations/run.js",
+    "reset-admin": "node scripts/reset-admin.js",
+    "seed": "node scripts/reset-admin.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
