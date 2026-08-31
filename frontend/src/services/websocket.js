@@ -9,8 +9,16 @@ export function connectWS(token) {
   if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
 
   try {
-    const wsBase = import.meta.env.VITE_WS_URL
-      || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
+    let wsBase = import.meta.env.VITE_WS_URL;
+    if (!wsBase) {
+      if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+        wsBase = 'wss://smartvet-callcenter-api.onrender.com';
+      } else {
+        wsBase = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}`;
+      }
+    } else {
+      wsBase = wsBase.replace('smartvet-caller.onrender.com', 'smartvet-callcenter-api.onrender.com');
+    }
     ws = new WebSocket(`${wsBase}/ws?token=${token}`);
   } catch (err) {
     console.warn('[ws] Failed to initialize WebSocket:', err.message);

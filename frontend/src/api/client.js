@@ -1,4 +1,15 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+function getApiBaseUrl() {
+  let raw = import.meta.env.VITE_API_BASE_URL;
+  if (!raw) {
+    if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+      return 'https://smartvet-callcenter-api.onrender.com/api';
+    }
+    return '/api';
+  }
+  return raw.replace('smartvet-caller.onrender.com', 'smartvet-callcenter-api.onrender.com');
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 let authToken = null;
 
