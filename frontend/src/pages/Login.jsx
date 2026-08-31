@@ -153,7 +153,11 @@ export default function Login() {
     e.preventDefault();
     try { await login(identifier, password); } catch { return; }
     const agent = JSON.parse(localStorage.getItem('sv_agent') || 'null');
-    if (agent) navigate(agent.isAdmin ? '/admin' : agent.isVetBoard ? '/vet-board' : '/agent');
+    if (agent) {
+      if (agent.isAdmin || agent.role === 'super_admin') navigate('/admin');
+      else if (agent.isVetBoard || agent.role === 'vet_board') navigate('/vet-board');
+      else navigate('/agent');
+    }
   }
 
   return (

@@ -17,6 +17,7 @@ export const useAuthStore = create((set) => {
     try {
       const { data } = await api.post('/auth/login', { identifier, password });
       localStorage.setItem('sv_token', data.token);
+      localStorage.setItem('smartvet_token', data.token);
       localStorage.setItem('sv_refresh', data.refreshToken);
       localStorage.setItem('sv_agent', JSON.stringify(data.agent));
       try {
@@ -26,7 +27,16 @@ export const useAuthStore = create((set) => {
       }
       set({ agent: data.agent, token: data.token, loading: false });
     } catch (err) {
-      const message = err.response?.data?.error || err.message || 'Login failed';
+      let message = err.response?.data?.error;
+      if (!message) {
+        if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+          message = 'Server response timed out. The backend service may be waking up — please try again in a few seconds.';
+        } else if (err.message === 'Network Error' || !err.response) {
+          message = 'Unable to connect to the server. Please check your internet connection.';
+        } else {
+          message = err.message || 'Login failed';
+        }
+      }
       set({ error: message, loading: false });
       throw err;
     }
@@ -38,6 +48,7 @@ export const useAuthStore = create((set) => {
       await api.post('/auth/logout', { refreshToken });
     } catch {}
     localStorage.removeItem('sv_token');
+    localStorage.removeItem('smartvet_token');
     localStorage.removeItem('sv_refresh');
     localStorage.removeItem('sv_agent');
     disconnectWS();
